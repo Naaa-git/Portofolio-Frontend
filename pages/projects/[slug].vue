@@ -1,0 +1,78 @@
+<script setup lang="ts">
+import { ArrowLeft, Github, ExternalLink } from 'lucide-vue-next'
+
+const route = useRoute()
+const projectStore = useProjectStore()
+const project = projectStore.getBySlug(route.params.slug as string)
+
+if (!project) {
+  throw createError({ statusCode: 404, statusMessage: 'Project not found' })
+}
+
+useHead({
+  title: `${project.title} — Pradana Aldi Musthofa`,
+  meta: [{ name: 'description', content: project.shortDescription }],
+})
+</script>
+
+<template>
+  <div class="section-padding">
+    <div class="container-max max-w-4xl">
+      <!-- Back button -->
+      <div class="mb-8">
+        <AppButton href="/projects" variant="ghost" size="sm">
+          <ArrowLeft :size="16" /> Back to Projects
+        </AppButton>
+      </div>
+
+      <!-- Header -->
+      <div class="mb-8">
+        <AppBadge variant="accent" class="mb-4">{{ project.category }}</AppBadge>
+        <h1 class="text-3xl md:text-4xl font-bold mb-4">{{ project.title }}</h1>
+        <p class="text-lg text-slate-600 dark:text-slate-400">{{ project.shortDescription }}</p>
+      </div>
+
+      <!-- Image -->
+      <div class="rounded-2xl overflow-hidden mb-8 bg-slate-100 dark:bg-slate-800 aspect-video">
+        <NuxtImg
+          :src="project.imageUrl"
+          :alt="project.title"
+          class="w-full h-full object-cover"
+        />
+      </div>
+
+      <!-- Links -->
+      <div class="flex gap-3 mb-10">
+        <AppButton :href="project.githubUrl" external variant="secondary">
+          <Github :size="16" /> GitHub
+        </AppButton>
+        <AppButton :href="project.demoUrl" external>
+          <ExternalLink :size="16" /> Live Demo
+        </AppButton>
+      </div>
+
+      <!-- Content grid -->
+      <div class="grid md:grid-cols-3 gap-8">
+        <div class="md:col-span-2">
+          <h2 class="text-xl font-semibold mb-4">About this project</h2>
+          <p class="text-slate-600 dark:text-slate-400 leading-relaxed whitespace-pre-line">
+            {{ project.longDescription }}
+          </p>
+        </div>
+
+        <div>
+          <h2 class="text-xl font-semibold mb-4">Tech Stack</h2>
+          <div class="flex flex-wrap gap-2">
+            <AppBadge
+              v-for="tech in project.techStack"
+              :key="tech"
+              variant="default"
+            >
+              {{ tech }}
+            </AppBadge>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
