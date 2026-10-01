@@ -10,7 +10,7 @@ const year = new Date().getFullYear()
   <footer class="border-t border-slate-200 dark:border-white/5 py-10">
     <div class="container-max px-6 flex flex-col md:flex-row items-center justify-between gap-4">
       <p class="text-sm text-slate-500 dark:text-slate-500">
-        © {{ year }} Pradana Aldi Musthofa. All rights reserved.
+        © {{ year }} {{ profileStore.profile.name }}. All rights reserved.
       </p>
       <div class="flex items-center gap-3">
         <a

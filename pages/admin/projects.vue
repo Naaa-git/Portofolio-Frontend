@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Plus, Pencil, Trash2 } from 'lucide-vue-next'
+import { toast } from 'vue-sonner'
 import type { Project } from '~/types'
 
 definePageMeta({ layout: 'admin', middleware: 'admin-auth' })
@@ -7,7 +8,7 @@ definePageMeta({ layout: 'admin', middleware: 'admin-auth' })
 useHead({ title: 'Projects — Admin' })
 
 const projectStore = useProjectStore()
-projectStore.loadProjects()
+await callOnce('projects-data', () => projectStore.loadProjects())
 
 const showModal = ref(false)
 const editingId = ref<number | null>(null)
@@ -38,17 +39,30 @@ function openEdit(row: Project) {
   showModal.value = true
 }
 
-function handleSubmit() {
-  if (editingId.value !== null) {
-    projectStore.updateProject(editingId.value, { ...form })
-  } else {
-    projectStore.addProject({ ...form })
+async function handleSubmit() {
+  try {
+    if (editingId.value !== null) {
+      await projectStore.updateProject(editingId.value, { ...form })
+      toast.success('Project berhasil diperbarui.')
+    } else {
+      await projectStore.addProject({ ...form })
+      toast.success('Project berhasil ditambahkan.')
+    }
+    showModal.value = false
+  } catch {
+    toast.error('Gagal menyimpan. Pastikan kamu masih login dan backend berjalan.')
   }
-  showModal.value = false
 }
 
-function confirmDelete() {
-  if (deleteTarget.value) projectStore.deleteProject(deleteTarget.value.id)
+async function confirmDelete() {
+  if (deleteTarget.value) {
+    try {
+      await projectStore.deleteProject(deleteTarget.value.id)
+      toast.success('Project berhasil dihapus.')
+    } catch {
+      toast.error('Gagal menghapus. Pastikan kamu masih login dan backend berjalan.')
+    }
+  }
   deleteTarget.value = null
 }
 

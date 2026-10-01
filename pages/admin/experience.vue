@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Plus, Pencil, Trash2, X } from 'lucide-vue-next'
+import { toast } from 'vue-sonner'
 import type { Experience } from '~/types'
 
 definePageMeta({ layout: 'admin', middleware: 'admin-auth' })
@@ -42,18 +43,31 @@ function removeDescriptionLine(index: number) {
   form.description.splice(index, 1)
 }
 
-function handleSubmit() {
+async function handleSubmit() {
   const payload = { ...form, description: form.description.filter(d => d.trim() !== '') }
-  if (editingId.value !== null) {
-    profileStore.updateExperience(editingId.value, payload)
-  } else {
-    profileStore.addExperience(payload)
+  try {
+    if (editingId.value !== null) {
+      await profileStore.updateExperience(editingId.value, payload)
+      toast.success('Experience berhasil diperbarui.')
+    } else {
+      await profileStore.addExperience(payload)
+      toast.success('Experience berhasil ditambahkan.')
+    }
+    showModal.value = false
+  } catch {
+    toast.error('Gagal menyimpan. Pastikan kamu masih login dan backend berjalan.')
   }
-  showModal.value = false
 }
 
-function confirmDelete() {
-  if (deleteTarget.value) profileStore.deleteExperience(deleteTarget.value.id)
+async function confirmDelete() {
+  if (deleteTarget.value) {
+    try {
+      await profileStore.deleteExperience(deleteTarget.value.id)
+      toast.success('Experience berhasil dihapus.')
+    } catch {
+      toast.error('Gagal menghapus. Pastikan kamu masih login dan backend berjalan.')
+    }
+  }
   deleteTarget.value = null
 }
 

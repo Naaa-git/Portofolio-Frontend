@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Plus, Pencil, Trash2 } from 'lucide-vue-next'
+import { toast } from 'vue-sonner'
 import type { Skill } from '~/types'
 
 definePageMeta({ layout: 'admin', middleware: 'admin-auth' })
@@ -8,13 +9,11 @@ useHead({ title: 'Skills — Admin' })
 
 const profileStore = useProfileStore()
 
-type SkillRow = Skill & { id: number }
-
 const showModal = ref(false)
 const editingId = ref<number | null>(null)
-const form = reactive<Skill>({ category: '', items: [], sortOrder: 0 })
+const form = reactive<Omit<Skill, 'id'>>({ category: '', items: [], sortOrder: 0 })
 
-const deleteTarget = ref<SkillRow | null>(null)
+const deleteTarget = ref<Skill | null>(null)
 
 function openCreate() {
   editingId.value = null
@@ -22,23 +21,36 @@ function openCreate() {
   showModal.value = true
 }
 
-function openEdit(row: SkillRow) {
+function openEdit(row: Skill) {
   editingId.value = row.id
   Object.assign(form, { category: row.category, items: [...row.items], sortOrder: row.sortOrder })
   showModal.value = true
 }
 
-function handleSubmit() {
-  if (editingId.value !== null) {
-    profileStore.updateSkill(editingId.value, { ...form })
-  } else {
-    profileStore.addSkill({ ...form })
+async function handleSubmit() {
+  try {
+    if (editingId.value !== null) {
+      await profileStore.updateSkill(editingId.value, { ...form })
+      toast.success('Skill berhasil diperbarui.')
+    } else {
+      await profileStore.addSkill({ ...form })
+      toast.success('Skill berhasil ditambahkan.')
+    }
+    showModal.value = false
+  } catch {
+    toast.error('Gagal menyimpan. Pastikan kamu masih login dan backend berjalan.')
   }
-  showModal.value = false
 }
 
-function confirmDelete() {
-  if (deleteTarget.value) profileStore.deleteSkill(deleteTarget.value.id)
+async function confirmDelete() {
+  if (deleteTarget.value) {
+    try {
+      await profileStore.deleteSkill(deleteTarget.value.id)
+      toast.success('Skill berhasil dihapus.')
+    } catch {
+      toast.error('Gagal menghapus. Pastikan kamu masih login dan backend berjalan.')
+    }
+  }
   deleteTarget.value = null
 }
 

@@ -5,6 +5,7 @@ import type { Project } from '~/types'
 export const useProjectStore = defineStore('projects', () => {
   const projects = ref<Project[]>([])
   const selectedCategory = ref<string>('All')
+  const isLoaded = ref(false)
 
   const featuredProjects = computed(() => projects.value.filter(p => p.featured))
   const categories = computed(() => ['All', ...new Set(projects.value.map(p => p.category))])
@@ -13,34 +14,32 @@ export const useProjectStore = defineStore('projects', () => {
     return projects.value.filter(p => p.category === selectedCategory.value)
   })
 
-  function loadProjects() {
-    if (projects.value.length === 0) {
-      projects.value = projectService.getAll()
-    }
+  async function loadProjects() {
+    if (isLoaded.value) return
+    projects.value = await projectService.getAll()
+    isLoaded.value = true
   }
 
   function setCategory(category: string) {
     selectedCategory.value = category
   }
 
-  function getBySlug(slug: string) {
-    return projects.value.find(p => p.slug === slug)
+  async function getBySlug(slug: string) {
+    return await projectService.getBySlug(slug)
   }
 
-  function nextId() {
-    return projects.value.length ? Math.max(...projects.value.map(p => p.id)) + 1 : 1
+  async function addProject(dto: Omit<Project, 'id'>) {
+    projects.value.push(await projectService.create(dto))
   }
 
-  function addProject(project: Omit<Project, 'id'>) {
-    projects.value.push({ id: nextId(), ...project })
-  }
-
-  function updateProject(id: number, project: Omit<Project, 'id'>) {
+  async function updateProject(id: number, dto: Omit<Project, 'id'>) {
+    await projectService.update(id, dto)
     const index = projects.value.findIndex(p => p.id === id)
-    if (index !== -1) projects.value[index] = { id, ...project }
+    if (index !== -1) projects.value[index] = { id, ...dto }
   }
 
-  function deleteProject(id: number) {
+  async function deleteProject(id: number) {
+    await projectService.remove(id)
     projects.value = projects.value.filter(p => p.id !== id)
   }
 

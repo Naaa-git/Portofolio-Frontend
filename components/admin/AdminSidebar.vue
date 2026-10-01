@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { LayoutDashboard, User, Sparkles, Link2, Briefcase, FolderKanban, LogOut, ExternalLink } from 'lucide-vue-next'
+import { toast } from 'vue-sonner'
 
 const route = useRoute()
 const router = useRouter()
@@ -16,6 +17,7 @@ const navLinks = [
 
 function handleLogout() {
   adminAuthStore.logout()
+  toast.success('Berhasil logout.')
   router.push('/admin/login')
 }
 </script>

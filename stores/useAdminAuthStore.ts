@@ -1,22 +1,27 @@
 import { defineStore } from 'pinia'
 
-// Mock auth for now — hardcoded credentials, no backend call yet.
-// login()/logout() keep the same shape they'll have once wired to
-// POST /api/auth/login, so swapping later only touches this file.
-const MOCK_USERNAME = 'admin'
-const MOCK_PASSWORD = 'admin123'
+interface LoginResponse {
+  accessToken: string
+  expiresAtUtc: string
+}
 
 export const useAdminAuthStore = defineStore('adminAuth', () => {
   const token = useCookie<string | null>('admin_token', { default: () => null })
 
   const isAuthenticated = computed(() => !!token.value)
 
-  function login(username: string, password: string): boolean {
-    if (username === MOCK_USERNAME && password === MOCK_PASSWORD) {
-      token.value = 'mock-token'
+  async function login(username: string, password: string): Promise<boolean> {
+    const config = useRuntimeConfig()
+    try {
+      const response = await $fetch<LoginResponse>(`${config.public.apiBase}/auth/login`, {
+        method: 'POST',
+        body: { username, password },
+      })
+      token.value = response.accessToken
       return true
+    } catch {
+      return false
     }
-    return false
   }
 
   function logout() {

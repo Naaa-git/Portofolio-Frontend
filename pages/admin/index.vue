@@ -3,11 +3,11 @@ import { User, Sparkles, Link2, Briefcase, FolderKanban } from 'lucide-vue-next'
 
 definePageMeta({ layout: 'admin', middleware: 'admin-auth' })
 
-useHead({ title: 'Admin Overview — Pradana Aldi Musthofa' })
-
 const profileStore = useProfileStore()
 const projectStore = useProjectStore()
-projectStore.loadProjects()
+await callOnce('projects-data', () => projectStore.loadProjects())
+
+useHead({ title: `Admin Overview — ${profileStore.profile.name}` })
 
 const cards = computed(() => [
   { label: 'Skills', count: profileStore.skills.length, icon: Sparkles, to: '/admin/skills' },

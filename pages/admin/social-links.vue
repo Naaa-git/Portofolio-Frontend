@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Plus, Pencil, Trash2 } from 'lucide-vue-next'
+import { toast } from 'vue-sonner'
 import type { SocialLink } from '~/types'
 
 definePageMeta({ layout: 'admin', middleware: 'admin-auth' })
@@ -8,12 +9,10 @@ useHead({ title: 'Social Links — Admin' })
 
 const profileStore = useProfileStore()
 
-type SocialLinkRow = SocialLink & { id: number }
-
 const showModal = ref(false)
 const editingId = ref<number | null>(null)
-const form = reactive<SocialLink>({ name: '', url: '', icon: '' })
-const deleteTarget = ref<SocialLinkRow | null>(null)
+const form = reactive<Omit<SocialLink, 'id'>>({ name: '', url: '', icon: '' })
+const deleteTarget = ref<SocialLink | null>(null)
 
 function openCreate() {
   editingId.value = null
@@ -21,23 +20,36 @@ function openCreate() {
   showModal.value = true
 }
 
-function openEdit(row: SocialLinkRow) {
+function openEdit(row: SocialLink) {
   editingId.value = row.id
   Object.assign(form, { name: row.name, url: row.url, icon: row.icon })
   showModal.value = true
 }
 
-function handleSubmit() {
-  if (editingId.value !== null) {
-    profileStore.updateSocialLink(editingId.value, { ...form })
-  } else {
-    profileStore.addSocialLink({ ...form })
+async function handleSubmit() {
+  try {
+    if (editingId.value !== null) {
+      await profileStore.updateSocialLink(editingId.value, { ...form })
+      toast.success('Social link berhasil diperbarui.')
+    } else {
+      await profileStore.addSocialLink({ ...form })
+      toast.success('Social link berhasil ditambahkan.')
+    }
+    showModal.value = false
+  } catch {
+    toast.error('Gagal menyimpan. Pastikan kamu masih login dan backend berjalan.')
   }
-  showModal.value = false
 }
 
-function confirmDelete() {
-  if (deleteTarget.value) profileStore.deleteSocialLink(deleteTarget.value.id)
+async function confirmDelete() {
+  if (deleteTarget.value) {
+    try {
+      await profileStore.deleteSocialLink(deleteTarget.value.id)
+      toast.success('Social link berhasil dihapus.')
+    } catch {
+      toast.error('Gagal menghapus. Pastikan kamu masih login dan backend berjalan.')
+    }
+  }
   deleteTarget.value = null
 }
 

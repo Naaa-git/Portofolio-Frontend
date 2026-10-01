@@ -25,13 +25,30 @@ export interface Experience {
 }
 
 export interface Skill {
+  id: number
   category: string
   items: string[]
   sortOrder: number
 }
 
 export interface SocialLink {
+  id: number
   name: string
   url: string
   icon: string
+}
+
+export interface Profile {
+  name: string
+  shortName: string
+  role: string
+  roleAlternatives: string[]
+  tagline: string
+  bio: string
+  bioExtended: string
+  availableForWork: boolean
+  email: string
+  location: string
+  avatarUrl: string
+  cvUrl: string
 }

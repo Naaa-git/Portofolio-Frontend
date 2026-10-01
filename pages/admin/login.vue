@@ -1,24 +1,28 @@
 <script setup lang="ts">
 import { Lock } from 'lucide-vue-next'
+import { toast } from 'vue-sonner'
 
 definePageMeta({ layout: false })
 
-useHead({ title: 'Admin Login — Pradana Aldi Musthofa' })
-
+const profileStore = useProfileStore()
 const adminAuthStore = useAdminAuthStore()
+
+useHead({ title: `Admin Login — ${profileStore.profile.name}` })
 const router = useRouter()
 
 const username = ref('')
 const password = ref('')
-const error = ref('')
+const isSubmitting = ref(false)
 
-function handleSubmit() {
-  error.value = ''
-  const success = adminAuthStore.login(username.value, password.value)
+async function handleSubmit() {
+  isSubmitting.value = true
+  const success = await adminAuthStore.login(username.value, password.value)
+  isSubmitting.value = false
   if (success) {
+    toast.success('Berhasil login.')
     router.push('/admin')
   } else {
-    error.value = 'Username atau password salah.'
+    toast.error('Username atau password salah.')
   }
 }
 </script>
@@ -55,13 +59,13 @@ function handleSubmit() {
           />
         </div>
 
-        <p v-if="error" class="text-sm text-red-500">{{ error }}</p>
-
-        <AppButton type="submit" class="w-full">Login</AppButton>
+        <AppButton type="submit" class="w-full" :disabled="isSubmitting">
+          {{ isSubmitting ? 'Masuk...' : 'Login' }}
+        </AppButton>
       </form>
 
       <p class="text-xs text-slate-500 dark:text-slate-500 mt-6 text-center">
-        Mock login — belum tersambung ke backend. Default: <code class="text-accent-500">admin</code> / <code class="text-accent-500">admin123</code>
+        Login ke backend asli. Kredensial default dari seed: <code class="text-accent-500">admin</code> / <code class="text-accent-500">ChangeMe123!</code>
       </p>
     </div>
   </div>

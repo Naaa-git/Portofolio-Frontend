@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import { Download, Briefcase, MapPin } from 'lucide-vue-next'
 
-useHead({
-  title: 'About — Pradana Aldi Musthofa',
-  meta: [{ name: 'description', content: 'Fullstack Developer with 2+ years of experience in .NET, Vue.js, and React.' }],
-})
-
 const profileStore = useProfileStore()
+
+useHead({
+  title: `About — ${profileStore.profile.name}`,
+  meta: [{ name: 'description', content: profileStore.profile.bio }],
+})
 </script>
 
 <template>

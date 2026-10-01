@@ -42,8 +42,10 @@ function handleFileChange(event: Event) {
       </button>
       <input ref="fileInput" type="file" accept="image/*" class="hidden" @change="handleFileChange" />
     </div>
-    <p class="text-xs text-slate-500">
-      Preview lokal saja — belum diupload ke storage (nunggu integrasi Azure Blob).
+    <p class="text-xs text-amber-500">
+      Preview lokal saja (belum diupload ke storage, nunggu integrasi Azure Blob) — kalau disimpan,
+      URL ini cuma valid di browser & sesi ini. Pakai input URL manual di atas kalau mau gambar
+      yang benar-benar persist.
     </p>
   </div>
 </template>

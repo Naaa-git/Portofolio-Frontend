@@ -1,17 +1,21 @@
 <script setup lang="ts">
 import { ArrowRight, MapPin, Sparkles } from 'lucide-vue-next'
 
-useHead({
-  title: 'Pradana Aldi Musthofa — Fullstack Developer',
-  meta: [
-    { name: 'description', content: 'Fullstack Developer specializing in .NET and Vue.js. Building clean, scalable web applications.' },
-  ],
-})
-
 const projectStore = useProjectStore()
 const profileStore = useProfileStore()
 
-projectStore.loadProjects()
+await callOnce('projects-data', () => projectStore.loadProjects())
+
+useHead({
+  title: `${profileStore.profile.name} — ${profileStore.profile.role}`,
+  meta: [
+    { name: 'description', content: profileStore.profile.tagline },
+  ],
+})
+
+const nameWords = computed(() => profileStore.profile.name.split(' '))
+const firstNames = computed(() => nameWords.value.slice(0, -1).join(' '))
+const lastName = computed(() => nameWords.value.at(-1))
 
 const roleIndex = ref(0)
 const displayRole = ref('')
@@ -86,8 +90,8 @@ onUnmounted(() => {
             :enter="{ opacity: 1, y: 0, transition: { delay: 200 } }"
             class="text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight mb-4"
           >
-            Pradana Aldi
-            <span class="text-accent-500">Musthofa</span>
+            {{ firstNames }}
+            <span class="text-accent-500">{{ lastName }}</span>
           </h1>
 
           <!-- Typing role -->

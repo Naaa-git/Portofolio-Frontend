@@ -2,16 +2,19 @@
 import { ArrowLeft, Github, ExternalLink } from 'lucide-vue-next'
 
 const route = useRoute()
+const profileStore = useProfileStore()
 const projectStore = useProjectStore()
-const project = projectStore.getBySlug(route.params.slug as string)
+const slug = route.params.slug as string
 
-if (!project) {
+const { data: project } = await useAsyncData(`project-${slug}`, () => projectStore.getBySlug(slug))
+
+if (!project.value) {
   throw createError({ statusCode: 404, statusMessage: 'Project not found' })
 }
 
 useHead({
-  title: `${project.title} — Pradana Aldi Musthofa`,
-  meta: [{ name: 'description', content: project.shortDescription }],
+  title: `${project.value.title} — ${profileStore.profile.name}`,
+  meta: [{ name: 'description', content: project.value.shortDescription }],
 })
 </script>
 

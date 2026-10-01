@@ -1,11 +1,12 @@
 <script setup lang="ts">
+const profileStore = useProfileStore()
+const projectStore = useProjectStore()
+await callOnce('projects-data', () => projectStore.loadProjects())
+
 useHead({
-  title: 'Projects — Pradana Aldi Musthofa',
+  title: `Projects — ${profileStore.profile.name}`,
   meta: [{ name: 'description', content: 'Explore my projects — fullstack web applications built with .NET, Vue.js, React, and more.' }],
 })
-
-const projectStore = useProjectStore()
-projectStore.loadProjects()
 </script>
 
 <template>

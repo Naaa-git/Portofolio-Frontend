@@ -1,12 +1,13 @@
 <script setup lang="ts">
 import { Mail, MapPin, Github, Linkedin, Copy, Check } from 'lucide-vue-next'
 
-useHead({
-  title: 'Contact — Pradana Aldi Musthofa',
-  meta: [{ name: 'description', content: 'Get in touch with Pradana Aldi Musthofa.' }],
-})
-
 const profileStore = useProfileStore()
+const iconMap = { github: Github, linkedin: Linkedin, mail: Mail }
+
+useHead({
+  title: `Contact — ${profileStore.profile.name}`,
+  meta: [{ name: 'description', content: `Get in touch with ${profileStore.profile.name}.` }],
+})
 const copied = ref(false)
 
 const form = reactive({
@@ -85,20 +86,14 @@ async function handleSubmit() {
             <h2 class="font-semibold mb-4">Social</h2>
             <div class="space-y-2">
               <a
-                href="https://github.com/danana"
+                v-for="link in profileStore.socialLinks.filter(l => l.icon !== 'mail')"
+                :key="link.id"
+                :href="link.url"
                 target="_blank"
                 rel="noopener noreferrer"
                 class="flex items-center gap-3 text-sm text-slate-600 dark:text-slate-400 hover:text-accent-500 transition-colors"
               >
-                <Github :size="16" /> github.com/danana
-              </a>
-              <a
-                href="https://linkedin.com/in/pradana-aldi"
-                target="_blank"
-                rel="noopener noreferrer"
-                class="flex items-center gap-3 text-sm text-slate-600 dark:text-slate-400 hover:text-accent-500 transition-colors"
-              >
-                <Linkedin :size="16" /> linkedin.com/in/pradana-aldi
+                <component :is="iconMap[link.icon as keyof typeof iconMap]" :size="16" /> {{ link.name }}
               </a>
             </div>
           </div>

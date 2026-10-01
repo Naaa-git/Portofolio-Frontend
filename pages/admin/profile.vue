@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { toast } from 'vue-sonner'
+
 definePageMeta({ layout: 'admin', middleware: 'admin-auth' })
 
 useHead({ title: 'Edit Profile — Admin' })
@@ -6,12 +8,14 @@ useHead({ title: 'Edit Profile — Admin' })
 const profileStore = useProfileStore()
 
 const form = reactive({ ...profileStore.profile })
-const saved = ref(false)
 
-function handleSubmit() {
-  profileStore.updateProfile({ ...form })
-  saved.value = true
-  setTimeout(() => { saved.value = false }, 2000)
+async function handleSubmit() {
+  try {
+    await profileStore.updateProfile({ ...form })
+    toast.success('Profile berhasil disimpan.')
+  } catch {
+    toast.error('Gagal menyimpan. Pastikan kamu masih login dan backend berjalan.')
+  }
 }
 
 const inputClass = 'w-full px-4 py-2.5 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm focus:outline-none focus:border-accent-500'
@@ -86,7 +90,6 @@ const labelClass = 'block text-sm font-medium mb-1.5'
 
       <div class="flex items-center gap-3 pt-2">
         <AppButton type="submit">Simpan Perubahan</AppButton>
-        <span v-if="saved" class="text-sm text-emerald-500">Tersimpan!</span>
       </div>
     </form>
   </div>
