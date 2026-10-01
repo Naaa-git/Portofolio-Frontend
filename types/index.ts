@@ -27,6 +27,7 @@ export interface Experience {
 export interface Skill {
   category: string
   items: string[]
+  sortOrder: number
 }
 
 export interface SocialLink {

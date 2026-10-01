@@ -24,22 +24,27 @@ export const skills: Skill[] = [
   {
     category: 'Languages',
     items: ['C#', 'TypeScript', 'JavaScript', 'SQL'],
+    sortOrder: 1,
   },
   {
     category: 'Frontend',
     items: ['Vue.js', 'React', 'Nuxt 3', 'Next.js', 'HTML5', 'CSS3', 'Tailwind CSS'],
+    sortOrder: 2,
   },
   {
     category: 'Backend',
     items: ['.NET', 'ASP.NET Core', 'RESTful API', 'JWT', 'Background Jobs'],
+    sortOrder: 3,
   },
   {
     category: 'Database & Cache',
     items: ['PostgreSQL', 'SQL Server', 'Redis', 'OpenSearch'],
+    sortOrder: 4,
   },
   {
     category: 'Tools & DevOps',
     items: ['Git', 'GitLab', 'Postman', 'Docker', 'Linux'],
+    sortOrder: 5,
   },
 ]
 

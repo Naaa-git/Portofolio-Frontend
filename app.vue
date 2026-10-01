@@ -3,11 +3,7 @@ const profileStore = useProfileStore()
 </script>
 
 <template>
-  <div>
-    <AppNavbar />
-    <main class="min-h-screen pt-16">
-      <NuxtPage />
-    </main>
-    <AppFooter />
-  </div>
+  <NuxtLayout>
+    <NuxtPage />
+  </NuxtLayout>
 </template>
