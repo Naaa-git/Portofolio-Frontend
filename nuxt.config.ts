@@ -12,6 +12,11 @@ export default defineNuxtConfig({
   runtimeConfig: {
     public: {
       apiBase: process.env.NUXT_PUBLIC_API_BASE || 'http://localhost:5229/api',
+      // Client IDs are not secrets — they're meant to be embedded in frontend
+      // JS (anyone can see them in page source). The actual secret-equivalent
+      // checks (allowlist, signature verification) all happen server-side.
+      googleClientId: process.env.NUXT_PUBLIC_GOOGLE_CLIENT_ID || '270030833451-185ec46ih3j2dctgesvhd9njpvdg11as.apps.googleusercontent.com',
+      microsoftClientId: process.env.NUXT_PUBLIC_MICROSOFT_CLIENT_ID || '1403150d-3b9d-4657-8b97-947726385205',
     },
   },
   colorMode: {

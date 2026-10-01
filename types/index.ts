@@ -38,6 +38,15 @@ export interface SocialLink {
   icon: string
 }
 
+export type LoginChallenge = 'None' | 'Totp' | 'EmailOtp'
+
+export interface LoginResponseDto {
+  challenge: LoginChallenge
+  accessToken: string | null
+  expiresAtUtc: string | null
+  pendingToken: string | null
+}
+
 export interface Profile {
   name: string
   shortName: string
