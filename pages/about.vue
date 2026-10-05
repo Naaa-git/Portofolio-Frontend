@@ -113,6 +113,13 @@ useHead({
           </div>
         </div>
       </div>
+
+      <!-- Quiet pointer to the non-professional side -->
+      <div class="text-center mt-16">
+        <NuxtLink to="/outside-code" class="text-sm text-slate-400 hover:text-accent-500 transition-colors">
+          psst — kalau penasaran sama sisi gw di luar kerjaan, ada di sini →
+        </NuxtLink>
+      </div>
     </div>
   </div>
 </template>

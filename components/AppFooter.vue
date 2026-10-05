@@ -11,6 +11,8 @@ const year = new Date().getFullYear()
     <div class="container-max px-6 flex flex-col md:flex-row items-center justify-between gap-4">
       <p class="text-sm text-slate-500 dark:text-slate-500">
         © {{ year }} {{ profileStore.profile.name }}. All rights reserved.
+        <span class="mx-1.5">·</span>
+        <NuxtLink to="/outside-code" class="hover:text-accent-500 transition-colors">Outside Code</NuxtLink>
       </p>
       <div class="flex items-center gap-3">
         <a

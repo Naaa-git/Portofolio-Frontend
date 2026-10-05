@@ -47,6 +47,62 @@ export interface LoginResponseDto {
   pendingToken: string | null
 }
 
+export interface OutsideCodeIntro {
+  paragraph1: string
+  paragraph2: string
+}
+
+export interface AwayFromKeyboardItem {
+  id: number
+  title: string
+  note: string
+  imageUrl: string | null
+  sortOrder: number
+}
+
+export interface MovieTake {
+  id: number
+  title: string
+  take: string
+  imageUrl: string | null
+  sortOrder: number
+}
+
+export interface MusicArtist {
+  id: number
+  name: string
+  url: string
+  imageUrl: string | null
+  sortOrder: number
+}
+
+export interface PodcastChannel {
+  id: number
+  name: string
+  url: string
+  imageUrl: string | null
+  sortOrder: number
+}
+
+export interface OutsideCodeBook {
+  id: number
+  title: string
+  author: string
+  note: string | null
+  imageUrl: string | null
+  isCurrentlyReading: boolean
+  sortOrder: number
+}
+
+export interface LifeInspiration {
+  id: number
+  name: string
+  aspect: string
+  note: string
+  imageUrl: string | null
+  sortOrder: number
+}
+
 export interface Profile {
   name: string
   shortName: string
