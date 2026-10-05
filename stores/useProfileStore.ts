@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { profileService } from '~/services/profileService'
-import type { Profile, Skill, SocialLink, Experience } from '~/types'
+import type { Profile, ProfileAdmin, Skill, SkillAdmin, SocialLink, Experience, ExperienceAdmin } from '~/types'
 
 const emptyProfile: Profile = {
   name: '',
@@ -17,7 +17,23 @@ const emptyProfile: Profile = {
   cvUrl: '',
 }
 
+const emptyAdminProfile: ProfileAdmin = {
+  name: '',
+  shortName: '',
+  role: { id: '', en: '' },
+  roleAlternatives: [],
+  tagline: { id: '', en: '' },
+  bio: { id: '', en: '' },
+  bioExtended: { id: '', en: '' },
+  availableForWork: false,
+  email: '',
+  location: '',
+  avatarUrl: '',
+  cvUrl: '',
+}
+
 export const useProfileStore = defineStore('profile', () => {
+  // --- Public (resolved for the current locale) ---
   const profile = ref<Profile>({ ...emptyProfile })
   const skills = ref<Skill[]>([])
   const socialLinks = ref<SocialLink[]>([])
@@ -36,28 +52,45 @@ export const useProfileStore = defineStore('profile', () => {
     experiences.value = experiencesData
   }
 
-  // --- Profile (singleton) ---
-  async function updateProfile(dto: Profile) {
-    profile.value = await profileService.updateProfile(dto)
+  // --- Admin (raw bilingual dictionaries, for editing) ---
+  const adminProfile = ref<ProfileAdmin>({ ...emptyAdminProfile })
+  const adminSkills = ref<SkillAdmin[]>([])
+  const adminExperiences = ref<ExperienceAdmin[]>([])
+  const isAdminLoaded = ref(false)
+
+  async function loadAdmin() {
+    if (isAdminLoaded.value) return
+    const [profileData, skillsData, experiencesData] = await Promise.all([
+      profileService.getProfileAdmin(),
+      profileService.getSkillsAdmin(),
+      profileService.getExperiencesAdmin(),
+    ])
+    adminProfile.value = profileData
+    adminSkills.value = skillsData
+    adminExperiences.value = experiencesData
+    isAdminLoaded.value = true
   }
 
-  // --- Skills ---
-  async function addSkill(dto: Omit<Skill, 'id'>) {
-    skills.value.push(await profileService.createSkill(dto))
+  async function updateProfile(dto: ProfileAdmin) {
+    adminProfile.value = await profileService.updateProfile(dto)
   }
 
-  async function updateSkill(id: number, dto: Omit<Skill, 'id'>) {
+  async function addSkill(dto: Omit<SkillAdmin, 'id'>) {
+    adminSkills.value.push(await profileService.createSkill(dto))
+  }
+
+  async function updateSkill(id: number, dto: Omit<SkillAdmin, 'id'>) {
     await profileService.updateSkill(id, dto)
-    const index = skills.value.findIndex(s => s.id === id)
-    if (index !== -1) skills.value[index] = { id, ...dto }
+    const index = adminSkills.value.findIndex(s => s.id === id)
+    if (index !== -1) adminSkills.value[index] = { id, ...dto }
   }
 
   async function deleteSkill(id: number) {
     await profileService.deleteSkill(id)
-    skills.value = skills.value.filter(s => s.id !== id)
+    adminSkills.value = adminSkills.value.filter(s => s.id !== id)
   }
 
-  // --- Social Links ---
+  // --- Social Links (not translatable) ---
   async function addSocialLink(dto: Omit<SocialLink, 'id'>) {
     socialLinks.value.push(await profileService.createSocialLink(dto))
   }
@@ -74,19 +107,19 @@ export const useProfileStore = defineStore('profile', () => {
   }
 
   // --- Experiences ---
-  async function addExperience(dto: Omit<Experience, 'id'>) {
-    experiences.value.push(await profileService.createExperience(dto))
+  async function addExperience(dto: Omit<ExperienceAdmin, 'id'>) {
+    adminExperiences.value.push(await profileService.createExperience(dto))
   }
 
-  async function updateExperience(id: number, dto: Omit<Experience, 'id'>) {
+  async function updateExperience(id: number, dto: Omit<ExperienceAdmin, 'id'>) {
     await profileService.updateExperience(id, dto)
-    const index = experiences.value.findIndex(e => e.id === id)
-    if (index !== -1) experiences.value[index] = { id, ...dto }
+    const index = adminExperiences.value.findIndex(e => e.id === id)
+    if (index !== -1) adminExperiences.value[index] = { id, ...dto }
   }
 
   async function deleteExperience(id: number) {
     await profileService.deleteExperience(id)
-    experiences.value = experiences.value.filter(e => e.id !== id)
+    adminExperiences.value = adminExperiences.value.filter(e => e.id !== id)
   }
 
   return {
@@ -95,6 +128,10 @@ export const useProfileStore = defineStore('profile', () => {
     socialLinks,
     experiences,
     loadAll,
+    adminProfile,
+    adminSkills,
+    adminExperiences,
+    loadAdmin,
     updateProfile,
     addSkill,
     updateSkill,

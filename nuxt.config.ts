@@ -7,7 +7,22 @@ export default defineNuxtConfig({
     '@pinia/nuxt',
     '@vueuse/motion/nuxt',
     '@nuxt/image',
+    '@nuxtjs/i18n',
   ],
+  i18n: {
+    langDir: 'locales',
+    locales: [
+      { code: 'id', language: 'id-ID', name: 'Indonesia', file: 'id.json' },
+      { code: 'en', language: 'en-US', name: 'English', file: 'en.json' },
+    ],
+    defaultLocale: 'id',
+    strategy: 'prefix_except_default',
+    // No browser-language auto-redirect: there's an explicit manual switcher
+    // in the navbar, and auto-detection on '/' was fighting it — landing back
+    // on '/' after switching to 'id' would get redirected straight back to
+    // '/en' based on a stale detection cookie.
+    detectBrowserLanguage: false,
+  },
   css: ['~/assets/css/main.css'],
   runtimeConfig: {
     public: {

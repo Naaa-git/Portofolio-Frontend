@@ -1,29 +1,30 @@
 <script setup lang="ts">
 import { Plus, Pencil, Trash2 } from 'lucide-vue-next'
 import { toast } from 'vue-sonner'
-import type { Skill } from '~/types'
+import type { SkillAdmin } from '~/types'
 
 definePageMeta({ layout: 'admin', middleware: 'admin-auth' })
 
 useHead({ title: 'Skills — Admin' })
 
 const profileStore = useProfileStore()
+await callOnce('profile-admin-data', () => profileStore.loadAdmin())
 
 const showModal = ref(false)
 const editingId = ref<number | null>(null)
-const form = reactive<Omit<Skill, 'id'>>({ category: '', items: [], sortOrder: 0 })
+const form = reactive<Omit<SkillAdmin, 'id'>>({ category: { id: '', en: '' }, items: [], sortOrder: 0 })
 
-const deleteTarget = ref<Skill | null>(null)
+const deleteTarget = ref<SkillAdmin | null>(null)
 
 function openCreate() {
   editingId.value = null
-  Object.assign(form, { category: '', items: [], sortOrder: profileStore.skills.length + 1 })
+  Object.assign(form, { category: { id: '', en: '' }, items: [], sortOrder: profileStore.adminSkills.length + 1 })
   showModal.value = true
 }
 
-function openEdit(row: Skill) {
+function openEdit(row: SkillAdmin) {
   editingId.value = row.id
-  Object.assign(form, { category: row.category, items: [...row.items], sortOrder: row.sortOrder })
+  Object.assign(form, { category: { ...row.category }, items: [...row.items], sortOrder: row.sortOrder })
   showModal.value = true
 }
 
@@ -68,9 +69,9 @@ const labelClass = 'block text-sm font-medium mb-1.5'
       <AppButton size="sm" @click="openCreate"><Plus :size="16" /> Tambah</AppButton>
     </div>
 
-    <AdminTable :headers="['Category', 'Items', 'Order', '']" :is-empty="profileStore.skills.length === 0">
-      <tr v-for="row in profileStore.skills" :key="row.id">
-        <td class="px-4 py-3 font-medium">{{ row.category }}</td>
+    <AdminTable :headers="['Category (ID / EN)', 'Items', 'Order', '']" :is-empty="profileStore.adminSkills.length === 0">
+      <tr v-for="row in profileStore.adminSkills" :key="row.id">
+        <td class="px-4 py-3 font-medium">{{ row.category.id }} <span class="text-slate-400">/ {{ row.category.en }}</span></td>
         <td class="px-4 py-3">
           <div class="flex flex-wrap gap-1">
             <AppBadge v-for="item in row.items" :key="item">{{ item }}</AppBadge>
@@ -92,10 +93,7 @@ const labelClass = 'block text-sm font-medium mb-1.5'
 
     <AdminModal :show="showModal" :title="editingId !== null ? 'Edit Skill' : 'Tambah Skill'" @close="showModal = false">
       <form class="space-y-4" @submit.prevent="handleSubmit">
-        <div>
-          <label :class="labelClass">Category</label>
-          <input v-model="form.category" type="text" required :class="inputClass" />
-        </div>
+        <AdminTranslatableInput v-model="form.category" label="Category" required />
         <div>
           <label :class="labelClass">Items</label>
           <AdminTagInput v-model="form.items" placeholder="Tambah item..." />
@@ -113,7 +111,7 @@ const labelClass = 'block text-sm font-medium mb-1.5'
 
     <AdminConfirmDialog
       :show="!!deleteTarget"
-      :message="`Hapus skill '${deleteTarget?.category}'?`"
+      :message="`Hapus skill '${deleteTarget?.category.id}'?`"
       @confirm="confirmDelete"
       @cancel="deleteTarget = null"
     />

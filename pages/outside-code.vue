@@ -17,7 +17,7 @@ const memorableBooks = computed(() => outsideCodeStore.books.filter(b => !b.isCu
       <!-- Intro -->
       <div class="mb-16">
         <div class="text-accent-500 text-sm font-medium mb-2">Outside Code</div>
-        <h1 class="text-3xl md:text-4xl font-bold mb-4">A Little About Me</h1>
+        <h1 class="text-3xl md:text-4xl font-bold mb-4">{{ $t('outsideCode.heading') }}</h1>
         <p class="text-slate-600 dark:text-slate-400 leading-relaxed mb-4">
           {{ outsideCodeStore.intro.paragraph1 }}
         </p>
@@ -28,7 +28,7 @@ const memorableBooks = computed(() => outsideCodeStore.books.filter(b => !b.isCu
 
       <!-- Away From the Keyboard -->
       <div v-if="outsideCodeStore.awayFromKeyboard.length" class="mb-16">
-        <h2 class="text-2xl font-bold mb-6">Away From the Keyboard</h2>
+        <h2 class="text-2xl font-bold mb-6">{{ $t('outsideCode.awayFromKeyboard') }}</h2>
         <div class="divide-y divide-slate-200 dark:divide-slate-800">
           <div v-for="(item, i) in outsideCodeStore.awayFromKeyboard" :key="item.id" class="flex items-start gap-4 py-5 first:pt-0">
             <span class="text-2xl font-bold text-slate-200 dark:text-slate-700 tabular-nums w-10 shrink-0">{{ String(i + 1).padStart(2, '0') }}</span>
@@ -43,7 +43,7 @@ const memorableBooks = computed(() => outsideCodeStore.books.filter(b => !b.isCu
 
       <!-- Movies & Shows -->
       <div v-if="outsideCodeStore.movies.length" class="mb-16">
-        <h2 class="text-2xl font-bold mb-6">Movies & Shows</h2>
+        <h2 class="text-2xl font-bold mb-6">{{ $t('outsideCode.moviesAndShows') }}</h2>
         <div class="grid sm:grid-cols-2 gap-4">
           <div v-for="take in outsideCodeStore.movies" :key="take.id" class="glass rounded-xl overflow-hidden">
             <img v-if="take.imageUrl" :src="take.imageUrl" :alt="take.title" class="w-full h-40 object-cover" />
@@ -57,9 +57,9 @@ const memorableBooks = computed(() => outsideCodeStore.books.filter(b => !b.isCu
 
       <!-- Music & Podcasts -->
       <div v-if="outsideCodeStore.musicArtists.length || outsideCodeStore.podcasts.length" class="mb-16">
-        <h2 class="text-2xl font-bold mb-4">Music & Podcasts</h2>
+        <h2 class="text-2xl font-bold mb-4">{{ $t('outsideCode.musicAndPodcasts') }}</h2>
         <div v-if="outsideCodeStore.musicArtists.length" class="mb-6">
-          <p class="text-sm text-slate-500 dark:text-slate-500 mb-3">Artist yang lagi sering diputer</p>
+          <p class="text-sm text-slate-500 dark:text-slate-500 mb-3">{{ $t('outsideCode.artistsSubheading') }}</p>
           <div class="flex flex-wrap gap-4">
             <a
               v-for="artist in outsideCodeStore.musicArtists"
@@ -77,7 +77,7 @@ const memorableBooks = computed(() => outsideCodeStore.books.filter(b => !b.isCu
           </div>
         </div>
         <div v-if="outsideCodeStore.podcasts.length">
-          <p class="text-sm text-slate-500 dark:text-slate-500 mb-3">Podcast / channel favorit</p>
+          <p class="text-sm text-slate-500 dark:text-slate-500 mb-3">{{ $t('outsideCode.podcastsSubheading') }}</p>
           <div class="flex flex-wrap gap-4">
             <a
               v-for="podcast in outsideCodeStore.podcasts"
@@ -99,13 +99,13 @@ const memorableBooks = computed(() => outsideCodeStore.books.filter(b => !b.isCu
 
       <!-- Bookshelf -->
       <div v-if="outsideCodeStore.books.length" class="mb-16">
-        <h2 class="text-2xl font-bold mb-2">Books That Stuck With Me</h2>
-        <p class="text-sm text-slate-500 dark:text-slate-500 mb-6">Bukan daftar lengkap — cuma yang beneran nempel.</p>
+        <h2 class="text-2xl font-bold mb-2">{{ $t('outsideCode.booksHeading') }}</h2>
+        <p class="text-sm text-slate-500 dark:text-slate-500 mb-6">{{ $t('outsideCode.booksSubheading') }}</p>
 
         <div v-if="currentlyReading" class="flex items-center gap-3 mb-6 p-3 rounded-xl glass-subtle">
           <img v-if="currentlyReading.imageUrl" :src="currentlyReading.imageUrl" :alt="currentlyReading.title" class="w-10 h-14 object-cover rounded shrink-0" />
           <p class="text-sm text-slate-700 dark:text-slate-300">
-            <span class="font-medium">Currently reading:</span> {{ currentlyReading.title }} — {{ currentlyReading.author }}
+            <span class="font-medium">{{ $t('outsideCode.currentlyReading') }}:</span> {{ currentlyReading.title }} — {{ currentlyReading.author }}
           </p>
         </div>
 
@@ -126,8 +126,8 @@ const memorableBooks = computed(() => outsideCodeStore.books.filter(b => !b.isCu
 
       <!-- Life Inspired By -->
       <div v-if="outsideCodeStore.lifeInspirations.length">
-        <h2 class="text-2xl font-bold mb-2">Life Inspired By</h2>
-        <p class="text-sm text-slate-500 dark:text-slate-500 mb-6">Bukan role model dalam arti harfiah — cuma orang yang satu-dua hal dari mereka nempel ke cara gw mikir.</p>
+        <h2 class="text-2xl font-bold mb-2">{{ $t('outsideCode.lifeInspiredBy') }}</h2>
+        <p class="text-sm text-slate-500 dark:text-slate-500 mb-6">{{ $t('outsideCode.lifeInspiredBySubheading') }}</p>
 
         <div class="space-y-6">
           <div

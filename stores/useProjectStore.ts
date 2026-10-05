@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { projectService } from '~/services/projectService'
-import type { Project } from '~/types'
+import type { Project, ProjectAdmin } from '~/types'
 
 export const useProjectStore = defineStore('projects', () => {
   const projects = ref<Project[]>([])
@@ -28,19 +28,29 @@ export const useProjectStore = defineStore('projects', () => {
     return await projectService.getBySlug(slug)
   }
 
-  async function addProject(dto: Omit<Project, 'id'>) {
-    projects.value.push(await projectService.create(dto))
+  // --- Admin (raw bilingual dictionaries) ---
+  const adminProjects = ref<ProjectAdmin[]>([])
+  const isAdminLoaded = ref(false)
+
+  async function loadAdminProjects() {
+    if (isAdminLoaded.value) return
+    adminProjects.value = await projectService.getAllAdmin()
+    isAdminLoaded.value = true
   }
 
-  async function updateProject(id: number, dto: Omit<Project, 'id'>) {
+  async function addProject(dto: Omit<ProjectAdmin, 'id'>) {
+    adminProjects.value.push(await projectService.create(dto))
+  }
+
+  async function updateProject(id: number, dto: Omit<ProjectAdmin, 'id'>) {
     await projectService.update(id, dto)
-    const index = projects.value.findIndex(p => p.id === id)
-    if (index !== -1) projects.value[index] = { id, ...dto }
+    const index = adminProjects.value.findIndex(p => p.id === id)
+    if (index !== -1) adminProjects.value[index] = { id, ...dto }
   }
 
   async function deleteProject(id: number) {
     await projectService.remove(id)
-    projects.value = projects.value.filter(p => p.id !== id)
+    adminProjects.value = adminProjects.value.filter(p => p.id !== id)
   }
 
   return {
@@ -52,6 +62,8 @@ export const useProjectStore = defineStore('projects', () => {
     loadProjects,
     setCategory,
     getBySlug,
+    adminProjects,
+    loadAdminProjects,
     addProject,
     updateProject,
     deleteProject,

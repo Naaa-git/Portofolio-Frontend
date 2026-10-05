@@ -1,20 +1,20 @@
 <script setup lang="ts">
 import { Plus, Pencil, Trash2 } from 'lucide-vue-next'
 import { toast } from 'vue-sonner'
-import type { AwayFromKeyboardItem, MovieTake, MusicArtist, PodcastChannel, OutsideCodeBook, LifeInspiration } from '~/types'
+import type { AwayFromKeyboardItemAdmin, MovieTakeAdmin, MusicArtist, PodcastChannel, OutsideCodeBookAdmin, LifeInspirationAdmin } from '~/types'
 
 definePageMeta({ layout: 'admin', middleware: 'admin-auth' })
 
 useHead({ title: 'Outside Code — Admin' })
 
 const store = useOutsideCodeStore()
-await callOnce('outside-code-data', () => store.loadAll())
+await callOnce('outside-code-admin-data', () => store.loadAllAdmin())
 
 const inputClass = 'w-full px-4 py-2.5 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm focus:outline-none focus:border-accent-500'
 const labelClass = 'block text-sm font-medium mb-1.5'
 
 // --- Intro ---
-const introForm = reactive({ ...store.intro })
+const introForm = reactive({ ...store.adminIntro })
 const isSavingIntro = ref(false)
 async function saveIntro() {
   isSavingIntro.value = true
@@ -31,17 +31,17 @@ async function saveIntro() {
 // --- Away From the Keyboard ---
 const awayModal = ref(false)
 const awayEditingId = ref<number | null>(null)
-const awayForm = reactive<Omit<AwayFromKeyboardItem, 'id'>>({ title: '', note: '', imageUrl: '', sortOrder: 0 })
-const awayDeleteTarget = ref<AwayFromKeyboardItem | null>(null)
+const awayForm = reactive<Omit<AwayFromKeyboardItemAdmin, 'id'>>({ title: { id: '', en: '' }, note: { id: '', en: '' }, imageUrl: '', sortOrder: 0 })
+const awayDeleteTarget = ref<AwayFromKeyboardItemAdmin | null>(null)
 
 function openAwayCreate() {
   awayEditingId.value = null
-  Object.assign(awayForm, { title: '', note: '', imageUrl: '', sortOrder: store.awayFromKeyboard.length + 1 })
+  Object.assign(awayForm, { title: { id: '', en: '' }, note: { id: '', en: '' }, imageUrl: '', sortOrder: store.adminAwayFromKeyboard.length + 1 })
   awayModal.value = true
 }
-function openAwayEdit(row: AwayFromKeyboardItem) {
+function openAwayEdit(row: AwayFromKeyboardItemAdmin) {
   awayEditingId.value = row.id
-  Object.assign(awayForm, { title: row.title, note: row.note, imageUrl: row.imageUrl ?? '', sortOrder: row.sortOrder })
+  Object.assign(awayForm, { title: { ...row.title }, note: { ...row.note }, imageUrl: row.imageUrl ?? '', sortOrder: row.sortOrder })
   awayModal.value = true
 }
 async function submitAway() {
@@ -73,17 +73,17 @@ async function confirmAwayDelete() {
 // --- Movies & Shows ---
 const movieModal = ref(false)
 const movieEditingId = ref<number | null>(null)
-const movieForm = reactive<Omit<MovieTake, 'id'>>({ title: '', take: '', imageUrl: '', sortOrder: 0 })
-const movieDeleteTarget = ref<MovieTake | null>(null)
+const movieForm = reactive<Omit<MovieTakeAdmin, 'id'>>({ title: '', take: { id: '', en: '' }, imageUrl: '', sortOrder: 0 })
+const movieDeleteTarget = ref<MovieTakeAdmin | null>(null)
 
 function openMovieCreate() {
   movieEditingId.value = null
-  Object.assign(movieForm, { title: '', take: '', imageUrl: '', sortOrder: store.movies.length + 1 })
+  Object.assign(movieForm, { title: '', take: { id: '', en: '' }, imageUrl: '', sortOrder: store.adminMovies.length + 1 })
   movieModal.value = true
 }
-function openMovieEdit(row: MovieTake) {
+function openMovieEdit(row: MovieTakeAdmin) {
   movieEditingId.value = row.id
-  Object.assign(movieForm, { title: row.title, take: row.take, imageUrl: row.imageUrl ?? '', sortOrder: row.sortOrder })
+  Object.assign(movieForm, { title: row.title, take: { ...row.take }, imageUrl: row.imageUrl ?? '', sortOrder: row.sortOrder })
   movieModal.value = true
 }
 async function submitMovie() {
@@ -112,7 +112,7 @@ async function confirmMovieDelete() {
   movieDeleteTarget.value = null
 }
 
-// --- Music Artists ---
+// --- Music Artists (not translatable) ---
 const artistModal = ref(false)
 const artistEditingId = ref<number | null>(null)
 const artistForm = reactive<Omit<MusicArtist, 'id'>>({ name: '', url: '', imageUrl: '', sortOrder: 0 })
@@ -154,7 +154,7 @@ async function confirmArtistDelete() {
   artistDeleteTarget.value = null
 }
 
-// --- Podcasts ---
+// --- Podcasts (not translatable) ---
 const podcastModal = ref(false)
 const podcastEditingId = ref<number | null>(null)
 const podcastForm = reactive<Omit<PodcastChannel, 'id'>>({ name: '', url: '', imageUrl: '', sortOrder: 0 })
@@ -199,20 +199,20 @@ async function confirmPodcastDelete() {
 // --- Books ---
 const bookModal = ref(false)
 const bookEditingId = ref<number | null>(null)
-const bookForm = reactive<Omit<OutsideCodeBook, 'id'>>({
-  title: '', author: '', note: '', imageUrl: '', isCurrentlyReading: false, sortOrder: 0,
+const bookForm = reactive<Omit<OutsideCodeBookAdmin, 'id'>>({
+  title: '', author: '', note: { id: '', en: '' }, imageUrl: '', isCurrentlyReading: false, sortOrder: 0,
 })
-const bookDeleteTarget = ref<OutsideCodeBook | null>(null)
+const bookDeleteTarget = ref<OutsideCodeBookAdmin | null>(null)
 
 function openBookCreate() {
   bookEditingId.value = null
-  Object.assign(bookForm, { title: '', author: '', note: '', imageUrl: '', isCurrentlyReading: false, sortOrder: store.books.length + 1 })
+  Object.assign(bookForm, { title: '', author: '', note: { id: '', en: '' }, imageUrl: '', isCurrentlyReading: false, sortOrder: store.adminBooks.length + 1 })
   bookModal.value = true
 }
-function openBookEdit(row: OutsideCodeBook) {
+function openBookEdit(row: OutsideCodeBookAdmin) {
   bookEditingId.value = row.id
   Object.assign(bookForm, {
-    title: row.title, author: row.author, note: row.note ?? '', imageUrl: row.imageUrl ?? '',
+    title: row.title, author: row.author, note: { ...row.note }, imageUrl: row.imageUrl ?? '',
     isCurrentlyReading: row.isCurrentlyReading, sortOrder: row.sortOrder,
   })
   bookModal.value = true
@@ -246,17 +246,17 @@ async function confirmBookDelete() {
 // --- Life Inspirations ---
 const lifeModal = ref(false)
 const lifeEditingId = ref<number | null>(null)
-const lifeForm = reactive<Omit<LifeInspiration, 'id'>>({ name: '', aspect: '', note: '', imageUrl: '', sortOrder: 0 })
-const lifeDeleteTarget = ref<LifeInspiration | null>(null)
+const lifeForm = reactive<Omit<LifeInspirationAdmin, 'id'>>({ name: '', aspect: { id: '', en: '' }, note: { id: '', en: '' }, imageUrl: '', sortOrder: 0 })
+const lifeDeleteTarget = ref<LifeInspirationAdmin | null>(null)
 
 function openLifeCreate() {
   lifeEditingId.value = null
-  Object.assign(lifeForm, { name: '', aspect: '', note: '', imageUrl: '', sortOrder: store.lifeInspirations.length + 1 })
+  Object.assign(lifeForm, { name: '', aspect: { id: '', en: '' }, note: { id: '', en: '' }, imageUrl: '', sortOrder: store.adminLifeInspirations.length + 1 })
   lifeModal.value = true
 }
-function openLifeEdit(row: LifeInspiration) {
+function openLifeEdit(row: LifeInspirationAdmin) {
   lifeEditingId.value = row.id
-  Object.assign(lifeForm, { name: row.name, aspect: row.aspect, note: row.note, imageUrl: row.imageUrl ?? '', sortOrder: row.sortOrder })
+  Object.assign(lifeForm, { name: row.name, aspect: { ...row.aspect }, note: { ...row.note }, imageUrl: row.imageUrl ?? '', sortOrder: row.sortOrder })
   lifeModal.value = true
 }
 async function submitLife() {
@@ -289,20 +289,14 @@ async function confirmLifeDelete() {
 <template>
   <div>
     <h1 class="text-2xl font-bold mb-1">Outside Code</h1>
-    <p class="text-sm text-slate-500 dark:text-slate-400 mb-8">Atur isi halaman personal "Outside Code".</p>
+    <p class="text-sm text-slate-500 dark:text-slate-400 mb-8">Atur isi halaman personal "Outside Code". Field dengan dua kolom bisa diisi dalam Bahasa Indonesia dan English.</p>
 
     <!-- Intro -->
     <section class="mb-10">
       <h2 class="text-lg font-semibold mb-4">Intro</h2>
       <form class="space-y-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5" @submit.prevent="saveIntro">
-        <div>
-          <label :class="labelClass">Paragraf 1</label>
-          <textarea v-model="introForm.paragraph1" rows="2" required :class="inputClass" />
-        </div>
-        <div>
-          <label :class="labelClass">Paragraf 2</label>
-          <textarea v-model="introForm.paragraph2" rows="3" required :class="inputClass" />
-        </div>
+        <AdminTranslatableInput v-model="introForm.paragraph1" label="Paragraf 1" type="textarea" :rows="2" required />
+        <AdminTranslatableInput v-model="introForm.paragraph2" label="Paragraf 2" type="textarea" :rows="3" required />
         <AppButton type="submit" size="sm" :disabled="isSavingIntro">{{ isSavingIntro ? 'Menyimpan...' : 'Simpan' }}</AppButton>
       </form>
     </section>
@@ -313,10 +307,10 @@ async function confirmLifeDelete() {
         <h2 class="text-lg font-semibold">Away From the Keyboard</h2>
         <AppButton size="sm" @click="openAwayCreate"><Plus :size="16" /> Tambah</AppButton>
       </div>
-      <AdminTable :headers="['Title', 'Note', '']" :is-empty="store.awayFromKeyboard.length === 0">
-        <tr v-for="row in store.awayFromKeyboard" :key="row.id">
-          <td class="px-4 py-3 font-medium">{{ row.title }}</td>
-          <td class="px-4 py-3 text-slate-500 truncate max-w-sm">{{ row.note }}</td>
+      <AdminTable :headers="['Title', 'Note', '']" :is-empty="store.adminAwayFromKeyboard.length === 0">
+        <tr v-for="row in store.adminAwayFromKeyboard" :key="row.id">
+          <td class="px-4 py-3 font-medium">{{ row.title.id }} <span class="text-slate-400">/ {{ row.title.en }}</span></td>
+          <td class="px-4 py-3 text-slate-500 truncate max-w-sm">{{ row.note.id }}</td>
           <td class="px-4 py-3">
             <div class="flex justify-end gap-1">
               <button class="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500" @click="openAwayEdit(row)"><Pencil :size="15" /></button>
@@ -328,8 +322,8 @@ async function confirmLifeDelete() {
 
       <AdminModal :show="awayModal" :title="awayEditingId !== null ? 'Edit Item' : 'Tambah Item'" @close="awayModal = false">
         <form class="space-y-4" @submit.prevent="submitAway">
-          <div><label :class="labelClass">Title</label><input v-model="awayForm.title" type="text" required :class="inputClass" /></div>
-          <div><label :class="labelClass">Note</label><textarea v-model="awayForm.note" rows="3" required :class="inputClass" /></div>
+          <AdminTranslatableInput v-model="awayForm.title" label="Title" required />
+          <AdminTranslatableInput v-model="awayForm.note" label="Note" type="textarea" required />
           <div><label :class="labelClass">Image URL</label><input v-model="awayForm.imageUrl" type="text" :class="inputClass" /></div>
           <div><label :class="labelClass">Sort Order</label><input v-model.number="awayForm.sortOrder" type="number" :class="inputClass" /></div>
           <div class="flex justify-end gap-2 pt-2">
@@ -338,7 +332,7 @@ async function confirmLifeDelete() {
           </div>
         </form>
       </AdminModal>
-      <AdminConfirmDialog :show="!!awayDeleteTarget" :message="`Hapus '${awayDeleteTarget?.title}'?`" @confirm="confirmAwayDelete" @cancel="awayDeleteTarget = null" />
+      <AdminConfirmDialog :show="!!awayDeleteTarget" :message="`Hapus '${awayDeleteTarget?.title.id}'?`" @confirm="confirmAwayDelete" @cancel="awayDeleteTarget = null" />
     </section>
 
     <!-- Movies & Shows -->
@@ -347,10 +341,10 @@ async function confirmLifeDelete() {
         <h2 class="text-lg font-semibold">Movies & Shows</h2>
         <AppButton size="sm" @click="openMovieCreate"><Plus :size="16" /> Tambah</AppButton>
       </div>
-      <AdminTable :headers="['Title', 'Take', '']" :is-empty="store.movies.length === 0">
-        <tr v-for="row in store.movies" :key="row.id">
+      <AdminTable :headers="['Title', 'Take', '']" :is-empty="store.adminMovies.length === 0">
+        <tr v-for="row in store.adminMovies" :key="row.id">
           <td class="px-4 py-3 font-medium">{{ row.title }}</td>
-          <td class="px-4 py-3 text-slate-500 truncate max-w-sm">{{ row.take }}</td>
+          <td class="px-4 py-3 text-slate-500 truncate max-w-sm">{{ row.take.id }}</td>
           <td class="px-4 py-3">
             <div class="flex justify-end gap-1">
               <button class="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500" @click="openMovieEdit(row)"><Pencil :size="15" /></button>
@@ -363,7 +357,7 @@ async function confirmLifeDelete() {
       <AdminModal :show="movieModal" :title="movieEditingId !== null ? 'Edit Movie' : 'Tambah Movie'" @close="movieModal = false">
         <form class="space-y-4" @submit.prevent="submitMovie">
           <div><label :class="labelClass">Title</label><input v-model="movieForm.title" type="text" required :class="inputClass" /></div>
-          <div><label :class="labelClass">Take / Opini</label><textarea v-model="movieForm.take" rows="3" required :class="inputClass" /></div>
+          <AdminTranslatableInput v-model="movieForm.take" label="Take / Opini" type="textarea" required />
           <div><label :class="labelClass">Image URL</label><input v-model="movieForm.imageUrl" type="text" :class="inputClass" /></div>
           <div><label :class="labelClass">Sort Order</label><input v-model.number="movieForm.sortOrder" type="number" :class="inputClass" /></div>
           <div class="flex justify-end gap-2 pt-2">
@@ -449,8 +443,8 @@ async function confirmLifeDelete() {
         <h2 class="text-lg font-semibold">Books</h2>
         <AppButton size="sm" @click="openBookCreate"><Plus :size="16" /> Tambah</AppButton>
       </div>
-      <AdminTable :headers="['Title', 'Author', 'Reading', '']" :is-empty="store.books.length === 0">
-        <tr v-for="row in store.books" :key="row.id">
+      <AdminTable :headers="['Title', 'Author', 'Reading', '']" :is-empty="store.adminBooks.length === 0">
+        <tr v-for="row in store.adminBooks" :key="row.id">
           <td class="px-4 py-3 font-medium">{{ row.title }}</td>
           <td class="px-4 py-3 text-slate-500">{{ row.author }}</td>
           <td class="px-4 py-3"><AppBadge v-if="row.isCurrentlyReading" variant="success">Currently Reading</AppBadge></td>
@@ -467,7 +461,7 @@ async function confirmLifeDelete() {
         <form class="space-y-4" @submit.prevent="submitBook">
           <div><label :class="labelClass">Title</label><input v-model="bookForm.title" type="text" required :class="inputClass" /></div>
           <div><label :class="labelClass">Author</label><input v-model="bookForm.author" type="text" required :class="inputClass" /></div>
-          <div><label :class="labelClass">Note (opsional)</label><textarea v-model="bookForm.note" rows="2" :class="inputClass" /></div>
+          <AdminTranslatableInput v-model="bookForm.note" label="Note (opsional)" type="textarea" :rows="2" />
           <div><label :class="labelClass">Image URL</label><input v-model="bookForm.imageUrl" type="text" :class="inputClass" /></div>
           <AdminToggleSwitch v-model="bookForm.isCurrentlyReading" label="Currently reading" />
           <div><label :class="labelClass">Sort Order</label><input v-model.number="bookForm.sortOrder" type="number" :class="inputClass" /></div>
@@ -486,11 +480,11 @@ async function confirmLifeDelete() {
         <h2 class="text-lg font-semibold">Life Inspired By</h2>
         <AppButton size="sm" @click="openLifeCreate"><Plus :size="16" /> Tambah</AppButton>
       </div>
-      <AdminTable :headers="['Name', 'Aspect', 'Note', '']" :is-empty="store.lifeInspirations.length === 0">
-        <tr v-for="row in store.lifeInspirations" :key="row.id">
+      <AdminTable :headers="['Name', 'Aspect', 'Note', '']" :is-empty="store.adminLifeInspirations.length === 0">
+        <tr v-for="row in store.adminLifeInspirations" :key="row.id">
           <td class="px-4 py-3 font-medium">{{ row.name }}</td>
-          <td class="px-4 py-3 text-slate-500">{{ row.aspect }}</td>
-          <td class="px-4 py-3 text-slate-500 truncate max-w-sm">{{ row.note }}</td>
+          <td class="px-4 py-3 text-slate-500">{{ row.aspect.id }} <span class="text-slate-400">/ {{ row.aspect.en }}</span></td>
+          <td class="px-4 py-3 text-slate-500 truncate max-w-sm">{{ row.note.id }}</td>
           <td class="px-4 py-3">
             <div class="flex justify-end gap-1">
               <button class="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500" @click="openLifeEdit(row)"><Pencil :size="15" /></button>
@@ -503,8 +497,8 @@ async function confirmLifeDelete() {
       <AdminModal :show="lifeModal" :title="lifeEditingId !== null ? 'Edit' : 'Tambah'" @close="lifeModal = false">
         <form class="space-y-4" @submit.prevent="submitLife">
           <div><label :class="labelClass">Name</label><input v-model="lifeForm.name" type="text" required :class="inputClass" /></div>
-          <div><label :class="labelClass">Aspect</label><input v-model="lifeForm.aspect" type="text" required :class="inputClass" placeholder="e.g. Ambisi & Tekad" /></div>
-          <div><label :class="labelClass">Note</label><textarea v-model="lifeForm.note" rows="3" required :class="inputClass" /></div>
+          <AdminTranslatableInput v-model="lifeForm.aspect" label="Aspect" required />
+          <AdminTranslatableInput v-model="lifeForm.note" label="Note" type="textarea" required />
           <div><label :class="labelClass">Image URL</label><input v-model="lifeForm.imageUrl" type="text" :class="inputClass" /></div>
           <div><label :class="labelClass">Sort Order</label><input v-model.number="lifeForm.sortOrder" type="number" :class="inputClass" /></div>
           <div class="flex justify-end gap-2 pt-2">

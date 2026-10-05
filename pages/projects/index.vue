@@ -14,9 +14,9 @@ useHead({
     <div class="container-max">
       <!-- Header -->
       <div class="mb-12">
-        <h1 class="text-4xl md:text-5xl font-bold mb-4">Projects</h1>
+        <h1 class="text-4xl md:text-5xl font-bold mb-4">{{ $t('projects.heading') }}</h1>
         <p class="text-slate-600 dark:text-slate-400 text-lg max-w-xl">
-          A collection of web applications I've built — from enterprise systems to developer tools.
+          {{ $t('projects.subheading') }}
         </p>
       </div>
 
@@ -50,7 +50,7 @@ useHead({
       </div>
 
       <div v-if="projectStore.filteredProjects.length === 0" class="text-center py-20 text-slate-500">
-        No projects found in this category.
+        {{ $t('projects.noProjects') }}
       </div>
     </div>
   </div>

@@ -1,24 +1,24 @@
 <script setup lang="ts">
-import { Plus, Pencil, Trash2, X } from 'lucide-vue-next'
+import { Plus, Pencil, Trash2 } from 'lucide-vue-next'
 import { toast } from 'vue-sonner'
-import type { Experience } from '~/types'
+import type { ExperienceAdmin } from '~/types'
 
 definePageMeta({ layout: 'admin', middleware: 'admin-auth' })
 
 useHead({ title: 'Experience — Admin' })
 
 const profileStore = useProfileStore()
+await callOnce('profile-admin-data', () => profileStore.loadAdmin())
 
 const showModal = ref(false)
 const editingId = ref<number | null>(null)
-const form = reactive<Omit<Experience, 'id'>>({
-  company: '', role: '', type: '', period: '', location: '', current: false, description: [], skills: [],
-})
-const deleteTarget = ref<Experience | null>(null)
 
-function emptyForm(): Omit<Experience, 'id'> {
-  return { company: '', role: '', type: '', period: '', location: '', current: false, description: [], skills: [] }
+function emptyForm(): Omit<ExperienceAdmin, 'id'> {
+  return { company: '', role: { id: '', en: '' }, type: '', period: '', location: '', current: false, description: [], skills: [] }
 }
+
+const form = reactive<Omit<ExperienceAdmin, 'id'>>(emptyForm())
+const deleteTarget = ref<ExperienceAdmin | null>(null)
 
 function openCreate() {
   editingId.value = null
@@ -26,25 +26,17 @@ function openCreate() {
   showModal.value = true
 }
 
-function openEdit(row: Experience) {
+function openEdit(row: ExperienceAdmin) {
   editingId.value = row.id
   Object.assign(form, {
-    company: row.company, role: row.role, type: row.type, period: row.period, location: row.location,
-    current: row.current, description: [...row.description], skills: [...row.skills],
+    company: row.company, role: { ...row.role }, type: row.type, period: row.period, location: row.location,
+    current: row.current, description: row.description.map(d => ({ ...d })), skills: [...row.skills],
   })
   showModal.value = true
 }
 
-function addDescriptionLine() {
-  form.description.push('')
-}
-
-function removeDescriptionLine(index: number) {
-  form.description.splice(index, 1)
-}
-
 async function handleSubmit() {
-  const payload = { ...form, description: form.description.filter(d => d.trim() !== '') }
+  const payload = { ...form, description: form.description.filter(d => d.id.trim() !== '' || d.en.trim() !== '') }
   try {
     if (editingId.value !== null) {
       await profileStore.updateExperience(editingId.value, payload)
@@ -85,10 +77,10 @@ const labelClass = 'block text-sm font-medium mb-1.5'
       <AppButton size="sm" @click="openCreate"><Plus :size="16" /> Tambah</AppButton>
     </div>
 
-    <AdminTable :headers="['Company', 'Role', 'Period', 'Status', '']" :is-empty="profileStore.experiences.length === 0">
-      <tr v-for="row in profileStore.experiences" :key="row.id">
+    <AdminTable :headers="['Company', 'Role (ID / EN)', 'Period', 'Status', '']" :is-empty="profileStore.adminExperiences.length === 0">
+      <tr v-for="row in profileStore.adminExperiences" :key="row.id">
         <td class="px-4 py-3 font-medium">{{ row.company }}</td>
-        <td class="px-4 py-3 text-slate-500">{{ row.role }}</td>
+        <td class="px-4 py-3 text-slate-500">{{ row.role.id }} <span class="text-slate-400">/ {{ row.role.en }}</span></td>
         <td class="px-4 py-3 text-slate-500">{{ row.period }}</td>
         <td class="px-4 py-3"><AppBadge v-if="row.current" variant="success">Current</AppBadge></td>
         <td class="px-4 py-3">
@@ -112,42 +104,29 @@ const labelClass = 'block text-sm font-medium mb-1.5'
             <input v-model="form.company" type="text" required :class="inputClass" />
           </div>
           <div>
-            <label :class="labelClass">Role</label>
-            <input v-model="form.role" type="text" required :class="inputClass" />
-          </div>
-        </div>
-
-        <div class="grid sm:grid-cols-2 gap-4">
-          <div>
             <label :class="labelClass">Type</label>
             <input v-model="form.type" type="text" placeholder="Full-time, Part-time..." required :class="inputClass" />
           </div>
+        </div>
+
+        <AdminTranslatableInput v-model="form.role" label="Role" required />
+
+        <div class="grid sm:grid-cols-2 gap-4">
           <div>
             <label :class="labelClass">Period</label>
             <input v-model="form.period" type="text" placeholder="Jul 2024 – Present" required :class="inputClass" />
           </div>
-        </div>
-
-        <div>
-          <label :class="labelClass">Location</label>
-          <input v-model="form.location" type="text" required :class="inputClass" />
+          <div>
+            <label :class="labelClass">Location</label>
+            <input v-model="form.location" type="text" required :class="inputClass" />
+          </div>
         </div>
 
         <AdminToggleSwitch v-model="form.current" label="Posisi saat ini (current)" />
 
         <div>
           <label :class="labelClass">Description</label>
-          <div class="space-y-2">
-            <div v-for="(_, index) in form.description" :key="index" class="flex gap-2">
-              <input v-model="form.description[index]" type="text" :class="inputClass" />
-              <button type="button" class="shrink-0 p-2 text-slate-400 hover:text-red-500" @click="removeDescriptionLine(index)">
-                <X :size="16" />
-              </button>
-            </div>
-          </div>
-          <button type="button" class="mt-2 text-sm text-accent-500 hover:underline" @click="addDescriptionLine">
-            + Tambah poin
-          </button>
+          <AdminTranslatableListInput v-model="form.description" />
         </div>
 
         <div>

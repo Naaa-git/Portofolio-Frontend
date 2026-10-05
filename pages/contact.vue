@@ -38,9 +38,9 @@ async function handleSubmit() {
     <div class="container-max max-w-4xl">
       <!-- Header -->
       <div class="text-center mb-16">
-        <h1 class="text-4xl md:text-5xl font-bold mb-4">Get in Touch</h1>
+        <h1 class="text-4xl md:text-5xl font-bold mb-4">{{ $t('contact.heading') }}</h1>
         <p class="text-slate-600 dark:text-slate-400 text-lg max-w-lg mx-auto">
-          Have a project in mind or just want to say hello? My inbox is always open.
+          {{ $t('contact.subheading') }}
         </p>
       </div>
 
@@ -48,7 +48,7 @@ async function handleSubmit() {
         <!-- Contact info -->
         <div class="md:col-span-2 space-y-4">
           <div class="glass rounded-2xl p-6">
-            <h2 class="font-semibold mb-4">Contact Info</h2>
+            <h2 class="font-semibold mb-4">{{ $t('contact.contactInfo') }}</h2>
 
             <div class="space-y-4">
               <div class="flex items-center gap-3">
@@ -56,7 +56,7 @@ async function handleSubmit() {
                   <MapPin :size="16" />
                 </div>
                 <div>
-                  <p class="text-xs text-slate-500 dark:text-slate-500">Location</p>
+                  <p class="text-xs text-slate-500 dark:text-slate-500">{{ $t('contact.location') }}</p>
                   <p class="text-sm font-medium">{{ profileStore.profile.location }}</p>
                 </div>
               </div>
@@ -66,7 +66,7 @@ async function handleSubmit() {
                   <Mail :size="16" />
                 </div>
                 <div class="flex-1 min-w-0">
-                  <p class="text-xs text-slate-500 dark:text-slate-500">Email</p>
+                  <p class="text-xs text-slate-500 dark:text-slate-500">{{ $t('contact.email') }}</p>
                   <div class="flex items-center gap-2">
                     <p class="text-sm font-medium truncate">{{ profileStore.profile.email }}</p>
                     <button
@@ -83,7 +83,7 @@ async function handleSubmit() {
           </div>
 
           <div class="glass rounded-2xl p-6">
-            <h2 class="font-semibold mb-4">Social</h2>
+            <h2 class="font-semibold mb-4">{{ $t('contact.social') }}</h2>
             <div class="space-y-2">
               <a
                 v-for="link in profileStore.socialLinks.filter(l => l.icon !== 'mail')"
@@ -106,46 +106,46 @@ async function handleSubmit() {
               <div class="w-16 h-16 rounded-full bg-emerald-500/10 flex items-center justify-center mx-auto mb-4">
                 <Check :size="28" class="text-emerald-500" />
               </div>
-              <h3 class="text-xl font-semibold mb-2">Message sent!</h3>
-              <p class="text-slate-500 dark:text-slate-400">Thank you for reaching out. I'll get back to you soon.</p>
+              <h3 class="text-xl font-semibold mb-2">{{ $t('contact.messageSentTitle') }}</h3>
+              <p class="text-slate-500 dark:text-slate-400">{{ $t('contact.messageSentBody') }}</p>
             </div>
 
             <form v-else class="space-y-5" @submit.prevent="handleSubmit">
               <div>
-                <label class="block text-sm font-medium mb-1.5">Name</label>
+                <label class="block text-sm font-medium mb-1.5">{{ $t('contact.formName') }}</label>
                 <input
                   v-model="form.name"
                   type="text"
                   required
-                  placeholder="Your name"
+                  :placeholder="$t('contact.namePlaceholder')"
                   class="w-full px-4 py-2.5 rounded-xl bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-sm focus:outline-none focus:border-accent-500 focus:ring-1 focus:ring-accent-500 transition-all"
                 />
               </div>
 
               <div>
-                <label class="block text-sm font-medium mb-1.5">Email</label>
+                <label class="block text-sm font-medium mb-1.5">{{ $t('contact.formEmail') }}</label>
                 <input
                   v-model="form.email"
                   type="email"
                   required
-                  placeholder="your@email.com"
+                  :placeholder="$t('contact.emailPlaceholder')"
                   class="w-full px-4 py-2.5 rounded-xl bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-sm focus:outline-none focus:border-accent-500 focus:ring-1 focus:ring-accent-500 transition-all"
                 />
               </div>
 
               <div>
-                <label class="block text-sm font-medium mb-1.5">Message</label>
+                <label class="block text-sm font-medium mb-1.5">{{ $t('contact.formMessage') }}</label>
                 <textarea
                   v-model="form.message"
                   required
                   rows="5"
-                  placeholder="Tell me about your project..."
+                  :placeholder="$t('contact.messagePlaceholder')"
                   class="w-full px-4 py-2.5 rounded-xl bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-sm focus:outline-none focus:border-accent-500 focus:ring-1 focus:ring-accent-500 transition-all resize-none"
                 />
               </div>
 
               <AppButton type="submit" size="lg" class="w-full" :disabled="isSubmitting">
-                {{ isSubmitting ? 'Sending...' : 'Send Message' }}
+                {{ isSubmitting ? $t('contact.sending') : $t('contact.sendMessage') }}
               </AppButton>
             </form>
           </div>

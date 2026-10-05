@@ -1,13 +1,15 @@
 import { apiFetch } from './apiClient'
-import type { Profile, Skill, SocialLink, Experience } from '~/types'
+import type { Profile, ProfileAdmin, Skill, SkillAdmin, SocialLink, Experience, ExperienceAdmin } from '~/types'
 
 export const profileService = {
   getProfile: () => apiFetch<Profile>('/profile'),
-  updateProfile: (dto: Profile) => apiFetch<Profile>('/profile', { method: 'PUT', body: dto }),
+  getProfileAdmin: () => apiFetch<ProfileAdmin>('/profile/admin'),
+  updateProfile: (dto: ProfileAdmin) => apiFetch<ProfileAdmin>('/profile', { method: 'PUT', body: dto }),
 
   getSkills: () => apiFetch<Skill[]>('/skills'),
-  createSkill: (dto: Omit<Skill, 'id'>) => apiFetch<Skill>('/skills', { method: 'POST', body: dto }),
-  updateSkill: (id: number, dto: Omit<Skill, 'id'>) => apiFetch<void>(`/skills/${id}`, { method: 'PUT', body: dto }),
+  getSkillsAdmin: () => apiFetch<SkillAdmin[]>('/skills/admin'),
+  createSkill: (dto: Omit<SkillAdmin, 'id'>) => apiFetch<SkillAdmin>('/skills', { method: 'POST', body: dto }),
+  updateSkill: (id: number, dto: Omit<SkillAdmin, 'id'>) => apiFetch<void>(`/skills/${id}`, { method: 'PUT', body: dto }),
   deleteSkill: (id: number) => apiFetch<void>(`/skills/${id}`, { method: 'DELETE' }),
 
   getSocialLinks: () => apiFetch<SocialLink[]>('/social-links'),
@@ -16,7 +18,8 @@ export const profileService = {
   deleteSocialLink: (id: number) => apiFetch<void>(`/social-links/${id}`, { method: 'DELETE' }),
 
   getExperiences: () => apiFetch<Experience[]>('/experiences'),
-  createExperience: (dto: Omit<Experience, 'id'>) => apiFetch<Experience>('/experiences', { method: 'POST', body: dto }),
-  updateExperience: (id: number, dto: Omit<Experience, 'id'>) => apiFetch<void>(`/experiences/${id}`, { method: 'PUT', body: dto }),
+  getExperiencesAdmin: () => apiFetch<ExperienceAdmin[]>('/experiences/admin'),
+  createExperience: (dto: Omit<ExperienceAdmin, 'id'>) => apiFetch<ExperienceAdmin>('/experiences', { method: 'POST', body: dto }),
+  updateExperience: (id: number, dto: Omit<ExperienceAdmin, 'id'>) => apiFetch<void>(`/experiences/${id}`, { method: 'PUT', body: dto }),
   deleteExperience: (id: number) => apiFetch<void>(`/experiences/${id}`, { method: 'DELETE' }),
 }

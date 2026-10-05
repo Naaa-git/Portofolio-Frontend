@@ -4,6 +4,7 @@ import { ArrowLeft, Github, ExternalLink } from 'lucide-vue-next'
 const route = useRoute()
 const profileStore = useProfileStore()
 const projectStore = useProjectStore()
+const localePath = useLocalePath()
 const slug = route.params.slug as string
 
 const { data: project } = await useAsyncData(`project-${slug}`, () => projectStore.getBySlug(slug))
@@ -23,8 +24,8 @@ useHead({
     <div class="container-max max-w-4xl">
       <!-- Back button -->
       <div class="mb-8">
-        <AppButton href="/projects" variant="ghost" size="sm">
-          <ArrowLeft :size="16" /> Back to Projects
+        <AppButton :href="localePath('/projects')" variant="ghost" size="sm">
+          <ArrowLeft :size="16" /> {{ $t('projects.backToProjects') }}
         </AppButton>
       </div>
 
@@ -47,24 +48,24 @@ useHead({
       <!-- Links -->
       <div class="flex gap-3 mb-10">
         <AppButton :href="project.githubUrl" external variant="secondary">
-          <Github :size="16" /> GitHub
+          <Github :size="16" /> {{ $t('projects.github') }}
         </AppButton>
         <AppButton :href="project.demoUrl" external>
-          <ExternalLink :size="16" /> Live Demo
+          <ExternalLink :size="16" /> {{ $t('projects.liveDemo') }}
         </AppButton>
       </div>
 
       <!-- Content grid -->
       <div class="grid md:grid-cols-3 gap-8">
         <div class="md:col-span-2">
-          <h2 class="text-xl font-semibold mb-4">About this project</h2>
+          <h2 class="text-xl font-semibold mb-4">{{ $t('projects.aboutProject') }}</h2>
           <p class="text-slate-600 dark:text-slate-400 leading-relaxed whitespace-pre-line">
             {{ project.longDescription }}
           </p>
         </div>
 
         <div>
-          <h2 class="text-xl font-semibold mb-4">Tech Stack</h2>
+          <h2 class="text-xl font-semibold mb-4">{{ $t('projects.techStack') }}</h2>
           <div class="flex flex-wrap gap-2">
             <AppBadge
               v-for="tech in project.techStack"

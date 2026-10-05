@@ -1,0 +1,78 @@
+{
+  "nav": {
+    "home": "Home",
+    "projects": "Projects",
+    "about": "About",
+    "contact": "Contact"
+  },
+  "footer": {
+    "rights": "Hak cipta dilindungi.",
+    "outsideCode": "Outside Code"
+  },
+  "home": {
+    "available": "Terbuka untuk peluang baru",
+    "viewProjects": "Lihat Projects",
+    "getInTouch": "Hubungi Saya",
+    "featuredWork": "Karya Pilihan",
+    "selectedProjects": "Project Terpilih",
+    "viewAll": "Lihat semua",
+    "aboutMe": "Tentang Saya",
+    "aboutHeading": "Mengubah ide jadi kode\nyang production-ready",
+    "learnMore": "Selengkapnya",
+    "ctaHeading": "Yuk, kita kerja sama",
+    "ctaText": "Punya project atau sedang cari developer untuk bergabung dengan tim? Saya senang mendengarnya."
+  },
+  "about": {
+    "availableForWork": "Terbuka untuk kerja",
+    "downloadCv": "Download CV",
+    "heading": "Tentang Saya",
+    "skillsHeading": "Skill & Teknologi",
+    "experienceHeading": "Pengalaman",
+    "current": "Saat ini",
+    "outsideCodeHint": "psst — kalau penasaran sama sisi gw di luar kerjaan, ada di sini →"
+  },
+  "contact": {
+    "heading": "Mari Terhubung",
+    "subheading": "Punya project yang ingin didiskusikan atau cuma mau say hello? Inbox saya selalu terbuka.",
+    "contactInfo": "Info Kontak",
+    "location": "Lokasi",
+    "email": "Email",
+    "social": "Sosial Media",
+    "formName": "Nama",
+    "formEmail": "Email",
+    "formMessage": "Pesan",
+    "namePlaceholder": "Nama Anda",
+    "emailPlaceholder": "email{'@'}anda.com",
+    "messagePlaceholder": "Ceritakan soal project Anda...",
+    "sending": "Mengirim...",
+    "sendMessage": "Kirim Pesan",
+    "messageSentTitle": "Pesan terkirim!",
+    "messageSentBody": "Terima kasih sudah menghubungi. Saya akan segera membalas."
+  },
+  "projects": {
+    "heading": "Projects",
+    "subheading": "Kumpulan aplikasi web yang pernah saya bangun — dari sistem enterprise sampai developer tools.",
+    "noProjects": "Tidak ada project di kategori ini.",
+    "backToProjects": "Kembali ke Projects",
+    "github": "GitHub",
+    "liveDemo": "Live Demo",
+    "aboutProject": "Tentang project ini",
+    "techStack": "Tech Stack"
+  },
+  "outsideCode": {
+    "heading": "A Little About Me",
+    "awayFromKeyboard": "Away From the Keyboard",
+    "moviesAndShows": "Movies & Shows",
+    "musicAndPodcasts": "Music & Podcasts",
+    "artistsSubheading": "Artist yang lagi sering diputer",
+    "podcastsSubheading": "Podcast / channel favorit",
+    "booksHeading": "Books That Stuck With Me",
+    "booksSubheading": "Bukan daftar lengkap — cuma yang beneran nempel.",
+    "currentlyReading": "Currently reading",
+    "lifeInspiredBy": "Life Inspired By",
+    "lifeInspiredBySubheading": "Bukan role model dalam arti harfiah — cuma orang yang satu-dua hal dari mereka nempel ke cara gw mikir."
+  },
+  "lang": {
+    "switch": "Bahasa"
+  }
+}

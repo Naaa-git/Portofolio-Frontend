@@ -6,8 +6,9 @@ definePageMeta({ layout: 'admin', middleware: 'admin-auth' })
 useHead({ title: 'Edit Profile — Admin' })
 
 const profileStore = useProfileStore()
+await callOnce('profile-admin-data', () => profileStore.loadAdmin())
 
-const form = reactive({ ...profileStore.profile })
+const form = reactive({ ...profileStore.adminProfile })
 
 async function handleSubmit() {
   try {
@@ -25,7 +26,7 @@ const labelClass = 'block text-sm font-medium mb-1.5'
 <template>
   <div>
     <h1 class="text-2xl font-bold mb-1">Profile</h1>
-    <p class="text-sm text-slate-500 dark:text-slate-400 mb-8">Informasi utama yang tampil di halaman publik.</p>
+    <p class="text-sm text-slate-500 dark:text-slate-400 mb-8">Informasi utama yang tampil di halaman publik. Field dengan dua kolom bisa diisi dalam Bahasa Indonesia dan English.</p>
 
     <form class="space-y-5 max-w-2xl" @submit.prevent="handleSubmit">
       <div class="grid sm:grid-cols-2 gap-5">
@@ -39,30 +40,16 @@ const labelClass = 'block text-sm font-medium mb-1.5'
         </div>
       </div>
 
-      <div>
-        <label :class="labelClass">Role</label>
-        <input v-model="form.role" type="text" required :class="inputClass" />
-      </div>
+      <AdminTranslatableInput v-model="form.role" label="Role" required />
 
       <div>
         <label :class="labelClass">Role alternatif (animasi typing)</label>
-        <AdminTagInput v-model="form.roleAlternatives" placeholder="Tambah role..." />
+        <AdminTranslatableListInput v-model="form.roleAlternatives" />
       </div>
 
-      <div>
-        <label :class="labelClass">Tagline</label>
-        <input v-model="form.tagline" type="text" required :class="inputClass" />
-      </div>
-
-      <div>
-        <label :class="labelClass">Bio singkat</label>
-        <textarea v-model="form.bio" rows="3" required :class="inputClass" />
-      </div>
-
-      <div>
-        <label :class="labelClass">Bio lanjutan</label>
-        <textarea v-model="form.bioExtended" rows="3" required :class="inputClass" />
-      </div>
+      <AdminTranslatableInput v-model="form.tagline" label="Tagline" required />
+      <AdminTranslatableInput v-model="form.bio" label="Bio singkat" type="textarea" :rows="3" required />
+      <AdminTranslatableInput v-model="form.bioExtended" label="Bio lanjutan" type="textarea" :rows="3" required />
 
       <div class="grid sm:grid-cols-2 gap-5">
         <div>

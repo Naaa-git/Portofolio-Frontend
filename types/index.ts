@@ -1,3 +1,6 @@
+// A field editable in both languages — matches the backend's jsonb {"id": "...", "en": "..."} shape.
+export type Translatable = { id: string; en: string }
+
 export interface Project {
   id: number
   title: string
@@ -12,6 +15,20 @@ export interface Project {
   category: string
 }
 
+export interface ProjectAdmin {
+  id: number
+  title: string
+  slug: string
+  shortDescription: Translatable
+  longDescription: Translatable
+  techStack: string[]
+  imageUrl: string
+  githubUrl: string
+  demoUrl: string
+  featured: boolean
+  category: Translatable
+}
+
 export interface Experience {
   id: number
   company: string
@@ -24,9 +41,28 @@ export interface Experience {
   skills: string[]
 }
 
+export interface ExperienceAdmin {
+  id: number
+  company: string
+  role: Translatable
+  type: string
+  period: string
+  location: string
+  current: boolean
+  description: Translatable[]
+  skills: string[]
+}
+
 export interface Skill {
   id: number
   category: string
+  items: string[]
+  sortOrder: number
+}
+
+export interface SkillAdmin {
+  id: number
+  category: Translatable
   items: string[]
   sortOrder: number
 }
@@ -52,6 +88,11 @@ export interface OutsideCodeIntro {
   paragraph2: string
 }
 
+export interface OutsideCodeIntroAdmin {
+  paragraph1: Translatable
+  paragraph2: Translatable
+}
+
 export interface AwayFromKeyboardItem {
   id: number
   title: string
@@ -60,10 +101,26 @@ export interface AwayFromKeyboardItem {
   sortOrder: number
 }
 
+export interface AwayFromKeyboardItemAdmin {
+  id: number
+  title: Translatable
+  note: Translatable
+  imageUrl: string | null
+  sortOrder: number
+}
+
 export interface MovieTake {
   id: number
   title: string
   take: string
+  imageUrl: string | null
+  sortOrder: number
+}
+
+export interface MovieTakeAdmin {
+  id: number
+  title: string
+  take: Translatable
   imageUrl: string | null
   sortOrder: number
 }
@@ -94,11 +151,30 @@ export interface OutsideCodeBook {
   sortOrder: number
 }
 
+export interface OutsideCodeBookAdmin {
+  id: number
+  title: string
+  author: string
+  note: Translatable
+  imageUrl: string | null
+  isCurrentlyReading: boolean
+  sortOrder: number
+}
+
 export interface LifeInspiration {
   id: number
   name: string
   aspect: string
   note: string
+  imageUrl: string | null
+  sortOrder: number
+}
+
+export interface LifeInspirationAdmin {
+  id: number
+  name: string
+  aspect: Translatable
+  note: Translatable
   imageUrl: string | null
   sortOrder: number
 }
@@ -111,6 +187,21 @@ export interface Profile {
   tagline: string
   bio: string
   bioExtended: string
+  availableForWork: boolean
+  email: string
+  location: string
+  avatarUrl: string
+  cvUrl: string
+}
+
+export interface ProfileAdmin {
+  name: string
+  shortName: string
+  role: Translatable
+  roleAlternatives: Translatable[]
+  tagline: Translatable
+  bio: Translatable
+  bioExtended: Translatable
   availableForWork: boolean
   email: string
   location: string

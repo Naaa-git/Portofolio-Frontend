@@ -2,17 +2,24 @@ import { defineStore } from 'pinia'
 import { outsideCodeService } from '~/services/outsideCodeService'
 import type {
   OutsideCodeIntro,
+  OutsideCodeIntroAdmin,
   AwayFromKeyboardItem,
+  AwayFromKeyboardItemAdmin,
   MovieTake,
+  MovieTakeAdmin,
   MusicArtist,
   PodcastChannel,
   OutsideCodeBook,
+  OutsideCodeBookAdmin,
   LifeInspiration,
+  LifeInspirationAdmin,
 } from '~/types'
 
 const emptyIntro: OutsideCodeIntro = { paragraph1: '', paragraph2: '' }
+const emptyAdminIntro: OutsideCodeIntroAdmin = { paragraph1: { id: '', en: '' }, paragraph2: { id: '', en: '' } }
 
 export const useOutsideCodeStore = defineStore('outsideCode', () => {
+  // --- Public (resolved for the current locale) ---
   const intro = ref<OutsideCodeIntro>({ ...emptyIntro })
   const awayFromKeyboard = ref<AwayFromKeyboardItem[]>([])
   const movies = ref<MovieTake[]>([])
@@ -43,36 +50,62 @@ export const useOutsideCodeStore = defineStore('outsideCode', () => {
     isLoaded.value = true
   }
 
-  async function updateIntro(dto: OutsideCodeIntro) {
-    intro.value = await outsideCodeService.updateIntro(dto)
+  // --- Admin (raw bilingual dictionaries) ---
+  const adminIntro = ref<OutsideCodeIntroAdmin>({ ...emptyAdminIntro })
+  const adminAwayFromKeyboard = ref<AwayFromKeyboardItemAdmin[]>([])
+  const adminMovies = ref<MovieTakeAdmin[]>([])
+  const adminBooks = ref<OutsideCodeBookAdmin[]>([])
+  const adminLifeInspirations = ref<LifeInspirationAdmin[]>([])
+  const isAdminLoaded = ref(false)
+
+  async function loadAllAdmin() {
+    if (isAdminLoaded.value) return
+    const [introData, awayData, moviesData, booksData, lifeInspirationsData] = await Promise.all([
+      outsideCodeService.getIntroAdmin(),
+      outsideCodeService.getAwayFromKeyboardAdmin(),
+      outsideCodeService.getMoviesAdmin(),
+      outsideCodeService.getBooksAdmin(),
+      outsideCodeService.getLifeInspirationsAdmin(),
+    ])
+    adminIntro.value = introData
+    adminAwayFromKeyboard.value = awayData
+    adminMovies.value = moviesData
+    adminBooks.value = booksData
+    adminLifeInspirations.value = lifeInspirationsData
+    isAdminLoaded.value = true
   }
 
-  async function addAwayFromKeyboard(dto: Omit<AwayFromKeyboardItem, 'id'>) {
-    awayFromKeyboard.value.push(await outsideCodeService.createAwayFromKeyboard(dto))
+  async function updateIntro(dto: OutsideCodeIntroAdmin) {
+    adminIntro.value = await outsideCodeService.updateIntro(dto)
   }
-  async function updateAwayFromKeyboard(id: number, dto: Omit<AwayFromKeyboardItem, 'id'>) {
+
+  async function addAwayFromKeyboard(dto: Omit<AwayFromKeyboardItemAdmin, 'id'>) {
+    adminAwayFromKeyboard.value.push(await outsideCodeService.createAwayFromKeyboard(dto))
+  }
+  async function updateAwayFromKeyboard(id: number, dto: Omit<AwayFromKeyboardItemAdmin, 'id'>) {
     await outsideCodeService.updateAwayFromKeyboard(id, dto)
-    const i = awayFromKeyboard.value.findIndex(x => x.id === id)
-    if (i !== -1) awayFromKeyboard.value[i] = { id, ...dto }
+    const i = adminAwayFromKeyboard.value.findIndex(x => x.id === id)
+    if (i !== -1) adminAwayFromKeyboard.value[i] = { id, ...dto }
   }
   async function deleteAwayFromKeyboard(id: number) {
     await outsideCodeService.deleteAwayFromKeyboard(id)
-    awayFromKeyboard.value = awayFromKeyboard.value.filter(x => x.id !== id)
+    adminAwayFromKeyboard.value = adminAwayFromKeyboard.value.filter(x => x.id !== id)
   }
 
-  async function addMovie(dto: Omit<MovieTake, 'id'>) {
-    movies.value.push(await outsideCodeService.createMovie(dto))
+  async function addMovie(dto: Omit<MovieTakeAdmin, 'id'>) {
+    adminMovies.value.push(await outsideCodeService.createMovie(dto))
   }
-  async function updateMovie(id: number, dto: Omit<MovieTake, 'id'>) {
+  async function updateMovie(id: number, dto: Omit<MovieTakeAdmin, 'id'>) {
     await outsideCodeService.updateMovie(id, dto)
-    const i = movies.value.findIndex(x => x.id === id)
-    if (i !== -1) movies.value[i] = { id, ...dto }
+    const i = adminMovies.value.findIndex(x => x.id === id)
+    if (i !== -1) adminMovies.value[i] = { id, ...dto }
   }
   async function deleteMovie(id: number) {
     await outsideCodeService.deleteMovie(id)
-    movies.value = movies.value.filter(x => x.id !== id)
+    adminMovies.value = adminMovies.value.filter(x => x.id !== id)
   }
 
+  // --- Music / Podcasts (not translatable) ---
   async function addMusicArtist(dto: Omit<MusicArtist, 'id'>) {
     musicArtists.value.push(await outsideCodeService.createMusicArtist(dto))
   }
@@ -99,35 +132,37 @@ export const useOutsideCodeStore = defineStore('outsideCode', () => {
     podcasts.value = podcasts.value.filter(x => x.id !== id)
   }
 
-  async function addBook(dto: Omit<OutsideCodeBook, 'id'>) {
-    books.value.push(await outsideCodeService.createBook(dto))
+  async function addBook(dto: Omit<OutsideCodeBookAdmin, 'id'>) {
+    adminBooks.value.push(await outsideCodeService.createBook(dto))
   }
-  async function updateBook(id: number, dto: Omit<OutsideCodeBook, 'id'>) {
+  async function updateBook(id: number, dto: Omit<OutsideCodeBookAdmin, 'id'>) {
     await outsideCodeService.updateBook(id, dto)
-    const i = books.value.findIndex(x => x.id === id)
-    if (i !== -1) books.value[i] = { id, ...dto }
+    const i = adminBooks.value.findIndex(x => x.id === id)
+    if (i !== -1) adminBooks.value[i] = { id, ...dto }
   }
   async function deleteBook(id: number) {
     await outsideCodeService.deleteBook(id)
-    books.value = books.value.filter(x => x.id !== id)
+    adminBooks.value = adminBooks.value.filter(x => x.id !== id)
   }
 
-  async function addLifeInspiration(dto: Omit<LifeInspiration, 'id'>) {
-    lifeInspirations.value.push(await outsideCodeService.createLifeInspiration(dto))
+  async function addLifeInspiration(dto: Omit<LifeInspirationAdmin, 'id'>) {
+    adminLifeInspirations.value.push(await outsideCodeService.createLifeInspiration(dto))
   }
-  async function updateLifeInspiration(id: number, dto: Omit<LifeInspiration, 'id'>) {
+  async function updateLifeInspiration(id: number, dto: Omit<LifeInspirationAdmin, 'id'>) {
     await outsideCodeService.updateLifeInspiration(id, dto)
-    const i = lifeInspirations.value.findIndex(x => x.id === id)
-    if (i !== -1) lifeInspirations.value[i] = { id, ...dto }
+    const i = adminLifeInspirations.value.findIndex(x => x.id === id)
+    if (i !== -1) adminLifeInspirations.value[i] = { id, ...dto }
   }
   async function deleteLifeInspiration(id: number) {
     await outsideCodeService.deleteLifeInspiration(id)
-    lifeInspirations.value = lifeInspirations.value.filter(x => x.id !== id)
+    adminLifeInspirations.value = adminLifeInspirations.value.filter(x => x.id !== id)
   }
 
   return {
     intro, awayFromKeyboard, movies, musicArtists, podcasts, books, lifeInspirations,
-    loadAll, updateIntro,
+    loadAll,
+    adminIntro, adminAwayFromKeyboard, adminMovies, adminBooks, adminLifeInspirations,
+    loadAllAdmin, updateIntro,
     addAwayFromKeyboard, updateAwayFromKeyboard, deleteAwayFromKeyboard,
     addMovie, updateMovie, deleteMovie,
     addMusicArtist, updateMusicArtist, deleteMusicArtist,

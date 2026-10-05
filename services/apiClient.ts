@@ -8,8 +8,14 @@ type FetchOptions = Parameters<typeof $fetch>[1]
 export function apiFetch<T>(path: string, options: FetchOptions = {}): Promise<T> {
   const config = useRuntimeConfig()
   const token = useCookie<string | null>('admin_token')
+  const { locale } = useI18n()
 
-  return $fetch<T>(`${config.public.apiBase}${path}`, {
+  const [base, query = ''] = path.split('?')
+  const params = new URLSearchParams(query)
+  if (!params.has('lang')) params.set('lang', locale.value)
+  const url = `${base}?${params.toString()}`
+
+  return $fetch<T>(`${config.public.apiBase}${url}`, {
     ...options,
     headers: {
       ...(options?.headers as Record<string, string> | undefined),

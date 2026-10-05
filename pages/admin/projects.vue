@@ -1,27 +1,27 @@
 <script setup lang="ts">
 import { Plus, Pencil, Trash2 } from 'lucide-vue-next'
 import { toast } from 'vue-sonner'
-import type { Project } from '~/types'
+import type { ProjectAdmin } from '~/types'
 
 definePageMeta({ layout: 'admin', middleware: 'admin-auth' })
 
 useHead({ title: 'Projects — Admin' })
 
 const projectStore = useProjectStore()
-await callOnce('projects-data', () => projectStore.loadProjects())
+await callOnce('projects-admin-data', () => projectStore.loadAdminProjects())
 
 const showModal = ref(false)
 const editingId = ref<number | null>(null)
-const deleteTarget = ref<Project | null>(null)
+const deleteTarget = ref<ProjectAdmin | null>(null)
 
-function emptyForm(): Omit<Project, 'id'> {
+function emptyForm(): Omit<ProjectAdmin, 'id'> {
   return {
-    title: '', slug: '', shortDescription: '', longDescription: '', techStack: [],
-    imageUrl: '', githubUrl: '', demoUrl: '', featured: false, category: '',
+    title: '', slug: '', shortDescription: { id: '', en: '' }, longDescription: { id: '', en: '' }, techStack: [],
+    imageUrl: '', githubUrl: '', demoUrl: '', featured: false, category: { id: '', en: '' },
   }
 }
 
-const form = reactive<Omit<Project, 'id'>>(emptyForm())
+const form = reactive<Omit<ProjectAdmin, 'id'>>(emptyForm())
 
 function openCreate() {
   editingId.value = null
@@ -29,12 +29,12 @@ function openCreate() {
   showModal.value = true
 }
 
-function openEdit(row: Project) {
+function openEdit(row: ProjectAdmin) {
   editingId.value = row.id
   Object.assign(form, {
-    title: row.title, slug: row.slug, shortDescription: row.shortDescription, longDescription: row.longDescription,
+    title: row.title, slug: row.slug, shortDescription: { ...row.shortDescription }, longDescription: { ...row.longDescription },
     techStack: [...row.techStack], imageUrl: row.imageUrl, githubUrl: row.githubUrl, demoUrl: row.demoUrl,
-    featured: row.featured, category: row.category,
+    featured: row.featured, category: { ...row.category },
   })
   showModal.value = true
 }
@@ -80,13 +80,13 @@ const labelClass = 'block text-sm font-medium mb-1.5'
       <AppButton size="sm" @click="openCreate"><Plus :size="16" /> Tambah</AppButton>
     </div>
 
-    <AdminTable :headers="['Title', 'Category', 'Featured', '']" :is-empty="projectStore.projects.length === 0">
-      <tr v-for="row in projectStore.projects" :key="row.id">
+    <AdminTable :headers="['Title', 'Category (ID / EN)', 'Featured', '']" :is-empty="projectStore.adminProjects.length === 0">
+      <tr v-for="row in projectStore.adminProjects" :key="row.id">
         <td class="px-4 py-3">
           <div class="font-medium">{{ row.title }}</div>
           <div class="text-xs text-slate-500">{{ row.slug }}</div>
         </td>
-        <td class="px-4 py-3"><AppBadge variant="accent">{{ row.category }}</AppBadge></td>
+        <td class="px-4 py-3"><AppBadge variant="accent">{{ row.category.id }} / {{ row.category.en }}</AppBadge></td>
         <td class="px-4 py-3"><AppBadge v-if="row.featured" variant="success">Featured</AppBadge></td>
         <td class="px-4 py-3">
           <div class="flex justify-end gap-1">
@@ -114,15 +114,8 @@ const labelClass = 'block text-sm font-medium mb-1.5'
           </div>
         </div>
 
-        <div>
-          <label :class="labelClass">Short Description</label>
-          <textarea v-model="form.shortDescription" rows="2" required :class="inputClass" />
-        </div>
-
-        <div>
-          <label :class="labelClass">Long Description</label>
-          <textarea v-model="form.longDescription" rows="4" required :class="inputClass" />
-        </div>
+        <AdminTranslatableInput v-model="form.shortDescription" label="Short Description" type="textarea" :rows="2" required />
+        <AdminTranslatableInput v-model="form.longDescription" label="Long Description" type="textarea" :rows="4" required />
 
         <div>
           <label :class="labelClass">Tech Stack</label>
@@ -145,10 +138,7 @@ const labelClass = 'block text-sm font-medium mb-1.5'
           </div>
         </div>
 
-        <div>
-          <label :class="labelClass">Category</label>
-          <input v-model="form.category" type="text" required :class="inputClass" />
-        </div>
+        <AdminTranslatableInput v-model="form.category" label="Category" required />
 
         <AdminToggleSwitch v-model="form.featured" label="Featured" />
 
