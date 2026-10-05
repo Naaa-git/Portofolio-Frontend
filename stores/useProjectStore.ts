@@ -28,6 +28,25 @@ export const useProjectStore = defineStore('projects', () => {
     return await projectService.getBySlug(slug)
   }
 
+  // --- Search (OpenSearch-backed, separate from the full project list above) ---
+  const searchQuery = ref('')
+  const searchResults = ref<Project[]>([])
+  const isSearching = ref(false)
+
+  async function search(query: string) {
+    searchQuery.value = query
+    if (!query.trim()) {
+      searchResults.value = []
+      return
+    }
+    isSearching.value = true
+    try {
+      searchResults.value = await projectService.search(query)
+    } finally {
+      isSearching.value = false
+    }
+  }
+
   // --- Admin (raw bilingual dictionaries) ---
   const adminProjects = ref<ProjectAdmin[]>([])
   const isAdminLoaded = ref(false)
@@ -62,6 +81,10 @@ export const useProjectStore = defineStore('projects', () => {
     loadProjects,
     setCategory,
     getBySlug,
+    searchQuery,
+    searchResults,
+    isSearching,
+    search,
     adminProjects,
     loadAdminProjects,
     addProject,
