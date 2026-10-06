@@ -1,6 +1,16 @@
 // A field editable in both languages — matches the backend's jsonb {"id": "...", "en": "..."} shape.
 export type Translatable = { id: string; en: string }
 
+export interface AuditLog {
+  id: number
+  timestampUtc: string
+  adminUsername: string | null
+  action: 'Create' | 'Update' | 'Delete'
+  entityName: string
+  entityId: string
+  changes: string | null
+}
+
 export interface Project {
   id: number
   title: string

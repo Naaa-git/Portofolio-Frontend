@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { LayoutDashboard, User, Sparkles, Link2, Briefcase, FolderKanban, Coffee, ShieldCheck, LogOut, ExternalLink } from 'lucide-vue-next'
+import { LayoutDashboard, User, Sparkles, Link2, Briefcase, FolderKanban, Coffee, ShieldCheck, ScrollText, LogOut, ExternalLink } from 'lucide-vue-next'
 import { toast } from 'vue-sonner'
 
 const route = useRoute()
@@ -15,6 +15,7 @@ const navLinks = [
   { label: 'Projects', to: '/admin/projects', icon: FolderKanban },
   { label: 'Outside Code', to: '/admin/outside-code', icon: Coffee },
   { label: 'Security', to: '/admin/security', icon: ShieldCheck },
+  { label: 'Audit Log', to: '/admin/audit-log', icon: ScrollText },
 ]
 
 function handleLogout() {
