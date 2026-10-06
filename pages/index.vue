@@ -7,11 +7,14 @@ const localePath = useLocalePath()
 
 await callOnce('projects-data', () => projectStore.loadProjects())
 
-useHead({
+useSeoMeta({
   title: `${profileStore.profile.name} — ${profileStore.profile.role}`,
-  meta: [
-    { name: 'description', content: profileStore.profile.tagline },
-  ],
+  description: profileStore.profile.tagline,
+  ogTitle: `${profileStore.profile.name} — ${profileStore.profile.role}`,
+  ogDescription: profileStore.profile.tagline,
+  ogImage: profileStore.profile.avatarUrl,
+  ogType: 'website',
+  twitterCard: 'summary_large_image',
 })
 
 const nameWords = computed(() => profileStore.profile.name.split(' '))

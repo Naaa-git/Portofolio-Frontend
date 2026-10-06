@@ -1,7 +1,10 @@
 <script setup lang="ts">
-useHead({
+useSeoMeta({
   title: 'Outside Code — Pradana Aldi Musthofa',
-  meta: [{ name: 'description', content: 'A personal space — who I am outside of being a developer.' }],
+  description: 'A personal space — who I am outside of being a developer.',
+  ogTitle: 'Outside Code — Pradana Aldi Musthofa',
+  ogDescription: 'A personal space — who I am outside of being a developer.',
+  twitterCard: 'summary',
 })
 
 const outsideCodeStore = useOutsideCodeStore()

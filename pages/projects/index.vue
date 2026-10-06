@@ -5,9 +5,12 @@ const profileStore = useProfileStore()
 const projectStore = useProjectStore()
 await callOnce('projects-data', () => projectStore.loadProjects())
 
-useHead({
+useSeoMeta({
   title: `Projects — ${profileStore.profile.name}`,
-  meta: [{ name: 'description', content: 'Explore my projects — fullstack web applications built with .NET, Vue.js, React, and more.' }],
+  description: 'Explore my projects — fullstack web applications built with .NET, Vue.js, React, and more.',
+  ogTitle: `Projects — ${profileStore.profile.name}`,
+  ogDescription: 'Explore my projects — fullstack web applications built with .NET, Vue.js, React, and more.',
+  twitterCard: 'summary',
 })
 
 const searchInput = ref('')

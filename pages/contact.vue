@@ -4,9 +4,12 @@ import { Mail, MapPin, Github, Linkedin, Copy, Check } from 'lucide-vue-next'
 const profileStore = useProfileStore()
 const iconMap = { github: Github, linkedin: Linkedin, mail: Mail }
 
-useHead({
+useSeoMeta({
   title: `Contact — ${profileStore.profile.name}`,
-  meta: [{ name: 'description', content: `Get in touch with ${profileStore.profile.name}.` }],
+  description: `Get in touch with ${profileStore.profile.name}.`,
+  ogTitle: `Contact — ${profileStore.profile.name}`,
+  ogDescription: `Get in touch with ${profileStore.profile.name}.`,
+  twitterCard: 'summary',
 })
 const copied = ref(false)
 

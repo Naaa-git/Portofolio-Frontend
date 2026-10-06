@@ -13,9 +13,13 @@ if (!project.value) {
   throw createError({ statusCode: 404, statusMessage: 'Project not found' })
 }
 
-useHead({
+useSeoMeta({
   title: `${project.value.title} — ${profileStore.profile.name}`,
-  meta: [{ name: 'description', content: project.value.shortDescription }],
+  description: project.value.shortDescription,
+  ogTitle: project.value.title,
+  ogDescription: project.value.shortDescription,
+  ogImage: project.value.imageUrl,
+  twitterCard: 'summary_large_image',
 })
 </script>
 

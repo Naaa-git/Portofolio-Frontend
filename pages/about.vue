@@ -4,9 +4,13 @@ import { Download, Briefcase, MapPin } from 'lucide-vue-next'
 const profileStore = useProfileStore()
 const localePath = useLocalePath()
 
-useHead({
+useSeoMeta({
   title: `About — ${profileStore.profile.name}`,
-  meta: [{ name: 'description', content: profileStore.profile.bio }],
+  description: profileStore.profile.bio,
+  ogTitle: `About — ${profileStore.profile.name}`,
+  ogDescription: profileStore.profile.bio,
+  ogImage: profileStore.profile.avatarUrl,
+  twitterCard: 'summary_large_image',
 })
 </script>
 
