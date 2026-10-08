@@ -29,6 +29,31 @@ jobs:
       - name: Build
         run: pnpm build
 
+      # app.vue SSR-fetches /profile, /skills, /social-links, /experiences
+      # on every page, and the homepage specifically does
+      # `profileStore.profile.name.split(' ')` — so /profile needs a real
+      # `name` string, not just an empty object, or the page 500s on a
+      # TypeError before it ever reaches the bundling bug this test exists
+      # to catch. The other endpoints are only ever rendered as lists, so
+      # an empty array is enough.
+      - name: Start stub backend
+        run: |
+          node -e "
+            require('http').createServer((req, res) => {
+              res.writeHead(200, { 'Content-Type': 'application/json' });
+              if (req.url.includes('/profile')) {
+                res.end(JSON.stringify({
+                  name: 'CI Stub', shortName: 'Stub', role: 'Tester',
+                  roleAlternatives: [], tagline: '', bio: '', bioExtended: '',
+                  availableForWork: false, email: '', location: '',
+                  avatarUrl: '', cvUrl: '',
+                }));
+              } else {
+                res.end('[]');
+              }
+            }).listen(5229);
+          " &
+
       # Catches exactly the "built fine, crashes at runtime" class of bug —
       # e.g. the vue/Nitro export-resolution issue this project hit — before
       # it ever reaches a deploy. A successful `pnpm build` alone doesn't
