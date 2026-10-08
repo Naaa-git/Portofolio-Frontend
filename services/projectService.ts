@@ -1,24 +1,12 @@
-import { projects } from '~/data/projects'
-import type { Project } from '~/types'
+import { apiFetch } from './apiClient'
+import type { Project, ProjectAdmin } from '~/types'
 
 export const projectService = {
-  getAll(): Project[] {
-    return projects
-  },
-
-  getFeatured(): Project[] {
-    return projects.filter(p => p.featured)
-  },
-
-  getBySlug(slug: string): Project | undefined {
-    return projects.find(p => p.slug === slug)
-  },
-
-  getByCategory(category: string): Project[] {
-    return projects.filter(p => p.category === category)
-  },
-
-  getCategories(): string[] {
-    return [...new Set(projects.map(p => p.category))]
-  },
+  getAll: () => apiFetch<Project[]>('/projects'),
+  getBySlug: (slug: string) => apiFetch<Project>(`/projects/${slug}`),
+  search: (q: string) => apiFetch<Project[]>(`/projects/search?q=${encodeURIComponent(q)}`),
+  getAllAdmin: () => apiFetch<ProjectAdmin[]>('/projects/admin'),
+  create: (dto: Omit<ProjectAdmin, 'id'>) => apiFetch<ProjectAdmin>('/projects', { method: 'POST', body: dto }),
+  update: (id: number, dto: Omit<ProjectAdmin, 'id'>) => apiFetch<void>(`/projects/${id}`, { method: 'PUT', body: dto }),
+  remove: (id: number) => apiFetch<void>(`/projects/${id}`, { method: 'DELETE' }),
 }

@@ -1,0 +1,101 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  # Stage 1 (Fowler's "commit build"): fast — just proves the app compiles
+  # (catches type errors, bad imports, etc.) with no server ever started.
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build
+        run: pnpm build
+
+  # Stage 2 (Fowler's "secondary build"): slower — actually starts the
+  # compiled server and proves it serves a request. A successful build
+  # above doesn't prove that: it's exactly how this project's "builds fine,
+  # crashes at runtime" vue/Nitro export-resolution bug slipped through
+  # before. Only runs if the fast stage already passed.
+  smoke-test:
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build
+        run: pnpm build
+
+      # app.vue SSR-fetches /profile, /skills, /social-links, /experiences
+      # on every page, and the homepage specifically does
+      # `profileStore.profile.name.split(' ')` — so /profile needs a real
+      # `name` string, not just an empty object, or the page 500s on a
+      # TypeError before it ever reaches the bundling bug this test exists
+      # to catch. The other endpoints are only ever rendered as lists, so
+      # an empty array is enough.
+      - name: Start stub backend
+        run: |
+          node -e "
+            require('http').createServer((req, res) => {
+              res.writeHead(200, { 'Content-Type': 'application/json' });
+              if (req.url.includes('/profile')) {
+                res.end(JSON.stringify({
+                  name: 'CI Stub', shortName: 'Stub', role: 'Tester',
+                  roleAlternatives: [], tagline: '', bio: '', bioExtended: '',
+                  availableForWork: false, email: '', location: '',
+                  avatarUrl: '', cvUrl: '',
+                }));
+              } else {
+                res.end('[]');
+              }
+            }).listen(5229);
+          " &
+
+      - name: Smoke test the built server
+        run: |
+          node .output/server/index.mjs &
+          SERVER_PID=$!
+          for i in $(seq 1 10); do
+            if curl -sf http://localhost:3000/ > /dev/null; then
+              echo "Server responded successfully."
+              kill $SERVER_PID
+              exit 0
+            fi
+            sleep 1
+          done
+          echo "Server did not respond in time."
+          kill $SERVER_PID
+          exit 1

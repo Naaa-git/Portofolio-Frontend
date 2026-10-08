@@ -1,29 +1,38 @@
 <script setup lang="ts">
 import { ArrowRight, MapPin, Sparkles } from 'lucide-vue-next'
 
-useHead({
-  title: 'Pradana Aldi Musthofa — Fullstack Developer',
-  meta: [
-    { name: 'description', content: 'Fullstack Developer specializing in .NET and Vue.js. Building clean, scalable web applications.' },
-  ],
-})
-
 const projectStore = useProjectStore()
 const profileStore = useProfileStore()
+const localePath = useLocalePath()
 
-projectStore.loadProjects()
+await callOnce('projects-data', () => projectStore.loadProjects())
+
+useSeoMeta({
+  title: `${profileStore.profile.name} — ${profileStore.profile.role}`,
+  description: profileStore.profile.tagline,
+  ogTitle: `${profileStore.profile.name} — ${profileStore.profile.role}`,
+  ogDescription: profileStore.profile.tagline,
+  ogImage: profileStore.profile.avatarUrl,
+  ogType: 'website',
+  twitterCard: 'summary_large_image',
+})
+
+const nameWords = computed(() => profileStore.profile.name.split(' '))
+const firstNames = computed(() => nameWords.value.slice(0, -1).join(' '))
+const lastName = computed(() => nameWords.value.at(-1))
 
 const roleIndex = ref(0)
 const displayRole = ref('')
 const isTyping = ref(true)
 
-const roles = ['Fullstack Developer', '.NET Specialist', 'Vue.js Developer', 'React Developer']
+const roles = computed(() => [profileStore.profile.role, ...profileStore.profile.roleAlternatives])
 
 // Typing animation
 let timeout: ReturnType<typeof setTimeout>
 
 function typeRole() {
-  const current = roles[roleIndex.value]
+  const current = roles.value[roleIndex.value]
+  if (!current) return
   if (isTyping.value) {
     if (displayRole.value.length < current.length) {
       displayRole.value = current.slice(0, displayRole.value.length + 1)
@@ -40,7 +49,7 @@ function typeRole() {
       timeout = setTimeout(typeRole, 40)
     } else {
       isTyping.value = true
-      roleIndex.value = (roleIndex.value + 1) % roles.length
+      roleIndex.value = (roleIndex.value + 1) % roles.value.length
       typeRole()
     }
   }
@@ -76,7 +85,7 @@ onUnmounted(() => {
             class="inline-flex items-center gap-2 glass px-4 py-2 rounded-full text-sm mb-8"
           >
             <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-            <span class="text-slate-600 dark:text-slate-400">Available for new opportunities</span>
+            <span class="text-slate-600 dark:text-slate-400">{{ $t('home.available') }}</span>
           </div>
 
           <!-- Name -->
@@ -86,8 +95,8 @@ onUnmounted(() => {
             :enter="{ opacity: 1, y: 0, transition: { delay: 200 } }"
             class="text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight mb-4"
           >
-            Pradana Aldi
-            <span class="text-accent-500">Musthofa</span>
+            {{ firstNames }}
+            <span class="text-accent-500">{{ lastName }}</span>
           </h1>
 
           <!-- Typing role -->
@@ -128,12 +137,12 @@ onUnmounted(() => {
             :enter="{ opacity: 1, y: 0, transition: { delay: 500 } }"
             class="flex flex-wrap gap-3"
           >
-            <AppButton href="/projects" size="lg">
-              View Projects
+            <AppButton :href="localePath('/projects')" size="lg">
+              {{ $t('home.viewProjects') }}
               <ArrowRight :size="18" />
             </AppButton>
-            <AppButton href="/contact" variant="secondary" size="lg">
-              Get in Touch
+            <AppButton :href="localePath('/contact')" variant="secondary" size="lg">
+              {{ $t('home.getInTouch') }}
             </AppButton>
           </div>
         </div>
@@ -146,12 +155,12 @@ onUnmounted(() => {
         <div>
           <div class="flex items-center gap-2 text-accent-500 text-sm font-medium mb-2">
             <Sparkles :size="14" />
-            Featured Work
+            {{ $t('home.featuredWork') }}
           </div>
-          <h2 class="text-3xl md:text-4xl font-bold">Selected Projects</h2>
+          <h2 class="text-3xl md:text-4xl font-bold">{{ $t('home.selectedProjects') }}</h2>
         </div>
-        <AppButton href="/projects" variant="ghost">
-          View all <ArrowRight :size="16" />
+        <AppButton :href="localePath('/projects')" variant="ghost">
+          {{ $t('home.viewAll') }} <ArrowRight :size="16" />
         </AppButton>
       </div>
 
@@ -171,13 +180,13 @@ onUnmounted(() => {
     <SectionWrapper>
       <div class="glass rounded-3xl p-8 md:p-12 grid md:grid-cols-2 gap-10 items-center">
         <div>
-          <div class="text-accent-500 text-sm font-medium mb-2">About Me</div>
-          <h2 class="text-3xl font-bold mb-4">Turning ideas into<br />production-ready code</h2>
+          <div class="text-accent-500 text-sm font-medium mb-2">{{ $t('home.aboutMe') }}</div>
+          <h2 class="text-3xl font-bold mb-4 whitespace-pre-line">{{ $t('home.aboutHeading') }}</h2>
           <p class="text-slate-600 dark:text-slate-400 leading-relaxed mb-6">
             {{ profileStore.profile.bio }}
           </p>
-          <AppButton href="/about" variant="outline">
-            Learn More <ArrowRight :size="16" />
+          <AppButton :href="localePath('/about')" variant="outline">
+            {{ $t('home.learnMore') }} <ArrowRight :size="16" />
           </AppButton>
         </div>
         <div class="grid grid-cols-2 gap-4">
@@ -202,12 +211,12 @@ onUnmounted(() => {
     <!-- CTA Contact -->
     <SectionWrapper>
       <div class="text-center max-w-2xl mx-auto">
-        <h2 class="text-3xl md:text-4xl font-bold mb-4">Let's work together</h2>
+        <h2 class="text-3xl md:text-4xl font-bold mb-4">{{ $t('home.ctaHeading') }}</h2>
         <p class="text-slate-600 dark:text-slate-400 mb-8">
-          Have a project in mind or looking for a developer to join your team? I'd love to hear from you.
+          {{ $t('home.ctaText') }}
         </p>
-        <AppButton href="/contact" size="lg">
-          Get in Touch <ArrowRight :size="18" />
+        <AppButton :href="localePath('/contact')" size="lg">
+          {{ $t('home.getInTouch') }} <ArrowRight :size="18" />
         </AppButton>
       </div>
     </SectionWrapper>

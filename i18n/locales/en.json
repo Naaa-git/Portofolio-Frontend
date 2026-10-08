@@ -1,0 +1,82 @@
+{
+  "nav": {
+    "home": "Home",
+    "projects": "Projects",
+    "about": "About",
+    "contact": "Contact"
+  },
+  "footer": {
+    "rights": "All rights reserved.",
+    "outsideCode": "Outside Code"
+  },
+  "home": {
+    "available": "Available for new opportunities",
+    "viewProjects": "View Projects",
+    "getInTouch": "Get in Touch",
+    "featuredWork": "Featured Work",
+    "selectedProjects": "Selected Projects",
+    "viewAll": "View all",
+    "aboutMe": "About Me",
+    "aboutHeading": "Turning ideas into\nproduction-ready code",
+    "learnMore": "Learn More",
+    "ctaHeading": "Let's work together",
+    "ctaText": "Have a project in mind or looking for a developer to join your team? I'd love to hear from you."
+  },
+  "about": {
+    "availableForWork": "Available for work",
+    "downloadCv": "Download CV",
+    "heading": "About Me",
+    "skillsHeading": "Skills & Technologies",
+    "experienceHeading": "Experience",
+    "current": "Current",
+    "outsideCodeHint": "psst — curious about the side of me outside of work? it's here →"
+  },
+  "contact": {
+    "heading": "Get in Touch",
+    "subheading": "Have a project in mind or just want to say hello? My inbox is always open.",
+    "contactInfo": "Contact Info",
+    "location": "Location",
+    "email": "Email",
+    "social": "Social",
+    "formName": "Name",
+    "formEmail": "Email",
+    "formMessage": "Message",
+    "namePlaceholder": "Your name",
+    "emailPlaceholder": "your{'@'}email.com",
+    "messagePlaceholder": "Tell me about your project...",
+    "sending": "Sending...",
+    "sendMessage": "Send Message",
+    "messageSentTitle": "Message sent!",
+    "messageSentBody": "Thank you for reaching out. I'll get back to you soon."
+  },
+  "projects": {
+    "heading": "Projects",
+    "subheading": "A collection of web applications I've built — from enterprise systems to developer tools.",
+    "noProjects": "No projects found in this category.",
+    "searchPlaceholder": "Search projects, tech, or category...",
+    "searching": "Searching...",
+    "searchResultsFor": "Search results for \"{query}\"",
+    "noSearchResults": "No projects match this search.",
+    "backToProjects": "Back to Projects",
+    "github": "GitHub",
+    "liveDemo": "Live Demo",
+    "aboutProject": "About this project",
+    "techStack": "Tech Stack"
+  },
+  "outsideCode": {
+    "heading": "A Little About Me",
+    "awayFromKeyboard": "Away From the Keyboard",
+    "moviesAndShows": "Movies & Shows",
+    "musicAndPodcasts": "Music & Podcasts",
+    "artistsSubheading": "Artists I keep playing on repeat",
+    "podcastsSubheading": "Favorite podcasts / channels",
+    "booksHeading": "Books That Stuck With Me",
+    "booksSubheading": "Not a complete list — just the ones that actually stuck.",
+    "currentlyReading": "Currently reading",
+    "lifeInspiredBy": "Life Inspired By",
+    "lifeInspiredBySubheading": "Not role models in a literal sense — just people where one or two things about them stuck to how I think."
+  },
+  "lang": {
+    "switch": "Language"
+  }
+}

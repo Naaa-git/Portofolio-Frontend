@@ -1,12 +1,17 @@
 <script setup lang="ts">
 import { Download, Briefcase, MapPin } from 'lucide-vue-next'
 
-useHead({
-  title: 'About — Pradana Aldi Musthofa',
-  meta: [{ name: 'description', content: 'Fullstack Developer with 2+ years of experience in .NET, Vue.js, and React.' }],
-})
-
 const profileStore = useProfileStore()
+const localePath = useLocalePath()
+
+useSeoMeta({
+  title: `About — ${profileStore.profile.name}`,
+  description: profileStore.profile.bio,
+  ogTitle: `About — ${profileStore.profile.name}`,
+  ogDescription: profileStore.profile.bio,
+  ogImage: profileStore.profile.avatarUrl,
+  twitterCard: 'summary_large_image',
+})
 </script>
 
 <template>
@@ -29,15 +34,15 @@ const profileStore = useProfileStore()
               <MapPin :size="12" />
               {{ profileStore.profile.location }}
             </div>
-            <AppBadge variant="success" class="mb-4">Available for work</AppBadge>
+            <AppBadge variant="success" class="mb-4">{{ $t('about.availableForWork') }}</AppBadge>
             <AppButton :href="profileStore.profile.cvUrl" variant="outline" class="w-full" external>
-              <Download :size="14" /> Download CV
+              <Download :size="14" /> {{ $t('about.downloadCv') }}
             </AppButton>
           </div>
         </div>
 
         <div class="md:col-span-2">
-          <h1 class="text-4xl font-bold mb-6">About Me</h1>
+          <h1 class="text-4xl font-bold mb-6">{{ $t('about.heading') }}</h1>
           <p class="text-slate-600 dark:text-slate-400 leading-relaxed mb-4">
             {{ profileStore.profile.bio }}
           </p>
@@ -49,7 +54,7 @@ const profileStore = useProfileStore()
 
       <!-- Skills -->
       <div class="mb-20">
-        <h2 class="text-2xl font-bold mb-8">Skills & Technologies</h2>
+        <h2 class="text-2xl font-bold mb-8">{{ $t('about.skillsHeading') }}</h2>
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           <div
             v-for="skillGroup in profileStore.skills"
@@ -71,7 +76,7 @@ const profileStore = useProfileStore()
 
       <!-- Experience -->
       <div>
-        <h2 class="text-2xl font-bold mb-8">Experience</h2>
+        <h2 class="text-2xl font-bold mb-8">{{ $t('about.experienceHeading') }}</h2>
         <div class="space-y-6">
           <div
             v-for="exp in profileStore.experiences"
@@ -86,7 +91,7 @@ const profileStore = useProfileStore()
                 <div class="flex items-center gap-2 mb-1">
                   <Briefcase :size="14" class="text-accent-500" />
                   <span class="font-semibold">{{ exp.role }}</span>
-                  <AppBadge v-if="exp.current" variant="success">Current</AppBadge>
+                  <AppBadge v-if="exp.current" variant="success">{{ $t('about.current') }}</AppBadge>
                 </div>
                 <p class="text-sm text-accent-500 font-medium">{{ exp.company }}</p>
                 <p class="text-xs text-slate-500 dark:text-slate-500 mt-0.5">{{ exp.location }}</p>
@@ -112,6 +117,13 @@ const profileStore = useProfileStore()
             </div>
           </div>
         </div>
+      </div>
+
+      <!-- Quiet pointer to the non-professional side -->
+      <div class="text-center mt-16">
+        <NuxtLink :to="localePath('/outside-code')" class="text-sm text-slate-400 hover:text-accent-500 transition-colors">
+          {{ $t('about.outsideCodeHint') }}
+        </NuxtLink>
       </div>
     </div>
   </div>

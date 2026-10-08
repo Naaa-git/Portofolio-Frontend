@@ -1,28 +1,75 @@
 import { defineStore } from 'pinia'
 import { projectService } from '~/services/projectService'
-import type { Project } from '~/types'
+import type { Project, ProjectAdmin } from '~/types'
 
 export const useProjectStore = defineStore('projects', () => {
   const projects = ref<Project[]>([])
   const selectedCategory = ref<string>('All')
+  const isLoaded = ref(false)
 
   const featuredProjects = computed(() => projects.value.filter(p => p.featured))
-  const categories = computed(() => ['All', ...projectService.getCategories()])
+  const categories = computed(() => ['All', ...new Set(projects.value.map(p => p.category))])
   const filteredProjects = computed(() => {
     if (selectedCategory.value === 'All') return projects.value
     return projects.value.filter(p => p.category === selectedCategory.value)
   })
 
-  function loadProjects() {
-    projects.value = projectService.getAll()
+  async function loadProjects() {
+    if (isLoaded.value) return
+    projects.value = await projectService.getAll()
+    isLoaded.value = true
   }
 
   function setCategory(category: string) {
     selectedCategory.value = category
   }
 
-  function getBySlug(slug: string) {
-    return projectService.getBySlug(slug)
+  async function getBySlug(slug: string) {
+    return await projectService.getBySlug(slug)
+  }
+
+  // --- Search (OpenSearch-backed, separate from the full project list above) ---
+  const searchQuery = ref('')
+  const searchResults = ref<Project[]>([])
+  const isSearching = ref(false)
+
+  async function search(query: string) {
+    searchQuery.value = query
+    if (!query.trim()) {
+      searchResults.value = []
+      return
+    }
+    isSearching.value = true
+    try {
+      searchResults.value = await projectService.search(query)
+    } finally {
+      isSearching.value = false
+    }
+  }
+
+  // --- Admin (raw bilingual dictionaries) ---
+  const adminProjects = ref<ProjectAdmin[]>([])
+  const isAdminLoaded = ref(false)
+
+  async function loadAdminProjects() {
+    if (isAdminLoaded.value) return
+    adminProjects.value = await projectService.getAllAdmin()
+    isAdminLoaded.value = true
+  }
+
+  async function addProject(dto: Omit<ProjectAdmin, 'id'>) {
+    adminProjects.value.push(await projectService.create(dto))
+  }
+
+  async function updateProject(id: number, dto: Omit<ProjectAdmin, 'id'>) {
+    await projectService.update(id, dto)
+    const index = adminProjects.value.findIndex(p => p.id === id)
+    if (index !== -1) adminProjects.value[index] = { id, ...dto }
+  }
+
+  async function deleteProject(id: number) {
+    await projectService.remove(id)
+    adminProjects.value = adminProjects.value.filter(p => p.id !== id)
   }
 
   return {
@@ -34,5 +81,14 @@ export const useProjectStore = defineStore('projects', () => {
     loadProjects,
     setCategory,
     getBySlug,
+    searchQuery,
+    searchResults,
+    isSearching,
+    search,
+    adminProjects,
+    loadAdminProjects,
+    addProject,
+    updateProject,
+    deleteProject,
   }
 })
