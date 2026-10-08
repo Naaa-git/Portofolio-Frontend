@@ -1,0 +1,50 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build-and-smoke-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build
+        run: pnpm build
+
+      # Catches exactly the "built fine, crashes at runtime" class of bug —
+      # e.g. the vue/Nitro export-resolution issue this project hit — before
+      # it ever reaches a deploy. A successful `pnpm build` alone doesn't
+      # prove the server actually starts and serves a request.
+      - name: Smoke test the built server
+        run: |
+          node .output/server/index.mjs &
+          SERVER_PID=$!
+          for i in $(seq 1 10); do
+            if curl -sf http://localhost:3000/ > /dev/null; then
+              echo "Server responded successfully."
+              kill $SERVER_PID
+              exit 0
+            fi
+            sleep 1
+          done
+          echo "Server did not respond in time."
+          kill $SERVER_PID
+          exit 1

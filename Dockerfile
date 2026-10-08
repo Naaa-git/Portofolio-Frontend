@@ -9,7 +9,7 @@ RUN corepack enable
 
 # Copy lockfile + manifest first so `pnpm install` is cached by Docker and
 # skipped on rebuilds where only application source changed, not dependencies.
-COPY package.json pnpm-lock.yaml ./
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 RUN pnpm install --frozen-lockfile
 
 COPY . .

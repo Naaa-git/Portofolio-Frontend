@@ -1,6 +1,19 @@
 export default defineNuxtConfig({
   compatibilityDate: '2024-04-03',
   devtools: { enabled: true },
+  // Known Nuxt/Nitro bug (github.com/nuxt/nuxt/issues/33132): the production
+  // server build can end up importing a default export from 'vue' that
+  // doesn't exist under Node's own module resolution (only under Vite's).
+  // Forcing Vite to fully optimize/bundle vue instead of treating it as an
+  // external dependency is the community-confirmed workaround.
+  vite: {
+    optimizeDeps: {
+      include: ['vue', 'vue-router'],
+    },
+    ssr: {
+      noExternal: ['vue', 'vue-router'],
+    },
+  },
   modules: [
     '@nuxtjs/tailwindcss',
     '@nuxtjs/color-mode',
