@@ -7,7 +7,37 @@ on:
     branches: [main]
 
 jobs:
-  build-and-smoke-test:
+  # Stage 1 (Fowler's "commit build"): fast — just proves the app compiles
+  # (catches type errors, bad imports, etc.) with no server ever started.
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build
+        run: pnpm build
+
+  # Stage 2 (Fowler's "secondary build"): slower — actually starts the
+  # compiled server and proves it serves a request. A successful build
+  # above doesn't prove that: it's exactly how this project's "builds fine,
+  # crashes at runtime" vue/Nitro export-resolution bug slipped through
+  # before. Only runs if the fast stage already passed.
+  smoke-test:
+    needs: build
     runs-on: ubuntu-latest
 
     steps:
@@ -54,10 +84,6 @@ jobs:
             }).listen(5229);
           " &
 
-      # Catches exactly the "built fine, crashes at runtime" class of bug —
-      # e.g. the vue/Nitro export-resolution issue this project hit — before
-      # it ever reaches a deploy. A successful `pnpm build` alone doesn't
-      # prove the server actually starts and serves a request.
       - name: Smoke test the built server
         run: |
           node .output/server/index.mjs &
