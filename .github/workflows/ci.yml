@@ -99,3 +99,29 @@ jobs:
           echo "Server did not respond in time."
           kill $SERVER_PID
           exit 1
+
+  # Stage 3: publish the tested image. Only runs on an actual push to main
+  # (a merged PR), never on a pull_request event.
+  publish:
+    needs: smoke-test
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and push image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/portfolio-frontend:latest
+            ${{ secrets.DOCKERHUB_USERNAME }}/portfolio-frontend:${{ github.sha }}
