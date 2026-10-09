@@ -179,3 +179,17 @@ jobs:
             done
             echo "Deployment did not become healthy in time."
             exit 1
+
+      # Scoped to just this image's own repository name — never touches
+      # anything else on the VPS, even other unrelated projects' images.
+      - name: Clean up old frontend images
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: deployer
+          key: ${{ secrets.VPS_SSH_PRIVATE_KEY }}
+          script: |
+            docker images "${{ secrets.DOCKERHUB_USERNAME }}/portfolio-frontend" --format "{{.Repository}}:{{.Tag}}" \
+              | grep -v ":${{ github.ref_name }}$" \
+              | grep -v ":latest$" \
+              | xargs -r docker rmi
