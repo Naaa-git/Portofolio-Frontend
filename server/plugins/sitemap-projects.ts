@@ -6,7 +6,10 @@
 export default defineNitroPlugin((nitroApp) => {
   nitroApp.hooks.hook('sitemap:sources', async (ctx) => {
     try {
-      const apiBase = process.env.NUXT_PUBLIC_API_BASE || 'http://localhost:5229/api'
+      // This plugin only ever runs server-side (it's a Nitro plugin), so it
+      // always uses the internal (Docker-network) address, never the public
+      // one — same reasoning as apiClient.ts.
+      const apiBase = process.env.NUXT_API_BASE_INTERNAL || 'http://localhost:5229/api'
       const projects = await $fetch<{ slug: string }[]>(`${apiBase}/projects`)
       ctx.sources.push({
         context: { name: 'projects:dynamic' },

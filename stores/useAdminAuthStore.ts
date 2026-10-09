@@ -28,8 +28,9 @@ export const useAdminAuthStore = defineStore('adminAuth', () => {
 
   async function post(path: string, body: Record<string, string>): Promise<boolean> {
     const config = useRuntimeConfig()
+    const apiBase = import.meta.server ? config.apiBaseInternal : config.public.apiBase
     try {
-      const response = await $fetch<LoginResponseDto>(`${config.public.apiBase}${path}`, {
+      const response = await $fetch<LoginResponseDto>(`${apiBase}${path}`, {
         method: 'POST',
         body,
       })
