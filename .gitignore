@@ -8,6 +8,11 @@ dist/
 .env.*
 !.env.example
 
+# Production env file (VPS only, written by CD) — distinct name from the
+# .env.* pattern above since it sits alongside backend/infra's env files
+# in the same deploy directory on the VPS, not just this repo.
+frontend.env
+
 .DS_Store
 .vscode/
 .idea/
