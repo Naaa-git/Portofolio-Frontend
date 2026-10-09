@@ -70,7 +70,16 @@ export default defineNuxtConfig({
   },
   css: ['~/assets/css/main.css'],
   runtimeConfig: {
+    // Server-only (never sent to the client bundle) — used for SSR fetches,
+    // which happen inside the frontend container itself. On the VPS this
+    // reaches the api container directly over Docker's internal network
+    // (http://api:8080/api), avoiding a hairpin-NAT round trip through the
+    // host's own public IP, which some Docker/VPS network setups don't
+    // support and makes requests hang instead of failing fast.
+    apiBaseInternal: process.env.NUXT_API_BASE_INTERNAL || 'http://localhost:5229/api',
     public: {
+      // Used for client-side (browser) fetches — must be an address the
+      // user's browser can actually reach, never a Docker-internal name.
       apiBase: process.env.NUXT_PUBLIC_API_BASE || 'http://localhost:5229/api',
       // Client IDs are not secrets — they're meant to be embedded in frontend
       // JS (anyone can see them in page source). The actual secret-equivalent

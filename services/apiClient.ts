@@ -18,7 +18,12 @@ export function apiFetch<T>(path: string, options: FetchOptions = {}): Promise<T
   if (!params.has('lang')) params.set('lang', locale)
   const url = `${base}?${params.toString()}`
 
-  return $fetch<T>(`${config.public.apiBase}${url}`, {
+  // SSR runs inside the frontend container — reach the api container
+  // directly over Docker's internal network. The browser has no idea what
+  // "api" means, so client-side calls need the public-facing address.
+  const apiBase = import.meta.server ? config.apiBaseInternal : config.public.apiBase
+
+  return $fetch<T>(`${apiBase}${url}`, {
     ...options,
     headers: {
       ...(options?.headers as Record<string, string> | undefined),
