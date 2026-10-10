@@ -7,6 +7,15 @@ WORKDIR /app
 
 RUN corepack enable
 
+# nuxt.config.ts reads this directly via process.env at the TOP LEVEL of the
+# file — that code runs once, during `pnpm build` below, not at container
+# startup. Unlike runtimeConfig.public values (read fresh via
+# useRuntimeConfig() at request time), this gets baked into the compiled
+# output permanently — frontend.env on the VPS is too late for this one,
+# it has to arrive as a build-time ARG instead.
+ARG NUXT_PUBLIC_SITE_URL
+ENV NUXT_PUBLIC_SITE_URL=$NUXT_PUBLIC_SITE_URL
+
 # Copy lockfile + manifest first so `pnpm install` is cached by Docker and
 # skipped on rebuilds where only application source changed, not dependencies.
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
