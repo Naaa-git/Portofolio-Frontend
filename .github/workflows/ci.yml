@@ -161,10 +161,19 @@ jobs:
             # command only targets `frontend` — API_VERSION must resolve to
             # SOMETHING valid or the whole command fails on an invalid image
             # reference for the untouched api service. "latest" is a
-            # harmless placeholder: it's never actually pulled or run here.
+            # placeholder value for that parsing requirement only.
+            #
+            # --no-deps is NOT optional here: frontend has `depends_on: api`,
+            # and without --no-deps, `up -d frontend` also evaluates/manages
+            # the api service — if api's running image tag differs from what
+            # this placeholder API_VERSION resolves to, Compose recreates api
+            # too, using this bogus tag. Confirmed in production: backend's
+            # own v1.1.0 deploy got overwritten back to :latest by a frontend
+            # deploy that raced it seconds later. --no-deps makes this
+            # command touch ONLY frontend, regardless of timing.
             export API_VERSION=latest
             docker compose -f docker-compose.prod.yml pull frontend
-            docker compose -f docker-compose.prod.yml up -d frontend
+            docker compose -f docker-compose.prod.yml up -d --no-deps frontend
 
       - name: Verify the deployment is healthy
         uses: appleboy/ssh-action@v1
