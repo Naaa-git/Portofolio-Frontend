@@ -11,6 +11,8 @@ export interface AuditLog {
   changes: string | null
 }
 
+export type ProjectCategory = 'Personal' | 'Freelance' | 'Work'
+
 export interface Project {
   id: number
   title: string
@@ -19,8 +21,8 @@ export interface Project {
   longDescription: string
   techStack: string[]
   imageUrl: string
-  githubUrl: string
-  demoUrl: string
+  githubUrl: string | null
+  demoUrl: string | null
   featured: boolean
   category: string
 }
@@ -33,10 +35,10 @@ export interface ProjectAdmin {
   longDescription: Translatable
   techStack: string[]
   imageUrl: string
-  githubUrl: string
-  demoUrl: string
+  githubUrl: string | null
+  demoUrl: string | null
   featured: boolean
-  category: Translatable
+  category: ProjectCategory
 }
 
 export interface Experience {

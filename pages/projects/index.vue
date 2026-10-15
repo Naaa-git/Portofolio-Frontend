@@ -66,7 +66,7 @@ const isSearchActive = computed(() => projectStore.searchQuery.trim().length > 0
           ]"
           @click="projectStore.setCategory(cat)"
         >
-          {{ cat }}
+          {{ cat === 'All' ? 'All' : $t('projectCategory.' + cat) }}
         </button>
       </div>
       <div v-else class="mb-10 text-sm text-slate-500 dark:text-slate-400">

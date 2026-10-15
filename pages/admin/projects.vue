@@ -17,7 +17,7 @@ const deleteTarget = ref<ProjectAdmin | null>(null)
 function emptyForm(): Omit<ProjectAdmin, 'id'> {
   return {
     title: '', slug: '', shortDescription: { id: '', en: '' }, longDescription: { id: '', en: '' }, techStack: [],
-    imageUrl: '', githubUrl: '', demoUrl: '', featured: false, category: { id: '', en: '' },
+    imageUrl: '', githubUrl: null, demoUrl: null, featured: false, category: 'Personal',
   }
 }
 
@@ -34,7 +34,7 @@ function openEdit(row: ProjectAdmin) {
   Object.assign(form, {
     title: row.title, slug: row.slug, shortDescription: { ...row.shortDescription }, longDescription: { ...row.longDescription },
     techStack: [...row.techStack], imageUrl: row.imageUrl, githubUrl: row.githubUrl, demoUrl: row.demoUrl,
-    featured: row.featured, category: { ...row.category },
+    featured: row.featured, category: row.category,
   })
   showModal.value = true
 }
@@ -68,6 +68,12 @@ async function confirmDelete() {
 
 const inputClass = 'w-full px-4 py-2.5 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm focus:outline-none focus:border-accent-500'
 const labelClass = 'block text-sm font-medium mb-1.5'
+
+const categoryLabels: Record<ProjectAdmin['category'], string> = {
+  Personal: 'Personal',
+  Freelance: 'Freelance',
+  Work: 'Pekerjaan Kantor',
+}
 </script>
 
 <template>
@@ -80,13 +86,13 @@ const labelClass = 'block text-sm font-medium mb-1.5'
       <AppButton size="sm" @click="openCreate"><Plus :size="16" /> Tambah</AppButton>
     </div>
 
-    <AdminTable :headers="['Title', 'Category (ID / EN)', 'Featured', '']" :is-empty="projectStore.adminProjects.length === 0">
+    <AdminTable :headers="['Title', 'Category', 'Featured', '']" :is-empty="projectStore.adminProjects.length === 0">
       <tr v-for="row in projectStore.adminProjects" :key="row.id">
         <td class="px-4 py-3">
           <div class="font-medium">{{ row.title }}</div>
           <div class="text-xs text-slate-500">{{ row.slug }}</div>
         </td>
-        <td class="px-4 py-3"><AppBadge variant="accent">{{ row.category.id }} / {{ row.category.en }}</AppBadge></td>
+        <td class="px-4 py-3"><AppBadge variant="accent">{{ categoryLabels[row.category] }}</AppBadge></td>
         <td class="px-4 py-3"><AppBadge v-if="row.featured" variant="success">Featured</AppBadge></td>
         <td class="px-4 py-3">
           <div class="flex justify-end gap-1">
@@ -138,7 +144,14 @@ const labelClass = 'block text-sm font-medium mb-1.5'
           </div>
         </div>
 
-        <AdminTranslatableInput v-model="form.category" label="Category" required />
+        <div>
+          <label :class="labelClass">Category</label>
+          <select v-model="form.category" :class="inputClass">
+            <option value="Personal">Personal</option>
+            <option value="Freelance">Freelance</option>
+            <option value="Work">Pekerjaan Kantor</option>
+          </select>
+        </div>
 
         <AdminToggleSwitch v-model="form.featured" label="Featured" />
 

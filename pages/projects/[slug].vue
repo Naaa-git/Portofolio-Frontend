@@ -35,7 +35,7 @@ useSeoMeta({
 
       <!-- Header -->
       <div class="mb-8">
-        <AppBadge variant="accent" class="mb-4">{{ project.category }}</AppBadge>
+        <AppBadge variant="accent" class="mb-4">{{ $t('projectCategory.' + project.category) }}</AppBadge>
         <h1 class="text-3xl md:text-4xl font-bold mb-4">{{ project.title }}</h1>
         <p class="text-lg text-slate-600 dark:text-slate-400">{{ project.shortDescription }}</p>
       </div>
@@ -50,11 +50,11 @@ useSeoMeta({
       </div>
 
       <!-- Links -->
-      <div class="flex gap-3 mb-10">
-        <AppButton :href="project.githubUrl" external variant="secondary">
+      <div v-if="project.githubUrl || project.demoUrl" class="flex gap-3 mb-10">
+        <AppButton v-if="project.githubUrl" :href="project.githubUrl" external variant="secondary">
           <Github :size="16" /> {{ $t('projects.github') }}
         </AppButton>
-        <AppButton :href="project.demoUrl" external>
+        <AppButton v-if="project.demoUrl" :href="project.demoUrl" external>
           <ExternalLink :size="16" /> {{ $t('projects.liveDemo') }}
         </AppButton>
       </div>

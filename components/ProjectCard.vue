@@ -43,7 +43,7 @@ const props = withDefaults(defineProps<Props>(), {
         <h3 class="font-semibold text-slate-900 dark:text-slate-100 group-hover:text-accent-500 transition-colors line-clamp-1">
           {{ project.title }}
         </h3>
-        <AppBadge variant="muted" class="shrink-0">{{ project.category }}</AppBadge>
+        <AppBadge variant="muted" class="shrink-0">{{ $t('projectCategory.' + project.category) }}</AppBadge>
       </div>
       <p class="text-sm text-slate-500 dark:text-slate-400 line-clamp-2 mb-4">
         {{ project.shortDescription }}

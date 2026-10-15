@@ -63,6 +63,11 @@
     "aboutProject": "Tentang project ini",
     "techStack": "Tech Stack"
   },
+  "projectCategory": {
+    "Personal": "Personal",
+    "Freelance": "Freelance",
+    "Work": "Pekerjaan Kantor"
+  },
   "outsideCode": {
     "heading": "A Little About Me",
     "awayFromKeyboard": "Away From the Keyboard",
