@@ -9,6 +9,14 @@ withDefaults(defineProps<Props>(), {
   empty: 'Belum ada data.',
   isEmpty: false,
 })
+
+// Exposed so callers can attach drag-and-drop (useDraggable) to this exact
+// element — needs a real DOM ref, not a wrapper component that renders its
+// own element, since that would be invalid as a direct child of <tbody>.
+const tbodyRef = ref<HTMLTableSectionElement | null>(null)
+// A method, not the raw ref, to avoid relying on whether Vue auto-unwraps an
+// exposed ref when accessed from the parent via a template ref.
+defineExpose({ getTbody: () => tbodyRef.value })
 </script>
 
 <template>
@@ -25,7 +33,7 @@ withDefaults(defineProps<Props>(), {
           </th>
         </tr>
       </thead>
-      <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+      <tbody ref="tbodyRef" class="divide-y divide-slate-100 dark:divide-slate-800">
         <slot />
       </tbody>
     </table>

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Plus, Pencil, Trash2 } from 'lucide-vue-next'
+import { Plus, Pencil, Trash2, GripVertical } from 'lucide-vue-next'
 import { toast } from 'vue-sonner'
 import type { SkillAdmin } from '~/types'
 
@@ -15,6 +15,11 @@ const editingId = ref<number | null>(null)
 const form = reactive<Omit<SkillAdmin, 'id'>>({ category: { id: '', en: '' }, items: [], sortOrder: 0 })
 
 const deleteTarget = ref<SkillAdmin | null>(null)
+
+const skillsTable = useTemplateRef('skillsTable')
+useReorderPersist(skillsTable, toRef(profileStore, 'adminSkills'), (item, sortOrder) =>
+  profileStore.updateSkill(item.id, { category: item.category, items: item.items, sortOrder }),
+)
 
 function openCreate() {
   editingId.value = null
@@ -55,7 +60,6 @@ async function confirmDelete() {
   deleteTarget.value = null
 }
 
-const inputClass = 'w-full px-4 py-2.5 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm focus:outline-none focus:border-accent-500'
 const labelClass = 'block text-sm font-medium mb-1.5'
 </script>
 
@@ -69,8 +73,9 @@ const labelClass = 'block text-sm font-medium mb-1.5'
       <AppButton size="sm" @click="openCreate"><Plus :size="16" /> Tambah</AppButton>
     </div>
 
-    <AdminTable :headers="['Category (ID / EN)', 'Items', 'Order', '']" :is-empty="profileStore.adminSkills.length === 0">
+    <AdminTable ref="skillsTable" :headers="['', 'Category (ID / EN)', 'Items', 'Order', '']" :is-empty="profileStore.adminSkills.length === 0">
       <tr v-for="row in profileStore.adminSkills" :key="row.id">
+        <td class="px-4 py-3"><GripVertical :size="16" class="drag-handle cursor-grab text-slate-400" /></td>
         <td class="px-4 py-3 font-medium">{{ row.category.id }} <span class="text-slate-400">/ {{ row.category.en }}</span></td>
         <td class="px-4 py-3">
           <div class="flex flex-wrap gap-1">
@@ -97,10 +102,6 @@ const labelClass = 'block text-sm font-medium mb-1.5'
         <div>
           <label :class="labelClass">Items</label>
           <AdminTagInput v-model="form.items" placeholder="Tambah item..." />
-        </div>
-        <div>
-          <label :class="labelClass">Sort Order</label>
-          <input v-model.number="form.sortOrder" type="number" :class="inputClass" />
         </div>
         <div class="flex justify-end gap-2 pt-2">
           <AppButton type="button" variant="ghost" size="sm" @click="showModal = false">Batal</AppButton>

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Plus, Pencil, Trash2 } from 'lucide-vue-next'
+import { Plus, Pencil, Trash2, GripVertical } from 'lucide-vue-next'
 import { toast } from 'vue-sonner'
 import type { AwayFromKeyboardItemAdmin, MovieTakeAdmin, MusicArtist, PodcastChannel, OutsideCodeBookAdmin, LifeInspirationAdmin } from '~/types'
 
@@ -9,6 +9,34 @@ useHead({ title: 'Outside Code — Admin' })
 
 const store = useOutsideCodeStore()
 await callOnce('outside-code-admin-data', () => store.loadAllAdmin())
+
+const awayTable = useTemplateRef('awayTable')
+useReorderPersist(awayTable, toRef(store, 'adminAwayFromKeyboard'), (item, sortOrder) =>
+  store.updateAwayFromKeyboard(item.id, { title: item.title, note: item.note, imageUrl: item.imageUrl, sortOrder }),
+)
+const movieTable = useTemplateRef('movieTable')
+useReorderPersist(movieTable, toRef(store, 'adminMovies'), (item, sortOrder) =>
+  store.updateMovie(item.id, { title: item.title, take: item.take, imageUrl: item.imageUrl, sortOrder }),
+)
+const artistTable = useTemplateRef('artistTable')
+useReorderPersist(artistTable, toRef(store, 'musicArtists'), (item, sortOrder) =>
+  store.updateMusicArtist(item.id, { name: item.name, url: item.url, imageUrl: item.imageUrl, sortOrder }),
+)
+const podcastTable = useTemplateRef('podcastTable')
+useReorderPersist(podcastTable, toRef(store, 'podcasts'), (item, sortOrder) =>
+  store.updatePodcast(item.id, { name: item.name, url: item.url, imageUrl: item.imageUrl, sortOrder }),
+)
+const bookTable = useTemplateRef('bookTable')
+useReorderPersist(bookTable, toRef(store, 'adminBooks'), (item, sortOrder) =>
+  store.updateBook(item.id, {
+    title: item.title, author: item.author, note: item.note, imageUrl: item.imageUrl,
+    isCurrentlyReading: item.isCurrentlyReading, sortOrder,
+  }),
+)
+const lifeTable = useTemplateRef('lifeTable')
+useReorderPersist(lifeTable, toRef(store, 'adminLifeInspirations'), (item, sortOrder) =>
+  store.updateLifeInspiration(item.id, { name: item.name, aspect: item.aspect, note: item.note, imageUrl: item.imageUrl, sortOrder }),
+)
 
 const inputClass = 'w-full px-4 py-2.5 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm focus:outline-none focus:border-accent-500'
 const labelClass = 'block text-sm font-medium mb-1.5'
@@ -307,8 +335,9 @@ async function confirmLifeDelete() {
         <h2 class="text-lg font-semibold">Away From the Keyboard</h2>
         <AppButton size="sm" @click="openAwayCreate"><Plus :size="16" /> Tambah</AppButton>
       </div>
-      <AdminTable :headers="['Title', 'Note', '']" :is-empty="store.adminAwayFromKeyboard.length === 0">
+      <AdminTable ref="awayTable" :headers="['', 'Title', 'Note', '']" :is-empty="store.adminAwayFromKeyboard.length === 0">
         <tr v-for="row in store.adminAwayFromKeyboard" :key="row.id">
+          <td class="px-4 py-3"><GripVertical :size="16" class="drag-handle cursor-grab text-slate-400" /></td>
           <td class="px-4 py-3 font-medium">{{ row.title.id }} <span class="text-slate-400">/ {{ row.title.en }}</span></td>
           <td class="px-4 py-3 text-slate-500 truncate max-w-sm">{{ row.note.id }}</td>
           <td class="px-4 py-3">
@@ -325,7 +354,6 @@ async function confirmLifeDelete() {
           <AdminTranslatableInput v-model="awayForm.title" label="Title" required />
           <AdminTranslatableInput v-model="awayForm.note" label="Note" type="textarea" required />
           <div><label :class="labelClass">Image URL</label><input v-model="awayForm.imageUrl" type="text" :class="inputClass" /></div>
-          <div><label :class="labelClass">Sort Order</label><input v-model.number="awayForm.sortOrder" type="number" :class="inputClass" /></div>
           <div class="flex justify-end gap-2 pt-2">
             <AppButton type="button" variant="ghost" size="sm" @click="awayModal = false">Batal</AppButton>
             <AppButton type="submit" size="sm">Simpan</AppButton>
@@ -341,8 +369,9 @@ async function confirmLifeDelete() {
         <h2 class="text-lg font-semibold">Movies & Shows</h2>
         <AppButton size="sm" @click="openMovieCreate"><Plus :size="16" /> Tambah</AppButton>
       </div>
-      <AdminTable :headers="['Title', 'Take', '']" :is-empty="store.adminMovies.length === 0">
+      <AdminTable ref="movieTable" :headers="['', 'Title', 'Take', '']" :is-empty="store.adminMovies.length === 0">
         <tr v-for="row in store.adminMovies" :key="row.id">
+          <td class="px-4 py-3"><GripVertical :size="16" class="drag-handle cursor-grab text-slate-400" /></td>
           <td class="px-4 py-3 font-medium">{{ row.title }}</td>
           <td class="px-4 py-3 text-slate-500 truncate max-w-sm">{{ row.take.id }}</td>
           <td class="px-4 py-3">
@@ -359,7 +388,6 @@ async function confirmLifeDelete() {
           <div><label :class="labelClass">Title</label><input v-model="movieForm.title" type="text" required :class="inputClass" /></div>
           <AdminTranslatableInput v-model="movieForm.take" label="Take / Opini" type="textarea" required />
           <div><label :class="labelClass">Image URL</label><input v-model="movieForm.imageUrl" type="text" :class="inputClass" /></div>
-          <div><label :class="labelClass">Sort Order</label><input v-model.number="movieForm.sortOrder" type="number" :class="inputClass" /></div>
           <div class="flex justify-end gap-2 pt-2">
             <AppButton type="button" variant="ghost" size="sm" @click="movieModal = false">Batal</AppButton>
             <AppButton type="submit" size="sm">Simpan</AppButton>
@@ -375,8 +403,9 @@ async function confirmLifeDelete() {
         <h2 class="text-lg font-semibold">Music Artists</h2>
         <AppButton size="sm" @click="openArtistCreate"><Plus :size="16" /> Tambah</AppButton>
       </div>
-      <AdminTable :headers="['Name', 'URL', '']" :is-empty="store.musicArtists.length === 0">
+      <AdminTable ref="artistTable" :headers="['', 'Name', 'URL', '']" :is-empty="store.musicArtists.length === 0">
         <tr v-for="row in store.musicArtists" :key="row.id">
+          <td class="px-4 py-3"><GripVertical :size="16" class="drag-handle cursor-grab text-slate-400" /></td>
           <td class="px-4 py-3 font-medium">{{ row.name }}</td>
           <td class="px-4 py-3 text-slate-500 truncate max-w-sm">{{ row.url }}</td>
           <td class="px-4 py-3">
@@ -393,7 +422,6 @@ async function confirmLifeDelete() {
           <div><label :class="labelClass">Name</label><input v-model="artistForm.name" type="text" required :class="inputClass" /></div>
           <div><label :class="labelClass">Spotify URL</label><input v-model="artistForm.url" type="text" required :class="inputClass" /></div>
           <div><label :class="labelClass">Image URL</label><input v-model="artistForm.imageUrl" type="text" :class="inputClass" /></div>
-          <div><label :class="labelClass">Sort Order</label><input v-model.number="artistForm.sortOrder" type="number" :class="inputClass" /></div>
           <div class="flex justify-end gap-2 pt-2">
             <AppButton type="button" variant="ghost" size="sm" @click="artistModal = false">Batal</AppButton>
             <AppButton type="submit" size="sm">Simpan</AppButton>
@@ -409,8 +437,9 @@ async function confirmLifeDelete() {
         <h2 class="text-lg font-semibold">Podcasts / Channels</h2>
         <AppButton size="sm" @click="openPodcastCreate"><Plus :size="16" /> Tambah</AppButton>
       </div>
-      <AdminTable :headers="['Name', 'URL', '']" :is-empty="store.podcasts.length === 0">
+      <AdminTable ref="podcastTable" :headers="['', 'Name', 'URL', '']" :is-empty="store.podcasts.length === 0">
         <tr v-for="row in store.podcasts" :key="row.id">
+          <td class="px-4 py-3"><GripVertical :size="16" class="drag-handle cursor-grab text-slate-400" /></td>
           <td class="px-4 py-3 font-medium">{{ row.name }}</td>
           <td class="px-4 py-3 text-slate-500 truncate max-w-sm">{{ row.url }}</td>
           <td class="px-4 py-3">
@@ -427,7 +456,6 @@ async function confirmLifeDelete() {
           <div><label :class="labelClass">Name</label><input v-model="podcastForm.name" type="text" required :class="inputClass" /></div>
           <div><label :class="labelClass">URL</label><input v-model="podcastForm.url" type="text" required :class="inputClass" /></div>
           <div><label :class="labelClass">Image URL</label><input v-model="podcastForm.imageUrl" type="text" :class="inputClass" /></div>
-          <div><label :class="labelClass">Sort Order</label><input v-model.number="podcastForm.sortOrder" type="number" :class="inputClass" /></div>
           <div class="flex justify-end gap-2 pt-2">
             <AppButton type="button" variant="ghost" size="sm" @click="podcastModal = false">Batal</AppButton>
             <AppButton type="submit" size="sm">Simpan</AppButton>
@@ -443,8 +471,9 @@ async function confirmLifeDelete() {
         <h2 class="text-lg font-semibold">Books</h2>
         <AppButton size="sm" @click="openBookCreate"><Plus :size="16" /> Tambah</AppButton>
       </div>
-      <AdminTable :headers="['Title', 'Author', 'Reading', '']" :is-empty="store.adminBooks.length === 0">
+      <AdminTable ref="bookTable" :headers="['', 'Title', 'Author', 'Reading', '']" :is-empty="store.adminBooks.length === 0">
         <tr v-for="row in store.adminBooks" :key="row.id">
+          <td class="px-4 py-3"><GripVertical :size="16" class="drag-handle cursor-grab text-slate-400" /></td>
           <td class="px-4 py-3 font-medium">{{ row.title }}</td>
           <td class="px-4 py-3 text-slate-500">{{ row.author }}</td>
           <td class="px-4 py-3"><AppBadge v-if="row.isCurrentlyReading" variant="success">Currently Reading</AppBadge></td>
@@ -464,7 +493,6 @@ async function confirmLifeDelete() {
           <AdminTranslatableInput v-model="bookForm.note" label="Note (opsional)" type="textarea" :rows="2" />
           <div><label :class="labelClass">Image URL</label><input v-model="bookForm.imageUrl" type="text" :class="inputClass" /></div>
           <AdminToggleSwitch v-model="bookForm.isCurrentlyReading" label="Currently reading" />
-          <div><label :class="labelClass">Sort Order</label><input v-model.number="bookForm.sortOrder" type="number" :class="inputClass" /></div>
           <div class="flex justify-end gap-2 pt-2">
             <AppButton type="button" variant="ghost" size="sm" @click="bookModal = false">Batal</AppButton>
             <AppButton type="submit" size="sm">Simpan</AppButton>
@@ -480,8 +508,9 @@ async function confirmLifeDelete() {
         <h2 class="text-lg font-semibold">Life Inspired By</h2>
         <AppButton size="sm" @click="openLifeCreate"><Plus :size="16" /> Tambah</AppButton>
       </div>
-      <AdminTable :headers="['Name', 'Aspect', 'Note', '']" :is-empty="store.adminLifeInspirations.length === 0">
+      <AdminTable ref="lifeTable" :headers="['', 'Name', 'Aspect', 'Note', '']" :is-empty="store.adminLifeInspirations.length === 0">
         <tr v-for="row in store.adminLifeInspirations" :key="row.id">
+          <td class="px-4 py-3"><GripVertical :size="16" class="drag-handle cursor-grab text-slate-400" /></td>
           <td class="px-4 py-3 font-medium">{{ row.name }}</td>
           <td class="px-4 py-3 text-slate-500">{{ row.aspect.id }} <span class="text-slate-400">/ {{ row.aspect.en }}</span></td>
           <td class="px-4 py-3 text-slate-500 truncate max-w-sm">{{ row.note.id }}</td>
@@ -500,7 +529,6 @@ async function confirmLifeDelete() {
           <AdminTranslatableInput v-model="lifeForm.aspect" label="Aspect" required />
           <AdminTranslatableInput v-model="lifeForm.note" label="Note" type="textarea" required />
           <div><label :class="labelClass">Image URL</label><input v-model="lifeForm.imageUrl" type="text" :class="inputClass" /></div>
-          <div><label :class="labelClass">Sort Order</label><input v-model.number="lifeForm.sortOrder" type="number" :class="inputClass" /></div>
           <div class="flex justify-end gap-2 pt-2">
             <AppButton type="button" variant="ghost" size="sm" @click="lifeModal = false">Batal</AppButton>
             <AppButton type="submit" size="sm">Simpan</AppButton>

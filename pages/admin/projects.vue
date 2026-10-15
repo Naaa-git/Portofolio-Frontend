@@ -124,7 +124,7 @@ const labelClass = 'block text-sm font-medium mb-1.5'
 
         <div>
           <label :class="labelClass">Image</label>
-          <AdminImageUploadField v-model="form.imageUrl" />
+          <AdminFileUploadField v-model="form.imageUrl" accept="image/*" endpoint="/images/upload" kind="image" />
         </div>
 
         <div class="grid sm:grid-cols-2 gap-4">
