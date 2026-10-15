@@ -64,12 +64,12 @@ const labelClass = 'block text-sm font-medium mb-1.5'
 
       <div class="grid sm:grid-cols-2 gap-5">
         <div>
-          <label :class="labelClass">Avatar URL</label>
-          <input v-model="form.avatarUrl" type="text" :class="inputClass" />
+          <label :class="labelClass">Avatar</label>
+          <AdminFileUploadField v-model="form.avatarUrl" accept="image/*" endpoint="/images/upload" kind="image" />
         </div>
         <div>
-          <label :class="labelClass">CV URL</label>
-          <input v-model="form.cvUrl" type="text" :class="inputClass" />
+          <label :class="labelClass">CV (PDF)</label>
+          <AdminFileUploadField v-model="form.cvUrl" accept="application/pdf" endpoint="/documents/upload" kind="document" />
         </div>
       </div>
 
