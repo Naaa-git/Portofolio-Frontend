@@ -25,6 +25,12 @@ export interface Project {
   demoUrl: string | null
   featured: boolean
   category: string
+  experienceCompany: string | null
+}
+
+export interface ProjectLink {
+  slug: string
+  title: string
 }
 
 export interface ProjectAdmin {
@@ -46,11 +52,13 @@ export interface Experience {
   company: string
   role: string
   type: string
-  period: string
+  startDate: string
+  endDate: string | null
   location: string
   current: boolean
-  description: string[]
+  description: string
   skills: string[]
+  projects: ProjectLink[]
 }
 
 export interface ExperienceAdmin {
@@ -58,11 +66,13 @@ export interface ExperienceAdmin {
   company: string
   role: Translatable
   type: string
-  period: string
+  startDate: string
+  endDate: string | null
   location: string
   current: boolean
-  description: Translatable[]
+  description: Translatable
   skills: string[]
+  projectIds: number[]
 }
 
 export interface Skill {
