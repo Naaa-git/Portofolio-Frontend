@@ -29,6 +29,7 @@
     "skillsHeading": "Skill & Teknologi",
     "experienceHeading": "Pengalaman",
     "current": "Saat ini",
+    "builtProjects": "Project yang dikerjakan",
     "outsideCodeHint": "psst — kalau penasaran sama sisi gw di luar kerjaan, ada di sini →"
   },
   "contact": {
@@ -61,7 +62,13 @@
     "github": "GitHub",
     "liveDemo": "Live Demo",
     "aboutProject": "Tentang project ini",
-    "techStack": "Tech Stack"
+    "techStack": "Tech Stack",
+    "builtWhileAt": "Dibuat waktu kerja di {company}"
+  },
+  "projectCategory": {
+    "Personal": "Personal",
+    "Freelance": "Freelance",
+    "Work": "Pekerjaan Kantor"
   },
   "projectCategory": {
     "Personal": "Personal",

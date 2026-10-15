@@ -1,8 +1,15 @@
 <script setup lang="ts">
 import { Download, Briefcase, MapPin } from 'lucide-vue-next'
+import type { Experience } from '~/types'
 
 const profileStore = useProfileStore()
 const localePath = useLocalePath()
+const { locale, t } = useI18n()
+
+function formatPeriod(exp: Experience) {
+  const fmt = (d: string) => new Date(d).toLocaleDateString(locale.value, { month: 'short', year: 'numeric' })
+  return `${fmt(exp.startDate)} – ${exp.current ? t('about.current') : fmt(exp.endDate!)}`
+}
 
 useSeoMeta({
   title: `About — ${profileStore.profile.name}`,
@@ -96,24 +103,23 @@ useSeoMeta({
                 <p class="text-sm text-accent-500 font-medium">{{ exp.company }}</p>
                 <p class="text-xs text-slate-500 dark:text-slate-500 mt-0.5">{{ exp.location }}</p>
               </div>
-              <div class="text-sm text-slate-500 shrink-0">{{ exp.period }}</div>
+              <div class="text-sm text-slate-500 shrink-0">{{ formatPeriod(exp) }}</div>
             </div>
 
-            <ul class="space-y-2 mb-4">
-              <li
-                v-for="(item, i) in exp.description"
-                :key="i"
-                class="text-sm text-slate-600 dark:text-slate-400 flex gap-2"
-              >
-                <span class="text-accent-500 mt-0.5 shrink-0">•</span>
-                {{ item }}
-              </li>
-            </ul>
+            <p class="text-sm text-slate-600 dark:text-slate-400 mb-4 whitespace-pre-line">{{ exp.description }}</p>
 
-            <div class="flex flex-wrap gap-1.5">
+            <div class="flex flex-wrap gap-1.5 mb-3">
               <AppBadge v-for="skill in exp.skills" :key="skill" variant="accent">
                 {{ skill }}
               </AppBadge>
+            </div>
+
+            <div v-if="exp.projects.length" class="text-xs text-slate-500 dark:text-slate-500">
+              {{ $t('about.builtProjects') }}:
+              <template v-for="(p, i) in exp.projects" :key="p.slug">
+                <NuxtLink :to="localePath(`/projects/${p.slug}`)" class="text-accent-500 hover:underline">{{ p.title }}</NuxtLink>
+                <span v-if="i < exp.projects.length - 1">, </span>
+              </template>
             </div>
           </div>
         </div>

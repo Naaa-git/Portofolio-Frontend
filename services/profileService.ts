@@ -22,4 +22,6 @@ export const profileService = {
   createExperience: (dto: Omit<ExperienceAdmin, 'id'>) => apiFetch<ExperienceAdmin>('/experiences', { method: 'POST', body: dto }),
   updateExperience: (id: number, dto: Omit<ExperienceAdmin, 'id'>) => apiFetch<void>(`/experiences/${id}`, { method: 'PUT', body: dto }),
   deleteExperience: (id: number) => apiFetch<void>(`/experiences/${id}`, { method: 'DELETE' }),
+  setExperienceProjectLinks: (id: number, projectIds: number[]) =>
+    apiFetch<void>(`/experiences/${id}/projects`, { method: 'PUT', body: { projectIds } }),
 }

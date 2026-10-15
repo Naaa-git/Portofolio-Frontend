@@ -108,7 +108,9 @@ export const useProfileStore = defineStore('profile', () => {
 
   // --- Experiences ---
   async function addExperience(dto: Omit<ExperienceAdmin, 'id'>) {
-    adminExperiences.value.push(await profileService.createExperience(dto))
+    const created = await profileService.createExperience(dto)
+    adminExperiences.value.push(created)
+    return created
   }
 
   async function updateExperience(id: number, dto: Omit<ExperienceAdmin, 'id'>) {
@@ -120,6 +122,12 @@ export const useProfileStore = defineStore('profile', () => {
   async function deleteExperience(id: number) {
     await profileService.deleteExperience(id)
     adminExperiences.value = adminExperiences.value.filter(e => e.id !== id)
+  }
+
+  async function setExperienceProjectLinks(id: number, projectIds: number[]) {
+    await profileService.setExperienceProjectLinks(id, projectIds)
+    const index = adminExperiences.value.findIndex(e => e.id === id)
+    if (index !== -1) adminExperiences.value[index] = { ...adminExperiences.value[index], projectIds }
   }
 
   return {
@@ -142,5 +150,6 @@ export const useProfileStore = defineStore('profile', () => {
     addExperience,
     updateExperience,
     deleteExperience,
+    setExperienceProjectLinks,
   }
 })

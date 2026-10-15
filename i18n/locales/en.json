@@ -29,6 +29,7 @@
     "skillsHeading": "Skills & Technologies",
     "experienceHeading": "Experience",
     "current": "Current",
+    "builtProjects": "Built",
     "outsideCodeHint": "psst — curious about the side of me outside of work? it's here →"
   },
   "contact": {
@@ -61,7 +62,13 @@
     "github": "GitHub",
     "liveDemo": "Live Demo",
     "aboutProject": "About this project",
-    "techStack": "Tech Stack"
+    "techStack": "Tech Stack",
+    "builtWhileAt": "Built while working at {company}"
+  },
+  "projectCategory": {
+    "Personal": "Personal",
+    "Freelance": "Freelance",
+    "Work": "Work"
   },
   "projectCategory": {
     "Personal": "Personal",

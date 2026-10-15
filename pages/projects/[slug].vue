@@ -37,6 +37,9 @@ useSeoMeta({
       <div class="mb-8">
         <AppBadge variant="accent" class="mb-4">{{ $t('projectCategory.' + project.category) }}</AppBadge>
         <h1 class="text-3xl md:text-4xl font-bold mb-4">{{ project.title }}</h1>
+        <p v-if="project.experienceCompany" class="text-sm text-slate-500 dark:text-slate-500 mb-2">
+          {{ $t('projects.builtWhileAt', { company: project.experienceCompany }) }}
+        </p>
         <p class="text-lg text-slate-600 dark:text-slate-400">{{ project.shortDescription }}</p>
       </div>
 
