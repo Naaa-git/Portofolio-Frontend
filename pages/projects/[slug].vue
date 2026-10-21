@@ -65,10 +65,13 @@ useSeoMeta({
       <!-- Content grid -->
       <div class="grid md:grid-cols-3 gap-8">
         <div class="md:col-span-2">
-          <h2 class="text-xl font-semibold mb-4">{{ $t('projects.aboutProject') }}</h2>
-          <p class="text-slate-600 dark:text-slate-400 leading-relaxed whitespace-pre-line">
-            {{ project.longDescription }}
-          </p>
+          <h2 class="text-xl font-semibold mb-4">{{ $t('projects.contributions') }}</h2>
+          <ul class="space-y-2">
+            <li v-for="(item, i) in project.contribution" :key="i" class="flex gap-2 text-slate-600 dark:text-slate-400 leading-relaxed">
+              <span class="mt-2 w-1.5 h-1.5 rounded-full bg-accent-500 shrink-0" />
+              <span>{{ item }}</span>
+            </li>
+          </ul>
         </div>
 
         <div>

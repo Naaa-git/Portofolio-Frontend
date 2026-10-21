@@ -16,7 +16,7 @@ const deleteTarget = ref<ProjectAdmin | null>(null)
 
 function emptyForm(): Omit<ProjectAdmin, 'id'> {
   return {
-    title: '', slug: '', shortDescription: { id: '', en: '' }, longDescription: { id: '', en: '' }, techStack: [],
+    title: '', slug: '', shortDescription: { id: '', en: '' }, contribution: [], techStack: [],
     imageUrl: '', githubUrl: null, demoUrl: null, featured: false, category: 'Personal',
   }
 }
@@ -32,7 +32,7 @@ function openCreate() {
 function openEdit(row: ProjectAdmin) {
   editingId.value = row.id
   Object.assign(form, {
-    title: row.title, slug: row.slug, shortDescription: { ...row.shortDescription }, longDescription: { ...row.longDescription },
+    title: row.title, slug: row.slug, shortDescription: { ...row.shortDescription }, contribution: [...row.contribution],
     techStack: [...row.techStack], imageUrl: row.imageUrl, githubUrl: row.githubUrl, demoUrl: row.demoUrl,
     featured: row.featured, category: row.category,
   })
@@ -121,7 +121,11 @@ const categoryLabels: Record<ProjectAdmin['category'], string> = {
         </div>
 
         <AdminTranslatableInput v-model="form.shortDescription" label="Short Description" type="textarea" :rows="2" required />
-        <AdminTranslatableInput v-model="form.longDescription" label="Long Description" type="textarea" :rows="4" required />
+
+        <div>
+          <label :class="labelClass">Contribution</label>
+          <AdminTranslatableListInput v-model="form.contribution" type="textarea" />
+        </div>
 
         <div>
           <label :class="labelClass">Tech Stack</label>
