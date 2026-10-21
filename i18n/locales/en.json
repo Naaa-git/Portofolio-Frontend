@@ -2,6 +2,7 @@
   "nav": {
     "home": "Home",
     "projects": "Projects",
+    "lessons": "Lessons",
     "about": "About",
     "contact": "Contact"
   },
@@ -74,6 +75,12 @@
     "Personal": "Personal",
     "Freelance": "Freelance",
     "Work": "Work"
+  },
+  "lessons": {
+    "heading": "Lessons & Experiments",
+    "subheading": "Patterns, lessons, and experiments I've picked up along the way.",
+    "relatedToProject": "Related to: {title}",
+    "fromExperience": "From working at {company}"
   },
   "outsideCode": {
     "heading": "A Little About Me",
