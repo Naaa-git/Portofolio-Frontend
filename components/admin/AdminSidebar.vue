@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { LayoutDashboard, User, Sparkles, Link2, Briefcase, FolderKanban, Coffee, ShieldCheck, ScrollText, LogOut, ExternalLink } from 'lucide-vue-next'
+import { LayoutDashboard, User, Sparkles, Link2, Briefcase, FolderKanban, Coffee, ShieldCheck, ScrollText, LogOut, ExternalLink, X } from 'lucide-vue-next'
 import { toast } from 'vue-sonner'
 
 const route = useRoute()
 const router = useRouter()
 const adminAuthStore = useAdminAuthStore()
+const sidebarOpen = useState('admin-sidebar-open', () => false)
 
 const navLinks = [
   { label: 'Overview', to: '/admin', icon: LayoutDashboard },
@@ -23,17 +24,35 @@ function handleLogout() {
   toast.success('Berhasil logout.')
   router.push('/admin/login')
 }
+
+// On mobile the sidebar is a drawer — any nav click should close it.
+// On desktop this is a no-op since the backdrop/drawer classes don't apply.
+function closeOnMobile() {
+  sidebarOpen.value = false
+}
 </script>
 
 <template>
-  <aside class="w-60 shrink-0 border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 flex flex-col">
-    <div class="h-16 flex items-center px-6 border-b border-slate-200 dark:border-slate-800">
+  <aside
+    :class="[
+      'w-60 shrink-0 border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 flex flex-col',
+      'fixed inset-y-0 left-0 z-40 transition-transform duration-200 md:static md:translate-x-0',
+      sidebarOpen ? 'translate-x-0' : '-translate-x-full',
+    ]"
+  >
+    <div class="h-16 flex items-center justify-between px-6 border-b border-slate-200 dark:border-slate-800">
       <span class="text-lg font-semibold tracking-tight">
         pradana<span class="text-accent-500">.</span>admin
       </span>
+      <button
+        class="md:hidden p-1 -mr-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+        @click="sidebarOpen = false"
+      >
+        <X :size="18" />
+      </button>
     </div>
 
-    <nav class="flex-1 px-3 py-4 space-y-1">
+    <nav class="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
       <NuxtLink
         v-for="link in navLinks"
         :key="link.to"
@@ -44,6 +63,7 @@ function handleLogout() {
             ? 'bg-accent-500/10 text-accent-600 dark:text-accent-400'
             : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800',
         ]"
+        @click="closeOnMobile"
       >
         <component :is="link.icon" :size="16" />
         {{ link.label }}
