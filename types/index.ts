@@ -18,7 +18,7 @@ export interface Project {
   title: string
   slug: string
   shortDescription: string
-  longDescription: string
+  contribution: string[]
   techStack: string[]
   imageUrl: string
   githubUrl: string | null
@@ -38,7 +38,7 @@ export interface ProjectAdmin {
   title: string
   slug: string
   shortDescription: Translatable
-  longDescription: Translatable
+  contribution: Translatable[]
   techStack: string[]
   imageUrl: string
   githubUrl: string | null
