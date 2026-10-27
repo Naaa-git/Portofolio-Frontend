@@ -36,8 +36,8 @@ async function handleSubmit() {
       toast.success('Social link berhasil ditambahkan.')
     }
     showModal.value = false
-  } catch {
-    toast.error('Gagal menyimpan. Pastikan kamu masih login dan backend berjalan.')
+  } catch (err) {
+    toast.error(getApiErrorMessage(err, 'Gagal menyimpan. Pastikan kamu masih login dan backend berjalan.'))
   }
 }
 
@@ -46,8 +46,8 @@ async function confirmDelete() {
     try {
       await profileStore.deleteSocialLink(deleteTarget.value.id)
       toast.success('Social link berhasil dihapus.')
-    } catch {
-      toast.error('Gagal menghapus. Pastikan kamu masih login dan backend berjalan.')
+    } catch (err) {
+      toast.error(getApiErrorMessage(err, 'Gagal menghapus. Pastikan kamu masih login dan backend berjalan.'))
     }
   }
   deleteTarget.value = null
@@ -89,15 +89,15 @@ const labelClass = 'block text-sm font-medium mb-1.5'
       <form class="space-y-4" @submit.prevent="handleSubmit">
         <div>
           <label :class="labelClass">Name</label>
-          <input v-model="form.name" type="text" required :class="inputClass" />
+          <input v-model="form.name" type="text" required maxlength="50" :class="inputClass" />
         </div>
         <div>
           <label :class="labelClass">URL</label>
-          <input v-model="form.url" type="text" required :class="inputClass" />
+          <input v-model="form.url" type="url" required maxlength="500" :class="inputClass" />
         </div>
         <div>
           <label :class="labelClass">Icon (lucide name)</label>
-          <input v-model="form.icon" type="text" placeholder="github, linkedin, mail..." required :class="inputClass" />
+          <input v-model="form.icon" type="text" placeholder="github, linkedin, mail..." required maxlength="50" :class="inputClass" />
         </div>
         <div class="flex justify-end gap-2 pt-2">
           <AppButton type="button" variant="ghost" size="sm" @click="showModal = false">Batal</AppButton>

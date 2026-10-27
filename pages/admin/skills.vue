@@ -43,8 +43,8 @@ async function handleSubmit() {
       toast.success('Skill berhasil ditambahkan.')
     }
     showModal.value = false
-  } catch {
-    toast.error('Gagal menyimpan. Pastikan kamu masih login dan backend berjalan.')
+  } catch (err) {
+    toast.error(getApiErrorMessage(err, 'Gagal menyimpan. Pastikan kamu masih login dan backend berjalan.'))
   }
 }
 
@@ -53,8 +53,8 @@ async function confirmDelete() {
     try {
       await profileStore.deleteSkill(deleteTarget.value.id)
       toast.success('Skill berhasil dihapus.')
-    } catch {
-      toast.error('Gagal menghapus. Pastikan kamu masih login dan backend berjalan.')
+    } catch (err) {
+      toast.error(getApiErrorMessage(err, 'Gagal menghapus. Pastikan kamu masih login dan backend berjalan.'))
     }
   }
   deleteTarget.value = null
@@ -98,7 +98,7 @@ const labelClass = 'block text-sm font-medium mb-1.5'
 
     <AdminModal :show="showModal" :title="editingId !== null ? 'Edit Skill' : 'Tambah Skill'" @close="showModal = false">
       <form class="space-y-4" @submit.prevent="handleSubmit">
-        <AdminTranslatableInput v-model="form.category" label="Category" required />
+        <AdminTranslatableInput v-model="form.category" label="Category" required :maxlength="100" />
         <div>
           <label :class="labelClass">Items</label>
           <AdminTagInput v-model="form.items" placeholder="Tambah item..." />

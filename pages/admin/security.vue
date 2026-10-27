@@ -39,8 +39,8 @@ async function startSetup() {
     const result = await apiFetch<TotpSetupResponse>('/auth/totp/setup', { method: 'POST' })
     qrImage.value = `data:image/png;base64,${result.qrCodeImageBase64}`
     secret.value = result.secret
-  } catch {
-    toast.error('Gagal memulai setup. Pastikan kamu masih login.')
+  } catch (err) {
+    toast.error(getApiErrorMessage(err, 'Gagal memulai setup. Pastikan kamu masih login.'))
   } finally {
     isLoadingQr.value = false
   }
@@ -54,8 +54,8 @@ async function confirmEnable() {
     qrImage.value = null
     secret.value = null
     code.value = ''
-  } catch {
-    toast.error('Kode salah. Coba scan ulang QR dan masukkan kode terbaru.')
+  } catch (err) {
+    toast.error(getApiErrorMessage(err, 'Kode salah. Coba scan ulang QR dan masukkan kode terbaru.'))
   } finally {
     isEnabling.value = false
   }
@@ -132,7 +132,7 @@ const inputClass = 'w-full px-4 py-2.5 rounded-lg bg-slate-100 dark:bg-slate-800
       <form class="space-y-4" @submit.prevent="changePassword">
         <div>
           <label class="block text-sm font-medium mb-1.5">Password saat ini</label>
-          <input v-model="currentPassword" type="password" required autocomplete="current-password" :class="inputClass" />
+          <input v-model="currentPassword" type="password" required maxlength="100" autocomplete="current-password" :class="inputClass" />
         </div>
         <div>
           <label class="block text-sm font-medium mb-1.5">Password baru</label>
@@ -141,6 +141,7 @@ const inputClass = 'w-full px-4 py-2.5 rounded-lg bg-slate-100 dark:bg-slate-800
               v-model="newPassword"
               :type="isNewPasswordVisible ? 'text' : 'password'"
               required
+              maxlength="100"
               autocomplete="new-password"
               :class="inputClass"
               class="pr-10"

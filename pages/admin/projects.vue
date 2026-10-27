@@ -49,8 +49,8 @@ async function handleSubmit() {
       toast.success('Project berhasil ditambahkan.')
     }
     showModal.value = false
-  } catch {
-    toast.error('Gagal menyimpan. Pastikan kamu masih login dan backend berjalan.')
+  } catch (err) {
+    toast.error(getApiErrorMessage(err, 'Gagal menyimpan. Pastikan kamu masih login dan backend berjalan.'))
   }
 }
 
@@ -59,8 +59,8 @@ async function confirmDelete() {
     try {
       await projectStore.deleteProject(deleteTarget.value.id)
       toast.success('Project berhasil dihapus.')
-    } catch {
-      toast.error('Gagal menghapus. Pastikan kamu masih login dan backend berjalan.')
+    } catch (err) {
+      toast.error(getApiErrorMessage(err, 'Gagal menghapus. Pastikan kamu masih login dan backend berjalan.'))
     }
   }
   deleteTarget.value = null
@@ -112,19 +112,19 @@ const categoryLabels: Record<ProjectAdmin['category'], string> = {
         <div class="grid sm:grid-cols-2 gap-4">
           <div>
             <label :class="labelClass">Title</label>
-            <input v-model="form.title" type="text" required :class="inputClass" />
+            <input v-model="form.title" type="text" required maxlength="150" :class="inputClass" />
           </div>
           <div>
             <label :class="labelClass">Slug</label>
-            <input v-model="form.slug" type="text" required :class="inputClass" />
+            <input v-model="form.slug" type="text" required maxlength="150" pattern="[a-z0-9]+(-[a-z0-9]+)*" :class="inputClass" />
           </div>
         </div>
 
-        <AdminTranslatableInput v-model="form.shortDescription" label="Short Description" type="textarea" :rows="2" required />
+        <AdminTranslatableInput v-model="form.shortDescription" label="Short Description" type="textarea" :rows="2" required :maxlength="300" />
 
         <div>
           <label :class="labelClass">Contribution</label>
-          <AdminTranslatableListInput v-model="form.contribution" type="textarea" />
+          <AdminTranslatableListInput v-model="form.contribution" type="textarea" :maxlength="500" />
         </div>
 
         <div>
@@ -140,11 +140,11 @@ const categoryLabels: Record<ProjectAdmin['category'], string> = {
         <div class="grid sm:grid-cols-2 gap-4">
           <div>
             <label :class="labelClass">GitHub URL</label>
-            <input v-model="form.githubUrl" type="text" :class="inputClass" />
+            <input v-model="form.githubUrl" type="url" maxlength="500" :class="inputClass" />
           </div>
           <div>
             <label :class="labelClass">Demo URL</label>
-            <input v-model="form.demoUrl" type="text" :class="inputClass" />
+            <input v-model="form.demoUrl" type="url" maxlength="500" :class="inputClass" />
           </div>
         </div>
 

@@ -49,8 +49,8 @@ async function saveIntro() {
   try {
     await store.updateIntro({ ...introForm })
     toast.success('Intro berhasil disimpan.')
-  } catch {
-    toast.error('Gagal menyimpan intro.')
+  } catch (err) {
+    toast.error(getApiErrorMessage(err, 'Gagal menyimpan intro.'))
   } finally {
     isSavingIntro.value = false
   }
@@ -82,8 +82,8 @@ async function submitAway() {
       toast.success('Item berhasil ditambahkan.')
     }
     awayModal.value = false
-  } catch {
-    toast.error('Gagal menyimpan.')
+  } catch (err) {
+    toast.error(getApiErrorMessage(err, 'Gagal menyimpan.'))
   }
 }
 async function confirmAwayDelete() {
@@ -91,8 +91,8 @@ async function confirmAwayDelete() {
     try {
       await store.deleteAwayFromKeyboard(awayDeleteTarget.value.id)
       toast.success('Item berhasil dihapus.')
-    } catch {
-      toast.error('Gagal menghapus.')
+    } catch (err) {
+      toast.error(getApiErrorMessage(err, 'Gagal menghapus.'))
     }
   }
   awayDeleteTarget.value = null
@@ -124,8 +124,8 @@ async function submitMovie() {
       toast.success('Movie berhasil ditambahkan.')
     }
     movieModal.value = false
-  } catch {
-    toast.error('Gagal menyimpan.')
+  } catch (err) {
+    toast.error(getApiErrorMessage(err, 'Gagal menyimpan.'))
   }
 }
 async function confirmMovieDelete() {
@@ -133,8 +133,8 @@ async function confirmMovieDelete() {
     try {
       await store.deleteMovie(movieDeleteTarget.value.id)
       toast.success('Movie berhasil dihapus.')
-    } catch {
-      toast.error('Gagal menghapus.')
+    } catch (err) {
+      toast.error(getApiErrorMessage(err, 'Gagal menghapus.'))
     }
   }
   movieDeleteTarget.value = null
@@ -166,8 +166,8 @@ async function submitArtist() {
       toast.success('Artist berhasil ditambahkan.')
     }
     artistModal.value = false
-  } catch {
-    toast.error('Gagal menyimpan.')
+  } catch (err) {
+    toast.error(getApiErrorMessage(err, 'Gagal menyimpan.'))
   }
 }
 async function confirmArtistDelete() {
@@ -175,8 +175,8 @@ async function confirmArtistDelete() {
     try {
       await store.deleteMusicArtist(artistDeleteTarget.value.id)
       toast.success('Artist berhasil dihapus.')
-    } catch {
-      toast.error('Gagal menghapus.')
+    } catch (err) {
+      toast.error(getApiErrorMessage(err, 'Gagal menghapus.'))
     }
   }
   artistDeleteTarget.value = null
@@ -208,8 +208,8 @@ async function submitPodcast() {
       toast.success('Podcast berhasil ditambahkan.')
     }
     podcastModal.value = false
-  } catch {
-    toast.error('Gagal menyimpan.')
+  } catch (err) {
+    toast.error(getApiErrorMessage(err, 'Gagal menyimpan.'))
   }
 }
 async function confirmPodcastDelete() {
@@ -217,8 +217,8 @@ async function confirmPodcastDelete() {
     try {
       await store.deletePodcast(podcastDeleteTarget.value.id)
       toast.success('Podcast berhasil dihapus.')
-    } catch {
-      toast.error('Gagal menghapus.')
+    } catch (err) {
+      toast.error(getApiErrorMessage(err, 'Gagal menghapus.'))
     }
   }
   podcastDeleteTarget.value = null
@@ -255,8 +255,8 @@ async function submitBook() {
       toast.success('Buku berhasil ditambahkan.')
     }
     bookModal.value = false
-  } catch {
-    toast.error('Gagal menyimpan.')
+  } catch (err) {
+    toast.error(getApiErrorMessage(err, 'Gagal menyimpan.'))
   }
 }
 async function confirmBookDelete() {
@@ -264,8 +264,8 @@ async function confirmBookDelete() {
     try {
       await store.deleteBook(bookDeleteTarget.value.id)
       toast.success('Buku berhasil dihapus.')
-    } catch {
-      toast.error('Gagal menghapus.')
+    } catch (err) {
+      toast.error(getApiErrorMessage(err, 'Gagal menghapus.'))
     }
   }
   bookDeleteTarget.value = null
@@ -297,8 +297,8 @@ async function submitLife() {
       toast.success('Berhasil ditambahkan.')
     }
     lifeModal.value = false
-  } catch {
-    toast.error('Gagal menyimpan.')
+  } catch (err) {
+    toast.error(getApiErrorMessage(err, 'Gagal menyimpan.'))
   }
 }
 async function confirmLifeDelete() {
@@ -306,8 +306,8 @@ async function confirmLifeDelete() {
     try {
       await store.deleteLifeInspiration(lifeDeleteTarget.value.id)
       toast.success('Berhasil dihapus.')
-    } catch {
-      toast.error('Gagal menghapus.')
+    } catch (err) {
+      toast.error(getApiErrorMessage(err, 'Gagal menghapus.'))
     }
   }
   lifeDeleteTarget.value = null
@@ -323,8 +323,8 @@ async function confirmLifeDelete() {
     <section class="mb-10">
       <h2 class="text-lg font-semibold mb-4">Intro</h2>
       <form class="space-y-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5" @submit.prevent="saveIntro">
-        <AdminTranslatableInput v-model="introForm.paragraph1" label="Paragraf 1" type="textarea" :rows="2" required />
-        <AdminTranslatableInput v-model="introForm.paragraph2" label="Paragraf 2" type="textarea" :rows="3" required />
+        <AdminTranslatableInput v-model="introForm.paragraph1" label="Paragraf 1" type="textarea" :rows="2" required :maxlength="1000" />
+        <AdminTranslatableInput v-model="introForm.paragraph2" label="Paragraf 2" type="textarea" :rows="3" required :maxlength="1000" />
         <AppButton type="submit" size="sm" :disabled="isSavingIntro">{{ isSavingIntro ? 'Menyimpan...' : 'Simpan' }}</AppButton>
       </form>
     </section>
@@ -351,9 +351,9 @@ async function confirmLifeDelete() {
 
       <AdminModal :show="awayModal" :title="awayEditingId !== null ? 'Edit Item' : 'Tambah Item'" @close="awayModal = false">
         <form class="space-y-4" @submit.prevent="submitAway">
-          <AdminTranslatableInput v-model="awayForm.title" label="Title" required />
-          <AdminTranslatableInput v-model="awayForm.note" label="Note" type="textarea" required />
-          <div><label :class="labelClass">Image URL</label><input v-model="awayForm.imageUrl" type="text" :class="inputClass" /></div>
+          <AdminTranslatableInput v-model="awayForm.title" label="Title" required :maxlength="100" />
+          <AdminTranslatableInput v-model="awayForm.note" label="Note" type="textarea" required :maxlength="500" />
+          <div><label :class="labelClass">Image URL</label><input v-model="awayForm.imageUrl" type="url" maxlength="500" :class="inputClass" /></div>
           <div class="flex justify-end gap-2 pt-2">
             <AppButton type="button" variant="ghost" size="sm" @click="awayModal = false">Batal</AppButton>
             <AppButton type="submit" size="sm">Simpan</AppButton>
@@ -385,9 +385,9 @@ async function confirmLifeDelete() {
 
       <AdminModal :show="movieModal" :title="movieEditingId !== null ? 'Edit Movie' : 'Tambah Movie'" @close="movieModal = false">
         <form class="space-y-4" @submit.prevent="submitMovie">
-          <div><label :class="labelClass">Title</label><input v-model="movieForm.title" type="text" required :class="inputClass" /></div>
-          <AdminTranslatableInput v-model="movieForm.take" label="Take / Opini" type="textarea" required />
-          <div><label :class="labelClass">Image URL</label><input v-model="movieForm.imageUrl" type="text" :class="inputClass" /></div>
+          <div><label :class="labelClass">Title</label><input v-model="movieForm.title" type="text" required maxlength="150" :class="inputClass" /></div>
+          <AdminTranslatableInput v-model="movieForm.take" label="Take / Opini" type="textarea" required :maxlength="1000" />
+          <div><label :class="labelClass">Image URL</label><input v-model="movieForm.imageUrl" type="url" maxlength="500" :class="inputClass" /></div>
           <div class="flex justify-end gap-2 pt-2">
             <AppButton type="button" variant="ghost" size="sm" @click="movieModal = false">Batal</AppButton>
             <AppButton type="submit" size="sm">Simpan</AppButton>
@@ -419,9 +419,9 @@ async function confirmLifeDelete() {
 
       <AdminModal :show="artistModal" :title="artistEditingId !== null ? 'Edit Artist' : 'Tambah Artist'" @close="artistModal = false">
         <form class="space-y-4" @submit.prevent="submitArtist">
-          <div><label :class="labelClass">Name</label><input v-model="artistForm.name" type="text" required :class="inputClass" /></div>
-          <div><label :class="labelClass">Spotify URL</label><input v-model="artistForm.url" type="text" required :class="inputClass" /></div>
-          <div><label :class="labelClass">Image URL</label><input v-model="artistForm.imageUrl" type="text" :class="inputClass" /></div>
+          <div><label :class="labelClass">Name</label><input v-model="artistForm.name" type="text" required maxlength="100" :class="inputClass" /></div>
+          <div><label :class="labelClass">Spotify URL</label><input v-model="artistForm.url" type="url" required maxlength="500" :class="inputClass" /></div>
+          <div><label :class="labelClass">Image URL</label><input v-model="artistForm.imageUrl" type="url" maxlength="500" :class="inputClass" /></div>
           <div class="flex justify-end gap-2 pt-2">
             <AppButton type="button" variant="ghost" size="sm" @click="artistModal = false">Batal</AppButton>
             <AppButton type="submit" size="sm">Simpan</AppButton>
@@ -453,9 +453,9 @@ async function confirmLifeDelete() {
 
       <AdminModal :show="podcastModal" :title="podcastEditingId !== null ? 'Edit Podcast' : 'Tambah Podcast'" @close="podcastModal = false">
         <form class="space-y-4" @submit.prevent="submitPodcast">
-          <div><label :class="labelClass">Name</label><input v-model="podcastForm.name" type="text" required :class="inputClass" /></div>
-          <div><label :class="labelClass">URL</label><input v-model="podcastForm.url" type="text" required :class="inputClass" /></div>
-          <div><label :class="labelClass">Image URL</label><input v-model="podcastForm.imageUrl" type="text" :class="inputClass" /></div>
+          <div><label :class="labelClass">Name</label><input v-model="podcastForm.name" type="text" required maxlength="100" :class="inputClass" /></div>
+          <div><label :class="labelClass">URL</label><input v-model="podcastForm.url" type="url" required maxlength="500" :class="inputClass" /></div>
+          <div><label :class="labelClass">Image URL</label><input v-model="podcastForm.imageUrl" type="url" maxlength="500" :class="inputClass" /></div>
           <div class="flex justify-end gap-2 pt-2">
             <AppButton type="button" variant="ghost" size="sm" @click="podcastModal = false">Batal</AppButton>
             <AppButton type="submit" size="sm">Simpan</AppButton>
@@ -488,10 +488,10 @@ async function confirmLifeDelete() {
 
       <AdminModal :show="bookModal" :title="bookEditingId !== null ? 'Edit Buku' : 'Tambah Buku'" @close="bookModal = false">
         <form class="space-y-4" @submit.prevent="submitBook">
-          <div><label :class="labelClass">Title</label><input v-model="bookForm.title" type="text" required :class="inputClass" /></div>
-          <div><label :class="labelClass">Author</label><input v-model="bookForm.author" type="text" required :class="inputClass" /></div>
-          <AdminTranslatableInput v-model="bookForm.note" label="Note (opsional)" type="textarea" :rows="2" />
-          <div><label :class="labelClass">Image URL</label><input v-model="bookForm.imageUrl" type="text" :class="inputClass" /></div>
+          <div><label :class="labelClass">Title</label><input v-model="bookForm.title" type="text" required maxlength="150" :class="inputClass" /></div>
+          <div><label :class="labelClass">Author</label><input v-model="bookForm.author" type="text" required maxlength="100" :class="inputClass" /></div>
+          <AdminTranslatableInput v-model="bookForm.note" label="Note (opsional)" type="textarea" :rows="2" :maxlength="500" />
+          <div><label :class="labelClass">Image URL</label><input v-model="bookForm.imageUrl" type="url" maxlength="500" :class="inputClass" /></div>
           <AdminToggleSwitch v-model="bookForm.isCurrentlyReading" label="Currently reading" />
           <div class="flex justify-end gap-2 pt-2">
             <AppButton type="button" variant="ghost" size="sm" @click="bookModal = false">Batal</AppButton>
@@ -525,10 +525,10 @@ async function confirmLifeDelete() {
 
       <AdminModal :show="lifeModal" :title="lifeEditingId !== null ? 'Edit' : 'Tambah'" @close="lifeModal = false">
         <form class="space-y-4" @submit.prevent="submitLife">
-          <div><label :class="labelClass">Name</label><input v-model="lifeForm.name" type="text" required :class="inputClass" /></div>
-          <AdminTranslatableInput v-model="lifeForm.aspect" label="Aspect" required />
-          <AdminTranslatableInput v-model="lifeForm.note" label="Note" type="textarea" required />
-          <div><label :class="labelClass">Image URL</label><input v-model="lifeForm.imageUrl" type="text" :class="inputClass" /></div>
+          <div><label :class="labelClass">Name</label><input v-model="lifeForm.name" type="text" required maxlength="100" :class="inputClass" /></div>
+          <AdminTranslatableInput v-model="lifeForm.aspect" label="Aspect" required :maxlength="150" />
+          <AdminTranslatableInput v-model="lifeForm.note" label="Note" type="textarea" required :maxlength="1000" />
+          <div><label :class="labelClass">Image URL</label><input v-model="lifeForm.imageUrl" type="url" maxlength="500" :class="inputClass" /></div>
           <div class="flex justify-end gap-2 pt-2">
             <AppButton type="button" variant="ghost" size="sm" @click="lifeModal = false">Batal</AppButton>
             <AppButton type="submit" size="sm">Simpan</AppButton>

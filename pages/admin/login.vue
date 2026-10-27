@@ -137,6 +137,7 @@ onMounted(async () => {
               v-model="username"
               type="text"
               required
+              maxlength="50"
               autocomplete="username"
               class="w-full px-4 py-2.5 rounded-xl bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-sm focus:outline-none focus:border-accent-500 focus:ring-1 focus:ring-accent-500 transition-all"
             />
@@ -148,6 +149,7 @@ onMounted(async () => {
               v-model="password"
               type="password"
               required
+              maxlength="100"
               autocomplete="current-password"
               class="w-full px-4 py-2.5 rounded-xl bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-sm focus:outline-none focus:border-accent-500 focus:ring-1 focus:ring-accent-500 transition-all"
             />
