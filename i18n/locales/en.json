@@ -49,7 +49,10 @@
     "sending": "Sending...",
     "sendMessage": "Send Message",
     "messageSentTitle": "Message sent!",
-    "messageSentBody": "Thank you for reaching out. I'll get back to you soon."
+    "messageSentBody": "Thank you for reaching out. I'll get back to you soon.",
+    "sendError": "Failed to send your message. Please try again.",
+    "rateLimited": "You're sending messages too fast. Wait a bit and try again.",
+    "tryAgain": "Try Again"
   },
   "projects": {
     "heading": "Projects",

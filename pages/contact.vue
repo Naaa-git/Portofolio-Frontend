@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { Mail, MapPin, Github, Linkedin, Copy, Check } from 'lucide-vue-next'
+import { Mail, MapPin, Github, Linkedin, Copy, Check, X } from 'lucide-vue-next'
+import { contactService } from '~/services/contactService'
 
 const profileStore = useProfileStore()
 const iconMap = { github: Github, linkedin: Linkedin, mail: Mail }
@@ -21,6 +22,8 @@ const form = reactive({
 
 const isSubmitting = ref(false)
 const isSubmitted = ref(false)
+const hasError = ref(false)
+const errorKey = ref<'sendError' | 'rateLimited'>('sendError')
 
 async function copyEmail() {
   await navigator.clipboard.writeText(profileStore.profile.email)
@@ -30,9 +33,17 @@ async function copyEmail() {
 
 async function handleSubmit() {
   isSubmitting.value = true
-  await new Promise(resolve => setTimeout(resolve, 1000))
-  isSubmitting.value = false
-  isSubmitted.value = true
+  hasError.value = false
+
+  try {
+    await contactService.send({ ...form })
+    isSubmitted.value = true
+  } catch (err: any) {
+    hasError.value = true
+    errorKey.value = err?.response?.status === 429 ? 'rateLimited' : 'sendError'
+  } finally {
+    isSubmitting.value = false
+  }
 }
 </script>
 
@@ -111,6 +122,14 @@ async function handleSubmit() {
               </div>
               <h3 class="text-xl font-semibold mb-2">{{ $t('contact.messageSentTitle') }}</h3>
               <p class="text-slate-500 dark:text-slate-400">{{ $t('contact.messageSentBody') }}</p>
+            </div>
+
+            <div v-else-if="hasError" class="text-center py-10">
+              <div class="w-16 h-16 rounded-full bg-red-500/10 flex items-center justify-center mx-auto mb-4">
+                <X :size="28" class="text-red-500" />
+              </div>
+              <h3 class="text-xl font-semibold mb-2">{{ $t(`contact.${errorKey}`) }}</h3>
+              <AppButton size="sm" class="mt-2" @click="hasError = false">{{ $t('contact.tryAgain') }}</AppButton>
             </div>
 
             <form v-else class="space-y-5" @submit.prevent="handleSubmit">
