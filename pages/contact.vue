@@ -139,6 +139,7 @@ async function handleSubmit() {
                   v-model="form.name"
                   type="text"
                   required
+                  maxlength="100"
                   :placeholder="$t('contact.namePlaceholder')"
                   class="w-full px-4 py-2.5 rounded-xl bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-sm focus:outline-none focus:border-accent-500 focus:ring-1 focus:ring-accent-500 transition-all"
                 />
@@ -150,6 +151,7 @@ async function handleSubmit() {
                   v-model="form.email"
                   type="email"
                   required
+                  maxlength="254"
                   :placeholder="$t('contact.emailPlaceholder')"
                   class="w-full px-4 py-2.5 rounded-xl bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-sm focus:outline-none focus:border-accent-500 focus:ring-1 focus:ring-accent-500 transition-all"
                 />
@@ -161,6 +163,8 @@ async function handleSubmit() {
                   v-model="form.message"
                   required
                   rows="5"
+                  maxlength="2000"
+                  minlength="5"
                   :placeholder="$t('contact.messagePlaceholder')"
                   class="w-full px-4 py-2.5 rounded-xl bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-sm focus:outline-none focus:border-accent-500 focus:ring-1 focus:ring-accent-500 transition-all resize-none"
                 />

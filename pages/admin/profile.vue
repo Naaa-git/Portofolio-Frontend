@@ -14,8 +14,8 @@ async function handleSubmit() {
   try {
     await profileStore.updateProfile({ ...form })
     toast.success('Profile berhasil disimpan.')
-  } catch {
-    toast.error('Gagal menyimpan. Pastikan kamu masih login dan backend berjalan.')
+  } catch (err) {
+    toast.error(getApiErrorMessage(err, 'Gagal menyimpan. Pastikan kamu masih login dan backend berjalan.'))
   }
 }
 
@@ -32,33 +32,33 @@ const labelClass = 'block text-sm font-medium mb-1.5'
       <div class="grid sm:grid-cols-2 gap-5">
         <div>
           <label :class="labelClass">Nama lengkap</label>
-          <input v-model="form.name" type="text" required :class="inputClass" />
+          <input v-model="form.name" type="text" required maxlength="100" :class="inputClass" />
         </div>
         <div>
           <label :class="labelClass">Nama pendek</label>
-          <input v-model="form.shortName" type="text" required :class="inputClass" />
+          <input v-model="form.shortName" type="text" required maxlength="50" :class="inputClass" />
         </div>
       </div>
 
-      <AdminTranslatableInput v-model="form.role" label="Role" required />
+      <AdminTranslatableInput v-model="form.role" label="Role" required :maxlength="100" />
 
       <div>
         <label :class="labelClass">Role alternatif (animasi typing)</label>
-        <AdminTranslatableListInput v-model="form.roleAlternatives" />
+        <AdminTranslatableListInput v-model="form.roleAlternatives" :maxlength="100" />
       </div>
 
-      <AdminTranslatableInput v-model="form.tagline" label="Tagline" required />
-      <AdminTranslatableInput v-model="form.bio" label="Bio singkat" type="textarea" :rows="3" required />
-      <AdminTranslatableInput v-model="form.bioExtended" label="Bio lanjutan" type="textarea" :rows="3" required />
+      <AdminTranslatableInput v-model="form.tagline" label="Tagline" required :maxlength="200" />
+      <AdminTranslatableInput v-model="form.bio" label="Bio singkat" type="textarea" :rows="3" required :maxlength="1000" />
+      <AdminTranslatableInput v-model="form.bioExtended" label="Bio lanjutan" type="textarea" :rows="3" required :maxlength="3000" />
 
       <div class="grid sm:grid-cols-2 gap-5">
         <div>
           <label :class="labelClass">Email</label>
-          <input v-model="form.email" type="email" required :class="inputClass" />
+          <input v-model="form.email" type="email" required maxlength="254" :class="inputClass" />
         </div>
         <div>
           <label :class="labelClass">Lokasi</label>
-          <input v-model="form.location" type="text" required :class="inputClass" />
+          <input v-model="form.location" type="text" required maxlength="150" :class="inputClass" />
         </div>
       </div>
 

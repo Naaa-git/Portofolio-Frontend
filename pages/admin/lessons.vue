@@ -57,8 +57,8 @@ async function submitCategory() {
       toast.success('Kategori berhasil ditambahkan.')
     }
     showCategoryModal.value = false
-  } catch {
-    toast.error('Gagal menyimpan kategori.')
+  } catch (err) {
+    toast.error(getApiErrorMessage(err, 'Gagal menyimpan kategori.'))
   }
 }
 
@@ -120,8 +120,8 @@ async function submitLesson() {
       toast.success('Lesson berhasil ditambahkan.')
     }
     showLessonModal.value = false
-  } catch {
-    toast.error('Gagal menyimpan lesson.')
+  } catch (err) {
+    toast.error(getApiErrorMessage(err, 'Gagal menyimpan lesson.'))
   }
 }
 
@@ -130,8 +130,8 @@ async function confirmLessonDelete() {
     try {
       await lessonStore.deleteLesson(deleteLessonTarget.value.id)
       toast.success('Lesson berhasil dihapus.')
-    } catch {
-      toast.error('Gagal menghapus lesson.')
+    } catch (err) {
+      toast.error(getApiErrorMessage(err, 'Gagal menghapus lesson.'))
     }
   }
   deleteLessonTarget.value = null
@@ -206,10 +206,10 @@ async function confirmLessonDelete() {
 
     <AdminModal :show="showCategoryModal" :title="editingCategoryId !== null ? 'Edit Kategori' : 'Tambah Kategori'" @close="showCategoryModal = false">
       <form class="space-y-4" @submit.prevent="submitCategory">
-        <AdminTranslatableInput v-model="categoryForm.name" label="Nama Kategori" required />
+        <AdminTranslatableInput v-model="categoryForm.name" label="Nama Kategori" required :maxlength="100" />
         <div>
           <label :class="labelClass">Urutan</label>
-          <input v-model.number="categoryForm.sortOrder" type="number" :class="inputClass" />
+          <input v-model.number="categoryForm.sortOrder" type="number" min="0" max="9999" :class="inputClass" />
         </div>
         <div class="flex justify-end gap-2 pt-2">
           <AppButton type="button" variant="ghost" size="sm" @click="showCategoryModal = false">Batal</AppButton>
@@ -227,8 +227,8 @@ async function confirmLessonDelete() {
           </select>
         </div>
 
-        <AdminTranslatableInput v-model="lessonForm.title" label="Title" required />
-        <AdminTranslatableInput v-model="lessonForm.description" label="Description" type="textarea" :rows="4" required />
+        <AdminTranslatableInput v-model="lessonForm.title" label="Title" required :maxlength="150" />
+        <AdminTranslatableInput v-model="lessonForm.description" label="Description" type="textarea" :rows="4" required :maxlength="2000" />
 
         <div class="grid sm:grid-cols-2 gap-4">
           <div>

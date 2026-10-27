@@ -71,8 +71,8 @@ async function handleSubmit() {
       toast.success('Experience berhasil ditambahkan.')
     }
     showModal.value = false
-  } catch {
-    toast.error('Gagal menyimpan. Pastikan kamu masih login dan backend berjalan.')
+  } catch (err) {
+    toast.error(getApiErrorMessage(err, 'Gagal menyimpan. Pastikan kamu masih login dan backend berjalan.'))
   }
 }
 
@@ -81,8 +81,8 @@ async function confirmDelete() {
     try {
       await profileStore.deleteExperience(deleteTarget.value.id)
       toast.success('Experience berhasil dihapus.')
-    } catch {
-      toast.error('Gagal menghapus. Pastikan kamu masih login dan backend berjalan.')
+    } catch (err) {
+      toast.error(getApiErrorMessage(err, 'Gagal menghapus. Pastikan kamu masih login dan backend berjalan.'))
     }
   }
   deleteTarget.value = null
@@ -137,15 +137,15 @@ const labelClass = 'block text-sm font-medium mb-1.5'
         <div class="grid sm:grid-cols-2 gap-4">
           <div>
             <label :class="labelClass">Company</label>
-            <input v-model="form.company" type="text" required :class="inputClass" />
+            <input v-model="form.company" type="text" required maxlength="150" :class="inputClass" />
           </div>
           <div>
             <label :class="labelClass">Type</label>
-            <input v-model="form.type" type="text" placeholder="Full-time, Part-time..." required :class="inputClass" />
+            <input v-model="form.type" type="text" placeholder="Full-time, Part-time..." required maxlength="50" :class="inputClass" />
           </div>
         </div>
 
-        <AdminTranslatableInput v-model="form.role" label="Role" required />
+        <AdminTranslatableInput v-model="form.role" label="Role" required :maxlength="150" />
 
         <AdminToggleSwitch v-model="form.current" label="Posisi saat ini (current)" />
 
@@ -162,10 +162,10 @@ const labelClass = 'block text-sm font-medium mb-1.5'
 
         <div>
           <label :class="labelClass">Location</label>
-          <input v-model="form.location" type="text" required :class="inputClass" />
+          <input v-model="form.location" type="text" required maxlength="150" :class="inputClass" />
         </div>
 
-        <AdminTranslatableInput v-model="form.description" label="Description" type="textarea" :rows="5" required />
+        <AdminTranslatableInput v-model="form.description" label="Description" type="textarea" :rows="5" required :maxlength="2000" />
 
         <div>
           <label :class="labelClass">Skills</label>

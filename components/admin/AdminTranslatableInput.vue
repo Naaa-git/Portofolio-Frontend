@@ -5,6 +5,7 @@ interface Props {
   type?: 'input' | 'textarea'
   rows?: number
   required?: boolean
+  maxlength?: number
 }
 
 const props = withDefaults(defineProps<Props>(), { type: 'input', rows: 3, required: false })
@@ -28,6 +29,7 @@ const inputClass = 'w-full px-4 py-2.5 rounded-lg bg-slate-100 dark:bg-slate-800
           :value="modelValue.id"
           :rows="rows"
           :required="required"
+          :maxlength="maxlength"
           :class="inputClass"
           @input="update('id', ($event.target as HTMLTextAreaElement).value)"
         />
@@ -36,9 +38,11 @@ const inputClass = 'w-full px-4 py-2.5 rounded-lg bg-slate-100 dark:bg-slate-800
           type="text"
           :value="modelValue.id"
           :required="required"
+          :maxlength="maxlength"
           :class="inputClass"
           @input="update('id', ($event.target as HTMLInputElement).value)"
         />
+        <AdminCharCounter v-if="maxlength" :count="modelValue.id.length" :max="maxlength" />
       </div>
       <div>
         <span class="text-[11px] font-medium uppercase tracking-wide text-slate-400 mb-1 block">English</span>
@@ -47,6 +51,7 @@ const inputClass = 'w-full px-4 py-2.5 rounded-lg bg-slate-100 dark:bg-slate-800
           :value="modelValue.en"
           :rows="rows"
           :required="required"
+          :maxlength="maxlength"
           :class="inputClass"
           @input="update('en', ($event.target as HTMLTextAreaElement).value)"
         />
@@ -55,9 +60,11 @@ const inputClass = 'w-full px-4 py-2.5 rounded-lg bg-slate-100 dark:bg-slate-800
           type="text"
           :value="modelValue.en"
           :required="required"
+          :maxlength="maxlength"
           :class="inputClass"
           @input="update('en', ($event.target as HTMLInputElement).value)"
         />
+        <AdminCharCounter v-if="maxlength" :count="modelValue.en.length" :max="maxlength" />
       </div>
     </div>
   </div>

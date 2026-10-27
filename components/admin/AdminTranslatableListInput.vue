@@ -4,6 +4,7 @@ import { Plus, X } from 'lucide-vue-next'
 interface Props {
   modelValue: { id: string; en: string }[]
   type?: 'input' | 'textarea'
+  maxlength?: number
 }
 
 const props = withDefaults(defineProps<Props>(), { type: 'input' })
@@ -29,38 +30,48 @@ function remove(index: number) {
   <div class="space-y-2">
     <div v-for="(item, i) in modelValue" :key="i" class="flex gap-2 items-start">
       <div class="flex-1 grid sm:grid-cols-2 gap-2">
-        <textarea
-          v-if="type === 'textarea'"
-          :value="item.id"
-          rows="2"
-          placeholder="Indonesia"
-          :class="inputClass"
-          @input="update(i, 'id', ($event.target as HTMLTextAreaElement).value)"
-        />
-        <input
-          v-else
-          type="text"
-          :value="item.id"
-          placeholder="Indonesia"
-          :class="inputClass"
-          @input="update(i, 'id', ($event.target as HTMLInputElement).value)"
-        />
-        <textarea
-          v-if="type === 'textarea'"
-          :value="item.en"
-          rows="2"
-          placeholder="English"
-          :class="inputClass"
-          @input="update(i, 'en', ($event.target as HTMLTextAreaElement).value)"
-        />
-        <input
-          v-else
-          type="text"
-          :value="item.en"
-          placeholder="English"
-          :class="inputClass"
-          @input="update(i, 'en', ($event.target as HTMLInputElement).value)"
-        />
+        <div>
+          <textarea
+            v-if="type === 'textarea'"
+            :value="item.id"
+            rows="2"
+            placeholder="Indonesia"
+            :maxlength="maxlength"
+            :class="inputClass"
+            @input="update(i, 'id', ($event.target as HTMLTextAreaElement).value)"
+          />
+          <input
+            v-else
+            type="text"
+            :value="item.id"
+            placeholder="Indonesia"
+            :maxlength="maxlength"
+            :class="inputClass"
+            @input="update(i, 'id', ($event.target as HTMLInputElement).value)"
+          />
+          <AdminCharCounter v-if="maxlength" :count="item.id.length" :max="maxlength" />
+        </div>
+        <div>
+          <textarea
+            v-if="type === 'textarea'"
+            :value="item.en"
+            rows="2"
+            placeholder="English"
+            :maxlength="maxlength"
+            :class="inputClass"
+            @input="update(i, 'en', ($event.target as HTMLTextAreaElement).value)"
+          />
+          <input
+            v-else
+            type="text"
+            :value="item.en"
+            placeholder="English"
+            :maxlength="maxlength"
+            :class="inputClass"
+            @input="update(i, 'en', ($event.target as HTMLInputElement).value)"
+          />
+          <AdminCharCounter v-if="maxlength" :count="item.en.length" :max="maxlength" />
+        </div>
       </div>
       <button type="button" class="p-2 rounded-lg text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 shrink-0" @click="remove(i)">
         <X :size="15" />
