@@ -12,6 +12,7 @@ const isScrolled = ref(false)
 const navLinks = computed(() => [
   { label: t('nav.home'), href: localePath('/') },
   { label: t('nav.projects'), href: localePath('/projects') },
+  { label: t('nav.lessons'), href: localePath('/lessons') },
   { label: t('nav.about'), href: localePath('/about') },
   { label: t('nav.contact'), href: localePath('/contact') },
 ])

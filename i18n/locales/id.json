@@ -2,6 +2,7 @@
   "nav": {
     "home": "Home",
     "projects": "Projects",
+    "lessons": "Lessons",
     "about": "About",
     "contact": "Contact"
   },
@@ -77,6 +78,12 @@
     "Personal": "Personal",
     "Freelance": "Freelance",
     "Work": "Pekerjaan Kantor"
+  },
+  "lessons": {
+    "heading": "Lessons & Experiments",
+    "subheading": "Pattern, pelajaran, dan eksperimen yang saya kumpulkan sepanjang jalan.",
+    "relatedToProject": "Terkait: {title}",
+    "fromExperience": "Dari pengalaman kerja di {company}"
   },
   "outsideCode": {
     "heading": "A Little About Me",

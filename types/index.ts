@@ -220,6 +220,37 @@ export interface ContactMessageAdmin {
   errorMessage: string | null
 }
 
+export interface LessonCategory {
+  id: number
+  name: string
+}
+
+export interface LessonCategoryAdmin {
+  id: number
+  name: Translatable
+  sortOrder: number
+}
+
+export interface Lesson {
+  id: number
+  categoryId: number
+  categoryName: string
+  title: string
+  description: string
+  projectSlug: string | null
+  projectTitle: string | null
+  experienceCompany: string | null
+}
+
+export interface LessonAdmin {
+  id: number
+  categoryId: number
+  title: Translatable
+  description: Translatable
+  projectId: number | null
+  experienceId: number | null
+}
+
 export interface Profile {
   name: string
   shortName: string
