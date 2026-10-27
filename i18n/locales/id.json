@@ -48,7 +48,10 @@
     "sending": "Mengirim...",
     "sendMessage": "Kirim Pesan",
     "messageSentTitle": "Pesan terkirim!",
-    "messageSentBody": "Terima kasih sudah menghubungi. Saya akan segera membalas."
+    "messageSentBody": "Terima kasih sudah menghubungi. Saya akan segera membalas.",
+    "sendError": "Gagal mengirim pesan. Coba lagi ya.",
+    "rateLimited": "Kamu kirim pesan terlalu sering. Tunggu sebentar lalu coba lagi.",
+    "tryAgain": "Coba Lagi"
   },
   "projects": {
     "heading": "Projects",

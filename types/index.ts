@@ -201,6 +201,25 @@ export interface LifeInspirationAdmin {
   sortOrder: number
 }
 
+export type ContactMessageStatus = 'Pending' | 'Sent' | 'Failed'
+
+export interface ContactSubmitPayload {
+  name: string
+  email: string
+  message: string
+}
+
+export interface ContactMessageAdmin {
+  id: number
+  name: string
+  email: string
+  message: string
+  status: ContactMessageStatus
+  createdAtUtc: string
+  sentAtUtc: string | null
+  errorMessage: string | null
+}
+
 export interface Profile {
   name: string
   shortName: string
