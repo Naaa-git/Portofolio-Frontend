@@ -33,8 +33,35 @@ export const useAdminAuthStore = defineStore('adminAuth', () => {
       const response = await $fetch<LoginResponseDto>(`${apiBase}${path}`, {
         method: 'POST',
         body,
+        // Needed so the browser stores/sends the HttpOnly refresh_token cookie
+        // the backend sets alongside this response — api and frontend are
+        // different origins, so this isn't implicit like it would be same-site.
+        credentials: 'include',
       })
       return applyLoginResponse(response)
+    } catch {
+      return false
+    }
+  }
+
+  // Called by apiFetch's 401 handler, and proactively by the admin-auth
+  // middleware — which also runs during SSR (a fresh tab loading /admin
+  // directly, not just client-side navigation). A plain $fetch on the server
+  // is a separate server-to-server call that does NOT carry the browser's
+  // incoming cookies — useRequestFetch() is Nuxt's composable specifically
+  // for forwarding the original request's cookies/headers in that case; on
+  // the client it behaves like ordinary $fetch.
+  async function refreshAccessToken(): Promise<boolean> {
+    const config = useRuntimeConfig()
+    const apiBase = import.meta.server ? config.apiBaseInternal : config.public.apiBase
+    const requestFetch = useRequestFetch()
+    try {
+      const response = await requestFetch<{ accessToken: string }>(`${apiBase}/auth/refresh`, {
+        method: 'POST',
+        credentials: 'include',
+      })
+      token.value = response.accessToken
+      return true
     } catch {
       return false
     }
@@ -62,7 +89,14 @@ export const useAdminAuthStore = defineStore('adminAuth', () => {
     return post(path, { pendingToken: pendingToken.value, code })
   }
 
-  function logout() {
+  async function logout() {
+    const config = useRuntimeConfig()
+    const apiBase = import.meta.server ? config.apiBaseInternal : config.public.apiBase
+    // Best-effort — revoking the refresh token server-side matters, but
+    // clearing local state must happen regardless of whether this succeeds
+    // (e.g. the network is down, or the token was already revoked).
+    await $fetch(`${apiBase}/auth/logout`, { method: 'POST', credentials: 'include' }).catch(() => {})
+
     token.value = null
     pendingToken.value = null
     pendingChallenge.value = null
@@ -76,6 +110,7 @@ export const useAdminAuthStore = defineStore('adminAuth', () => {
     loginWithGoogle,
     loginWithMicrosoft,
     verifyCode,
+    refreshAccessToken,
     logout,
   }
 })
