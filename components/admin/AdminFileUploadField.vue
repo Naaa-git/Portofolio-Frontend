@@ -14,9 +14,37 @@ const emit = defineEmits<{ 'update:modelValue': [value: string] }>()
 const fileInput = ref<HTMLInputElement>()
 const uploading = ref(false)
 
+// Mirrors LocalDiskFileStorageService's allow-lists/limits (portofolio-bc) so
+// obviously-wrong files get rejected instantly, before a round trip — the
+// backend stays the source of truth and re-checks the same thing server-side.
+const LIMITS = {
+  image: { extensions: ['.jpg', '.jpeg', '.png', '.webp', '.gif'], maxBytes: 5 * 1024 * 1024, maxLabel: '5MB' },
+  document: { extensions: ['.pdf'], maxBytes: 10 * 1024 * 1024, maxLabel: '10MB' },
+} as const
+
+function validateFile(file: File): string | undefined {
+  const { extensions, maxBytes, maxLabel } = LIMITS[props.kind]
+  const extension = `.${file.name.split('.').pop()?.toLowerCase()}`
+
+  if (!extensions.includes(extension as never))
+    return `Tipe file '${extension}' tidak didukung. Pakai ${extensions.join(', ')}.`
+
+  if (file.size > maxBytes)
+    return `File terlalu besar (maks ${maxLabel}).`
+
+  return undefined
+}
+
 async function handleFileChange(event: Event) {
   const file = (event.target as HTMLInputElement).files?.[0]
   if (!file) return
+
+  const validationError = validateFile(file)
+  if (validationError) {
+    toast.error(validationError)
+    if (fileInput.value) fileInput.value.value = ''
+    return
+  }
 
   uploading.value = true
   try {
@@ -24,8 +52,8 @@ async function handleFileChange(event: Event) {
     formData.append('file', file)
     const result = await apiFetch<{ url: string }>(props.endpoint, { method: 'POST', body: formData })
     emit('update:modelValue', result.url)
-  } catch {
-    toast.error('Upload gagal. Cek ukuran/tipe file dan coba lagi.')
+  } catch (err) {
+    toast.error(getApiErrorMessage(err, 'Upload gagal. Cek ukuran/tipe file dan coba lagi.'))
   } finally {
     uploading.value = false
     if (fileInput.value) fileInput.value.value = ''
