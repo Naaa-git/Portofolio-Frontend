@@ -39,12 +39,27 @@ useReorderPersist(lifeTable, toRef(store, 'adminLifeInspirations'), (item, sortO
 )
 
 const inputClass = 'w-full px-4 py-2.5 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm focus:outline-none focus:border-accent-500'
-const labelClass = 'block text-sm font-medium mb-1.5'
 
 // --- Intro ---
 const introForm = reactive({ ...store.adminIntro })
+const introErrors = reactive<Record<string, string | undefined>>({})
 const isSavingIntro = ref(false)
+
+function validateIntro(): boolean {
+  introErrors.paragraph1Id = requiredError(introForm.paragraph1.id, 'Paragraf 1 (Indonesia)')
+  introErrors.paragraph1En = requiredError(introForm.paragraph1.en, 'Paragraf 1 (English)')
+  introErrors.paragraph2Id = requiredError(introForm.paragraph2.id, 'Paragraf 2 (Indonesia)')
+  introErrors.paragraph2En = requiredError(introForm.paragraph2.en, 'Paragraf 2 (English)')
+  return !Object.values(introErrors).some(Boolean)
+}
+
+watch(() => introForm.paragraph1.id, () => { introErrors.paragraph1Id = undefined })
+watch(() => introForm.paragraph1.en, () => { introErrors.paragraph1En = undefined })
+watch(() => introForm.paragraph2.id, () => { introErrors.paragraph2Id = undefined })
+watch(() => introForm.paragraph2.en, () => { introErrors.paragraph2En = undefined })
+
 async function saveIntro() {
+  if (!validateIntro()) return
   isSavingIntro.value = true
   try {
     await store.updateIntro({ ...introForm })
@@ -61,18 +76,37 @@ const awayModal = ref(false)
 const awayEditingId = ref<number | null>(null)
 const awayForm = reactive<Omit<AwayFromKeyboardItemAdmin, 'id'>>({ title: { id: '', en: '' }, note: { id: '', en: '' }, imageUrl: '', sortOrder: 0 })
 const awayDeleteTarget = ref<AwayFromKeyboardItemAdmin | null>(null)
+const awayErrors = reactive<Record<string, string | undefined>>({})
+
+function validateAway(): boolean {
+  awayErrors.titleId = requiredError(awayForm.title.id, 'Title (Indonesia)')
+  awayErrors.titleEn = requiredError(awayForm.title.en, 'Title (English)')
+  awayErrors.noteId = requiredError(awayForm.note.id, 'Note (Indonesia)')
+  awayErrors.noteEn = requiredError(awayForm.note.en, 'Note (English)')
+  awayErrors.imageUrl = urlError(awayForm.imageUrl ?? '', 'Image URL')
+  return !Object.values(awayErrors).some(Boolean)
+}
+
+watch(() => awayForm.title.id, () => { awayErrors.titleId = undefined })
+watch(() => awayForm.title.en, () => { awayErrors.titleEn = undefined })
+watch(() => awayForm.note.id, () => { awayErrors.noteId = undefined })
+watch(() => awayForm.note.en, () => { awayErrors.noteEn = undefined })
+watch(() => awayForm.imageUrl, () => { awayErrors.imageUrl = undefined })
 
 function openAwayCreate() {
   awayEditingId.value = null
   Object.assign(awayForm, { title: { id: '', en: '' }, note: { id: '', en: '' }, imageUrl: '', sortOrder: store.adminAwayFromKeyboard.length + 1 })
+  Object.keys(awayErrors).forEach(k => { awayErrors[k] = undefined })
   awayModal.value = true
 }
 function openAwayEdit(row: AwayFromKeyboardItemAdmin) {
   awayEditingId.value = row.id
   Object.assign(awayForm, { title: { ...row.title }, note: { ...row.note }, imageUrl: row.imageUrl ?? '', sortOrder: row.sortOrder })
+  Object.keys(awayErrors).forEach(k => { awayErrors[k] = undefined })
   awayModal.value = true
 }
 async function submitAway() {
+  if (!validateAway()) return
   try {
     if (awayEditingId.value !== null) {
       await store.updateAwayFromKeyboard(awayEditingId.value, { ...awayForm })
@@ -103,18 +137,35 @@ const movieModal = ref(false)
 const movieEditingId = ref<number | null>(null)
 const movieForm = reactive<Omit<MovieTakeAdmin, 'id'>>({ title: '', take: { id: '', en: '' }, imageUrl: '', sortOrder: 0 })
 const movieDeleteTarget = ref<MovieTakeAdmin | null>(null)
+const movieErrors = reactive<Record<string, string | undefined>>({})
+
+function validateMovie(): boolean {
+  movieErrors.title = requiredError(movieForm.title, 'Title')
+  movieErrors.takeId = requiredError(movieForm.take.id, 'Take / Opini (Indonesia)')
+  movieErrors.takeEn = requiredError(movieForm.take.en, 'Take / Opini (English)')
+  movieErrors.imageUrl = urlError(movieForm.imageUrl ?? '', 'Image URL')
+  return !Object.values(movieErrors).some(Boolean)
+}
+
+watch(() => movieForm.title, () => { movieErrors.title = undefined })
+watch(() => movieForm.take.id, () => { movieErrors.takeId = undefined })
+watch(() => movieForm.take.en, () => { movieErrors.takeEn = undefined })
+watch(() => movieForm.imageUrl, () => { movieErrors.imageUrl = undefined })
 
 function openMovieCreate() {
   movieEditingId.value = null
   Object.assign(movieForm, { title: '', take: { id: '', en: '' }, imageUrl: '', sortOrder: store.adminMovies.length + 1 })
+  Object.keys(movieErrors).forEach(k => { movieErrors[k] = undefined })
   movieModal.value = true
 }
 function openMovieEdit(row: MovieTakeAdmin) {
   movieEditingId.value = row.id
   Object.assign(movieForm, { title: row.title, take: { ...row.take }, imageUrl: row.imageUrl ?? '', sortOrder: row.sortOrder })
+  Object.keys(movieErrors).forEach(k => { movieErrors[k] = undefined })
   movieModal.value = true
 }
 async function submitMovie() {
+  if (!validateMovie()) return
   try {
     if (movieEditingId.value !== null) {
       await store.updateMovie(movieEditingId.value, { ...movieForm })
@@ -145,18 +196,33 @@ const artistModal = ref(false)
 const artistEditingId = ref<number | null>(null)
 const artistForm = reactive<Omit<MusicArtist, 'id'>>({ name: '', url: '', imageUrl: '', sortOrder: 0 })
 const artistDeleteTarget = ref<MusicArtist | null>(null)
+const artistErrors = reactive<Record<string, string | undefined>>({})
+
+function validateArtist(): boolean {
+  artistErrors.name = requiredError(artistForm.name, 'Name')
+  artistErrors.url = urlError(artistForm.url, 'Spotify URL', { required: true })
+  artistErrors.imageUrl = urlError(artistForm.imageUrl ?? '', 'Image URL')
+  return !Object.values(artistErrors).some(Boolean)
+}
+
+watch(() => artistForm.name, () => { artistErrors.name = undefined })
+watch(() => artistForm.url, () => { artistErrors.url = undefined })
+watch(() => artistForm.imageUrl, () => { artistErrors.imageUrl = undefined })
 
 function openArtistCreate() {
   artistEditingId.value = null
   Object.assign(artistForm, { name: '', url: '', imageUrl: '', sortOrder: store.musicArtists.length + 1 })
+  Object.keys(artistErrors).forEach(k => { artistErrors[k] = undefined })
   artistModal.value = true
 }
 function openArtistEdit(row: MusicArtist) {
   artistEditingId.value = row.id
   Object.assign(artistForm, { name: row.name, url: row.url, imageUrl: row.imageUrl ?? '', sortOrder: row.sortOrder })
+  Object.keys(artistErrors).forEach(k => { artistErrors[k] = undefined })
   artistModal.value = true
 }
 async function submitArtist() {
+  if (!validateArtist()) return
   try {
     if (artistEditingId.value !== null) {
       await store.updateMusicArtist(artistEditingId.value, { ...artistForm })
@@ -187,18 +253,33 @@ const podcastModal = ref(false)
 const podcastEditingId = ref<number | null>(null)
 const podcastForm = reactive<Omit<PodcastChannel, 'id'>>({ name: '', url: '', imageUrl: '', sortOrder: 0 })
 const podcastDeleteTarget = ref<PodcastChannel | null>(null)
+const podcastErrors = reactive<Record<string, string | undefined>>({})
+
+function validatePodcast(): boolean {
+  podcastErrors.name = requiredError(podcastForm.name, 'Name')
+  podcastErrors.url = urlError(podcastForm.url, 'URL', { required: true })
+  podcastErrors.imageUrl = urlError(podcastForm.imageUrl ?? '', 'Image URL')
+  return !Object.values(podcastErrors).some(Boolean)
+}
+
+watch(() => podcastForm.name, () => { podcastErrors.name = undefined })
+watch(() => podcastForm.url, () => { podcastErrors.url = undefined })
+watch(() => podcastForm.imageUrl, () => { podcastErrors.imageUrl = undefined })
 
 function openPodcastCreate() {
   podcastEditingId.value = null
   Object.assign(podcastForm, { name: '', url: '', imageUrl: '', sortOrder: store.podcasts.length + 1 })
+  Object.keys(podcastErrors).forEach(k => { podcastErrors[k] = undefined })
   podcastModal.value = true
 }
 function openPodcastEdit(row: PodcastChannel) {
   podcastEditingId.value = row.id
   Object.assign(podcastForm, { name: row.name, url: row.url, imageUrl: row.imageUrl ?? '', sortOrder: row.sortOrder })
+  Object.keys(podcastErrors).forEach(k => { podcastErrors[k] = undefined })
   podcastModal.value = true
 }
 async function submitPodcast() {
+  if (!validatePodcast()) return
   try {
     if (podcastEditingId.value !== null) {
       await store.updatePodcast(podcastEditingId.value, { ...podcastForm })
@@ -231,10 +312,23 @@ const bookForm = reactive<Omit<OutsideCodeBookAdmin, 'id'>>({
   title: '', author: '', note: { id: '', en: '' }, imageUrl: '', isCurrentlyReading: false, sortOrder: 0,
 })
 const bookDeleteTarget = ref<OutsideCodeBookAdmin | null>(null)
+const bookErrors = reactive<Record<string, string | undefined>>({})
+
+function validateBook(): boolean {
+  bookErrors.title = requiredError(bookForm.title, 'Title')
+  bookErrors.author = requiredError(bookForm.author, 'Author')
+  bookErrors.imageUrl = urlError(bookForm.imageUrl ?? '', 'Image URL')
+  return !Object.values(bookErrors).some(Boolean)
+}
+
+watch(() => bookForm.title, () => { bookErrors.title = undefined })
+watch(() => bookForm.author, () => { bookErrors.author = undefined })
+watch(() => bookForm.imageUrl, () => { bookErrors.imageUrl = undefined })
 
 function openBookCreate() {
   bookEditingId.value = null
   Object.assign(bookForm, { title: '', author: '', note: { id: '', en: '' }, imageUrl: '', isCurrentlyReading: false, sortOrder: store.adminBooks.length + 1 })
+  Object.keys(bookErrors).forEach(k => { bookErrors[k] = undefined })
   bookModal.value = true
 }
 function openBookEdit(row: OutsideCodeBookAdmin) {
@@ -243,9 +337,11 @@ function openBookEdit(row: OutsideCodeBookAdmin) {
     title: row.title, author: row.author, note: { ...row.note }, imageUrl: row.imageUrl ?? '',
     isCurrentlyReading: row.isCurrentlyReading, sortOrder: row.sortOrder,
   })
+  Object.keys(bookErrors).forEach(k => { bookErrors[k] = undefined })
   bookModal.value = true
 }
 async function submitBook() {
+  if (!validateBook()) return
   try {
     if (bookEditingId.value !== null) {
       await store.updateBook(bookEditingId.value, { ...bookForm })
@@ -276,18 +372,39 @@ const lifeModal = ref(false)
 const lifeEditingId = ref<number | null>(null)
 const lifeForm = reactive<Omit<LifeInspirationAdmin, 'id'>>({ name: '', aspect: { id: '', en: '' }, note: { id: '', en: '' }, imageUrl: '', sortOrder: 0 })
 const lifeDeleteTarget = ref<LifeInspirationAdmin | null>(null)
+const lifeErrors = reactive<Record<string, string | undefined>>({})
+
+function validateLife(): boolean {
+  lifeErrors.name = requiredError(lifeForm.name, 'Name')
+  lifeErrors.aspectId = requiredError(lifeForm.aspect.id, 'Aspect (Indonesia)')
+  lifeErrors.aspectEn = requiredError(lifeForm.aspect.en, 'Aspect (English)')
+  lifeErrors.noteId = requiredError(lifeForm.note.id, 'Note (Indonesia)')
+  lifeErrors.noteEn = requiredError(lifeForm.note.en, 'Note (English)')
+  lifeErrors.imageUrl = urlError(lifeForm.imageUrl ?? '', 'Image URL')
+  return !Object.values(lifeErrors).some(Boolean)
+}
+
+watch(() => lifeForm.name, () => { lifeErrors.name = undefined })
+watch(() => lifeForm.aspect.id, () => { lifeErrors.aspectId = undefined })
+watch(() => lifeForm.aspect.en, () => { lifeErrors.aspectEn = undefined })
+watch(() => lifeForm.note.id, () => { lifeErrors.noteId = undefined })
+watch(() => lifeForm.note.en, () => { lifeErrors.noteEn = undefined })
+watch(() => lifeForm.imageUrl, () => { lifeErrors.imageUrl = undefined })
 
 function openLifeCreate() {
   lifeEditingId.value = null
   Object.assign(lifeForm, { name: '', aspect: { id: '', en: '' }, note: { id: '', en: '' }, imageUrl: '', sortOrder: store.adminLifeInspirations.length + 1 })
+  Object.keys(lifeErrors).forEach(k => { lifeErrors[k] = undefined })
   lifeModal.value = true
 }
 function openLifeEdit(row: LifeInspirationAdmin) {
   lifeEditingId.value = row.id
   Object.assign(lifeForm, { name: row.name, aspect: { ...row.aspect }, note: { ...row.note }, imageUrl: row.imageUrl ?? '', sortOrder: row.sortOrder })
+  Object.keys(lifeErrors).forEach(k => { lifeErrors[k] = undefined })
   lifeModal.value = true
 }
 async function submitLife() {
+  if (!validateLife()) return
   try {
     if (lifeEditingId.value !== null) {
       await store.updateLifeInspiration(lifeEditingId.value, { ...lifeForm })
@@ -322,9 +439,15 @@ async function confirmLifeDelete() {
     <!-- Intro -->
     <section class="mb-10">
       <h2 class="text-lg font-semibold mb-4">Intro</h2>
-      <form class="space-y-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5" @submit.prevent="saveIntro">
-        <AdminTranslatableInput v-model="introForm.paragraph1" label="Paragraf 1" type="textarea" :rows="2" required :maxlength="1000" />
-        <AdminTranslatableInput v-model="introForm.paragraph2" label="Paragraf 2" type="textarea" :rows="3" required :maxlength="1000" />
+      <form class="space-y-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5" novalidate @submit.prevent="saveIntro">
+        <AdminTranslatableInput
+          v-model="introForm.paragraph1" label="Paragraf 1" type="textarea" :rows="2" required :maxlength="1000"
+          :error-id="introErrors.paragraph1Id" :error-en="introErrors.paragraph1En"
+        />
+        <AdminTranslatableInput
+          v-model="introForm.paragraph2" label="Paragraf 2" type="textarea" :rows="3" required :maxlength="1000"
+          :error-id="introErrors.paragraph2Id" :error-en="introErrors.paragraph2En"
+        />
         <AppButton type="submit" size="sm" :disabled="isSavingIntro">{{ isSavingIntro ? 'Menyimpan...' : 'Simpan' }}</AppButton>
       </form>
     </section>
@@ -350,10 +473,14 @@ async function confirmLifeDelete() {
       </AdminTable>
 
       <AdminModal :show="awayModal" :title="awayEditingId !== null ? 'Edit Item' : 'Tambah Item'" @close="awayModal = false">
-        <form class="space-y-4" @submit.prevent="submitAway">
-          <AdminTranslatableInput v-model="awayForm.title" label="Title" required :maxlength="100" />
-          <AdminTranslatableInput v-model="awayForm.note" label="Note" type="textarea" required :maxlength="500" />
-          <div><label :class="labelClass">Image URL</label><input v-model="awayForm.imageUrl" type="url" maxlength="500" :class="inputClass" /></div>
+        <form class="space-y-4" novalidate @submit.prevent="submitAway">
+          <AdminTranslatableInput v-model="awayForm.title" label="Title" required :maxlength="100" :error-id="awayErrors.titleId" :error-en="awayErrors.titleEn" />
+          <AdminTranslatableInput v-model="awayForm.note" label="Note" type="textarea" required :maxlength="500" :error-id="awayErrors.noteId" :error-en="awayErrors.noteEn" />
+          <div>
+            <AdminLabel text="Image URL" />
+            <input v-model="awayForm.imageUrl" type="url" maxlength="500" :class="errorInputClass(inputClass, awayErrors.imageUrl)" />
+            <AdminFieldError :message="awayErrors.imageUrl" />
+          </div>
           <div class="flex justify-end gap-2 pt-2">
             <AppButton type="button" variant="ghost" size="sm" @click="awayModal = false">Batal</AppButton>
             <AppButton type="submit" size="sm">Simpan</AppButton>
@@ -384,10 +511,18 @@ async function confirmLifeDelete() {
       </AdminTable>
 
       <AdminModal :show="movieModal" :title="movieEditingId !== null ? 'Edit Movie' : 'Tambah Movie'" @close="movieModal = false">
-        <form class="space-y-4" @submit.prevent="submitMovie">
-          <div><label :class="labelClass">Title</label><input v-model="movieForm.title" type="text" required maxlength="150" :class="inputClass" /></div>
-          <AdminTranslatableInput v-model="movieForm.take" label="Take / Opini" type="textarea" required :maxlength="1000" />
-          <div><label :class="labelClass">Image URL</label><input v-model="movieForm.imageUrl" type="url" maxlength="500" :class="inputClass" /></div>
+        <form class="space-y-4" novalidate @submit.prevent="submitMovie">
+          <div>
+            <AdminLabel text="Title" required />
+            <input v-model="movieForm.title" type="text" maxlength="150" :class="errorInputClass(inputClass, movieErrors.title)" />
+            <AdminFieldError :message="movieErrors.title" />
+          </div>
+          <AdminTranslatableInput v-model="movieForm.take" label="Take / Opini" type="textarea" required :maxlength="1000" :error-id="movieErrors.takeId" :error-en="movieErrors.takeEn" />
+          <div>
+            <AdminLabel text="Image URL" />
+            <input v-model="movieForm.imageUrl" type="url" maxlength="500" :class="errorInputClass(inputClass, movieErrors.imageUrl)" />
+            <AdminFieldError :message="movieErrors.imageUrl" />
+          </div>
           <div class="flex justify-end gap-2 pt-2">
             <AppButton type="button" variant="ghost" size="sm" @click="movieModal = false">Batal</AppButton>
             <AppButton type="submit" size="sm">Simpan</AppButton>
@@ -418,10 +553,22 @@ async function confirmLifeDelete() {
       </AdminTable>
 
       <AdminModal :show="artistModal" :title="artistEditingId !== null ? 'Edit Artist' : 'Tambah Artist'" @close="artistModal = false">
-        <form class="space-y-4" @submit.prevent="submitArtist">
-          <div><label :class="labelClass">Name</label><input v-model="artistForm.name" type="text" required maxlength="100" :class="inputClass" /></div>
-          <div><label :class="labelClass">Spotify URL</label><input v-model="artistForm.url" type="url" required maxlength="500" :class="inputClass" /></div>
-          <div><label :class="labelClass">Image URL</label><input v-model="artistForm.imageUrl" type="url" maxlength="500" :class="inputClass" /></div>
+        <form class="space-y-4" novalidate @submit.prevent="submitArtist">
+          <div>
+            <AdminLabel text="Name" required />
+            <input v-model="artistForm.name" type="text" maxlength="100" :class="errorInputClass(inputClass, artistErrors.name)" />
+            <AdminFieldError :message="artistErrors.name" />
+          </div>
+          <div>
+            <AdminLabel text="Spotify URL" required />
+            <input v-model="artistForm.url" type="url" maxlength="500" :class="errorInputClass(inputClass, artistErrors.url)" />
+            <AdminFieldError :message="artistErrors.url" />
+          </div>
+          <div>
+            <AdminLabel text="Image URL" />
+            <input v-model="artistForm.imageUrl" type="url" maxlength="500" :class="errorInputClass(inputClass, artistErrors.imageUrl)" />
+            <AdminFieldError :message="artistErrors.imageUrl" />
+          </div>
           <div class="flex justify-end gap-2 pt-2">
             <AppButton type="button" variant="ghost" size="sm" @click="artistModal = false">Batal</AppButton>
             <AppButton type="submit" size="sm">Simpan</AppButton>
@@ -452,10 +599,22 @@ async function confirmLifeDelete() {
       </AdminTable>
 
       <AdminModal :show="podcastModal" :title="podcastEditingId !== null ? 'Edit Podcast' : 'Tambah Podcast'" @close="podcastModal = false">
-        <form class="space-y-4" @submit.prevent="submitPodcast">
-          <div><label :class="labelClass">Name</label><input v-model="podcastForm.name" type="text" required maxlength="100" :class="inputClass" /></div>
-          <div><label :class="labelClass">URL</label><input v-model="podcastForm.url" type="url" required maxlength="500" :class="inputClass" /></div>
-          <div><label :class="labelClass">Image URL</label><input v-model="podcastForm.imageUrl" type="url" maxlength="500" :class="inputClass" /></div>
+        <form class="space-y-4" novalidate @submit.prevent="submitPodcast">
+          <div>
+            <AdminLabel text="Name" required />
+            <input v-model="podcastForm.name" type="text" maxlength="100" :class="errorInputClass(inputClass, podcastErrors.name)" />
+            <AdminFieldError :message="podcastErrors.name" />
+          </div>
+          <div>
+            <AdminLabel text="URL" required />
+            <input v-model="podcastForm.url" type="url" maxlength="500" :class="errorInputClass(inputClass, podcastErrors.url)" />
+            <AdminFieldError :message="podcastErrors.url" />
+          </div>
+          <div>
+            <AdminLabel text="Image URL" />
+            <input v-model="podcastForm.imageUrl" type="url" maxlength="500" :class="errorInputClass(inputClass, podcastErrors.imageUrl)" />
+            <AdminFieldError :message="podcastErrors.imageUrl" />
+          </div>
           <div class="flex justify-end gap-2 pt-2">
             <AppButton type="button" variant="ghost" size="sm" @click="podcastModal = false">Batal</AppButton>
             <AppButton type="submit" size="sm">Simpan</AppButton>
@@ -487,11 +646,23 @@ async function confirmLifeDelete() {
       </AdminTable>
 
       <AdminModal :show="bookModal" :title="bookEditingId !== null ? 'Edit Buku' : 'Tambah Buku'" @close="bookModal = false">
-        <form class="space-y-4" @submit.prevent="submitBook">
-          <div><label :class="labelClass">Title</label><input v-model="bookForm.title" type="text" required maxlength="150" :class="inputClass" /></div>
-          <div><label :class="labelClass">Author</label><input v-model="bookForm.author" type="text" required maxlength="100" :class="inputClass" /></div>
+        <form class="space-y-4" novalidate @submit.prevent="submitBook">
+          <div>
+            <AdminLabel text="Title" required />
+            <input v-model="bookForm.title" type="text" maxlength="150" :class="errorInputClass(inputClass, bookErrors.title)" />
+            <AdminFieldError :message="bookErrors.title" />
+          </div>
+          <div>
+            <AdminLabel text="Author" required />
+            <input v-model="bookForm.author" type="text" maxlength="100" :class="errorInputClass(inputClass, bookErrors.author)" />
+            <AdminFieldError :message="bookErrors.author" />
+          </div>
           <AdminTranslatableInput v-model="bookForm.note" label="Note (opsional)" type="textarea" :rows="2" :maxlength="500" />
-          <div><label :class="labelClass">Image URL</label><input v-model="bookForm.imageUrl" type="url" maxlength="500" :class="inputClass" /></div>
+          <div>
+            <AdminLabel text="Image URL" />
+            <input v-model="bookForm.imageUrl" type="url" maxlength="500" :class="errorInputClass(inputClass, bookErrors.imageUrl)" />
+            <AdminFieldError :message="bookErrors.imageUrl" />
+          </div>
           <AdminToggleSwitch v-model="bookForm.isCurrentlyReading" label="Currently reading" />
           <div class="flex justify-end gap-2 pt-2">
             <AppButton type="button" variant="ghost" size="sm" @click="bookModal = false">Batal</AppButton>
@@ -524,11 +695,19 @@ async function confirmLifeDelete() {
       </AdminTable>
 
       <AdminModal :show="lifeModal" :title="lifeEditingId !== null ? 'Edit' : 'Tambah'" @close="lifeModal = false">
-        <form class="space-y-4" @submit.prevent="submitLife">
-          <div><label :class="labelClass">Name</label><input v-model="lifeForm.name" type="text" required maxlength="100" :class="inputClass" /></div>
-          <AdminTranslatableInput v-model="lifeForm.aspect" label="Aspect" required :maxlength="150" />
-          <AdminTranslatableInput v-model="lifeForm.note" label="Note" type="textarea" required :maxlength="1000" />
-          <div><label :class="labelClass">Image URL</label><input v-model="lifeForm.imageUrl" type="url" maxlength="500" :class="inputClass" /></div>
+        <form class="space-y-4" novalidate @submit.prevent="submitLife">
+          <div>
+            <AdminLabel text="Name" required />
+            <input v-model="lifeForm.name" type="text" maxlength="100" :class="errorInputClass(inputClass, lifeErrors.name)" />
+            <AdminFieldError :message="lifeErrors.name" />
+          </div>
+          <AdminTranslatableInput v-model="lifeForm.aspect" label="Aspect" required :maxlength="150" :error-id="lifeErrors.aspectId" :error-en="lifeErrors.aspectEn" />
+          <AdminTranslatableInput v-model="lifeForm.note" label="Note" type="textarea" required :maxlength="1000" :error-id="lifeErrors.noteId" :error-en="lifeErrors.noteEn" />
+          <div>
+            <AdminLabel text="Image URL" />
+            <input v-model="lifeForm.imageUrl" type="url" maxlength="500" :class="errorInputClass(inputClass, lifeErrors.imageUrl)" />
+            <AdminFieldError :message="lifeErrors.imageUrl" />
+          </div>
           <div class="flex justify-end gap-2 pt-2">
             <AppButton type="button" variant="ghost" size="sm" @click="lifeModal = false">Batal</AppButton>
             <AppButton type="submit" size="sm">Simpan</AppButton>

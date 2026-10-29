@@ -18,7 +18,6 @@ await callOnce('lessons-admin-data', () => Promise.all([
 ]))
 
 const inputClass = 'w-full px-4 py-2.5 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm focus:outline-none focus:border-accent-500'
-const labelClass = 'block text-sm font-medium mb-1.5'
 
 function categoryName(id: number) {
   return lessonStore.adminCategories.find(c => c.id === id)?.name.id ?? '—'
@@ -35,19 +34,33 @@ function emptyCategoryForm(): Omit<LessonCategoryAdmin, 'id'> {
 
 const categoryForm = reactive<Omit<LessonCategoryAdmin, 'id'>>(emptyCategoryForm())
 
+const categoryErrors = reactive<Record<string, string | undefined>>({})
+
+function validateCategory(): boolean {
+  categoryErrors.nameId = requiredError(categoryForm.name.id, 'Nama Kategori (Indonesia)')
+  categoryErrors.nameEn = requiredError(categoryForm.name.en, 'Nama Kategori (English)')
+  return !Object.values(categoryErrors).some(Boolean)
+}
+
+watch(() => categoryForm.name.id, () => { categoryErrors.nameId = undefined })
+watch(() => categoryForm.name.en, () => { categoryErrors.nameEn = undefined })
+
 function openCategoryCreate() {
   editingCategoryId.value = null
   Object.assign(categoryForm, emptyCategoryForm())
+  Object.keys(categoryErrors).forEach(k => { categoryErrors[k] = undefined })
   showCategoryModal.value = true
 }
 
 function openCategoryEdit(row: LessonCategoryAdmin) {
   editingCategoryId.value = row.id
   Object.assign(categoryForm, { name: { ...row.name }, sortOrder: row.sortOrder })
+  Object.keys(categoryErrors).forEach(k => { categoryErrors[k] = undefined })
   showCategoryModal.value = true
 }
 
 async function submitCategory() {
+  if (!validateCategory()) return
   try {
     if (editingCategoryId.value !== null) {
       await lessonStore.updateCategory(editingCategoryId.value, { ...categoryForm })
@@ -95,9 +108,25 @@ function emptyLessonForm(): Omit<LessonAdmin, 'id'> {
 
 const lessonForm = reactive<Omit<LessonAdmin, 'id'>>(emptyLessonForm())
 
+const lessonErrors = reactive<Record<string, string | undefined>>({})
+
+function validateLesson(): boolean {
+  lessonErrors.titleId = requiredError(lessonForm.title.id, 'Title (Indonesia)')
+  lessonErrors.titleEn = requiredError(lessonForm.title.en, 'Title (English)')
+  lessonErrors.descriptionId = requiredError(lessonForm.description.id, 'Description (Indonesia)')
+  lessonErrors.descriptionEn = requiredError(lessonForm.description.en, 'Description (English)')
+  return !Object.values(lessonErrors).some(Boolean)
+}
+
+watch(() => lessonForm.title.id, () => { lessonErrors.titleId = undefined })
+watch(() => lessonForm.title.en, () => { lessonErrors.titleEn = undefined })
+watch(() => lessonForm.description.id, () => { lessonErrors.descriptionId = undefined })
+watch(() => lessonForm.description.en, () => { lessonErrors.descriptionEn = undefined })
+
 function openLessonCreate() {
   editingLessonId.value = null
   Object.assign(lessonForm, emptyLessonForm())
+  Object.keys(lessonErrors).forEach(k => { lessonErrors[k] = undefined })
   showLessonModal.value = true
 }
 
@@ -107,10 +136,12 @@ function openLessonEdit(row: LessonAdmin) {
     categoryId: row.categoryId, title: { ...row.title }, description: { ...row.description },
     projectId: row.projectId, experienceId: row.experienceId,
   })
+  Object.keys(lessonErrors).forEach(k => { lessonErrors[k] = undefined })
   showLessonModal.value = true
 }
 
 async function submitLesson() {
+  if (!validateLesson()) return
   try {
     if (editingLessonId.value !== null) {
       await lessonStore.updateLesson(editingLessonId.value, { ...lessonForm })
@@ -205,10 +236,13 @@ async function confirmLessonDelete() {
     </div>
 
     <AdminModal :show="showCategoryModal" :title="editingCategoryId !== null ? 'Edit Kategori' : 'Tambah Kategori'" @close="showCategoryModal = false">
-      <form class="space-y-4" @submit.prevent="submitCategory">
-        <AdminTranslatableInput v-model="categoryForm.name" label="Nama Kategori" required :maxlength="100" />
+      <form class="space-y-4" novalidate @submit.prevent="submitCategory">
+        <AdminTranslatableInput
+          v-model="categoryForm.name" label="Nama Kategori" required :maxlength="100"
+          :error-id="categoryErrors.nameId" :error-en="categoryErrors.nameEn"
+        />
         <div>
-          <label :class="labelClass">Urutan</label>
+          <AdminLabel text="Urutan" />
           <input v-model.number="categoryForm.sortOrder" type="number" min="0" max="9999" :class="inputClass" />
         </div>
         <div class="flex justify-end gap-2 pt-2">
@@ -219,27 +253,30 @@ async function confirmLessonDelete() {
     </AdminModal>
 
     <AdminModal :show="showLessonModal" :title="editingLessonId !== null ? 'Edit Lesson' : 'Tambah Lesson'" @close="showLessonModal = false">
-      <form class="space-y-4" @submit.prevent="submitLesson">
+      <form class="space-y-4" novalidate @submit.prevent="submitLesson">
         <div>
-          <label :class="labelClass">Kategori</label>
-          <select v-model.number="lessonForm.categoryId" required :class="inputClass">
+          <AdminLabel text="Kategori" required />
+          <select v-model.number="lessonForm.categoryId" :class="inputClass">
             <option v-for="c in lessonStore.adminCategories" :key="c.id" :value="c.id">{{ c.name.id }}</option>
           </select>
         </div>
 
-        <AdminTranslatableInput v-model="lessonForm.title" label="Title" required :maxlength="150" />
-        <AdminTranslatableInput v-model="lessonForm.description" label="Description" type="textarea" :rows="4" required :maxlength="2000" />
+        <AdminTranslatableInput v-model="lessonForm.title" label="Title" required :maxlength="150" :error-id="lessonErrors.titleId" :error-en="lessonErrors.titleEn" />
+        <AdminTranslatableInput
+          v-model="lessonForm.description" label="Description" type="textarea" :rows="4" required :maxlength="2000"
+          :error-id="lessonErrors.descriptionId" :error-en="lessonErrors.descriptionEn"
+        />
 
         <div class="grid sm:grid-cols-2 gap-4">
           <div>
-            <label :class="labelClass">Terkait Project (opsional)</label>
+            <AdminLabel text="Terkait Project (opsional)" />
             <select v-model="lessonForm.projectId" :class="inputClass">
               <option :value="null">— Tidak ada —</option>
               <option v-for="p in projectStore.adminProjects" :key="p.id" :value="p.id">{{ p.title }}</option>
             </select>
           </div>
           <div>
-            <label :class="labelClass">Terkait Experience (opsional)</label>
+            <AdminLabel text="Terkait Experience (opsional)" />
             <select v-model="lessonForm.experienceId" :class="inputClass">
               <option :value="null">— Tidak ada —</option>
               <option v-for="e in profileStore.adminExperiences" :key="e.id" :value="e.id">{{ e.company }}</option>

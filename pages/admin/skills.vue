@@ -16,6 +16,17 @@ const form = reactive<Omit<SkillAdmin, 'id'>>({ category: { id: '', en: '' }, it
 
 const deleteTarget = ref<SkillAdmin | null>(null)
 
+const errors = reactive<Record<string, string | undefined>>({})
+
+function validate(): boolean {
+  errors.categoryId = requiredError(form.category.id, 'Category (Indonesia)')
+  errors.categoryEn = requiredError(form.category.en, 'Category (English)')
+  return !Object.values(errors).some(Boolean)
+}
+
+watch(() => form.category.id, () => { errors.categoryId = undefined })
+watch(() => form.category.en, () => { errors.categoryEn = undefined })
+
 const skillsTable = useTemplateRef('skillsTable')
 useReorderPersist(skillsTable, toRef(profileStore, 'adminSkills'), (item, sortOrder) =>
   profileStore.updateSkill(item.id, { category: item.category, items: item.items, sortOrder }),
@@ -24,16 +35,19 @@ useReorderPersist(skillsTable, toRef(profileStore, 'adminSkills'), (item, sortOr
 function openCreate() {
   editingId.value = null
   Object.assign(form, { category: { id: '', en: '' }, items: [], sortOrder: profileStore.adminSkills.length + 1 })
+  Object.keys(errors).forEach(k => { errors[k] = undefined })
   showModal.value = true
 }
 
 function openEdit(row: SkillAdmin) {
   editingId.value = row.id
   Object.assign(form, { category: { ...row.category }, items: [...row.items], sortOrder: row.sortOrder })
+  Object.keys(errors).forEach(k => { errors[k] = undefined })
   showModal.value = true
 }
 
 async function handleSubmit() {
+  if (!validate()) return
   try {
     if (editingId.value !== null) {
       await profileStore.updateSkill(editingId.value, { ...form })
@@ -60,7 +74,6 @@ async function confirmDelete() {
   deleteTarget.value = null
 }
 
-const labelClass = 'block text-sm font-medium mb-1.5'
 </script>
 
 <template>
@@ -97,10 +110,10 @@ const labelClass = 'block text-sm font-medium mb-1.5'
     </AdminTable>
 
     <AdminModal :show="showModal" :title="editingId !== null ? 'Edit Skill' : 'Tambah Skill'" @close="showModal = false">
-      <form class="space-y-4" @submit.prevent="handleSubmit">
-        <AdminTranslatableInput v-model="form.category" label="Category" required :maxlength="100" />
+      <form class="space-y-4" novalidate @submit.prevent="handleSubmit">
+        <AdminTranslatableInput v-model="form.category" label="Category" required :maxlength="100" :error-id="errors.categoryId" :error-en="errors.categoryEn" />
         <div>
-          <label :class="labelClass">Items</label>
+          <AdminLabel text="Items" />
           <AdminTagInput v-model="form.items" placeholder="Tambah item..." />
         </div>
         <div class="flex justify-end gap-2 pt-2">

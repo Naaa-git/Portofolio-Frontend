@@ -25,6 +25,31 @@ function emptyForm(): Omit<ExperienceAdmin, 'id'> {
 const form = reactive<Omit<ExperienceAdmin, 'id'>>(emptyForm())
 const deleteTarget = ref<ExperienceAdmin | null>(null)
 
+const errors = reactive<Record<string, string | undefined>>({})
+
+function validate(): boolean {
+  errors.company = requiredError(form.company, 'Company')
+  errors.type = requiredError(form.type, 'Type')
+  errors.roleId = requiredError(form.role.id, 'Role (Indonesia)')
+  errors.roleEn = requiredError(form.role.en, 'Role (English)')
+  errors.startDate = requiredError(form.startDate, 'Mulai')
+  errors.endDate = form.current ? undefined : requiredError(form.endDate ?? '', 'Selesai')
+  errors.location = requiredError(form.location, 'Location')
+  errors.descriptionId = requiredError(form.description.id, 'Description (Indonesia)')
+  errors.descriptionEn = requiredError(form.description.en, 'Description (English)')
+  return !Object.values(errors).some(Boolean)
+}
+
+watch(() => form.company, () => { errors.company = undefined })
+watch(() => form.type, () => { errors.type = undefined })
+watch(() => form.role.id, () => { errors.roleId = undefined })
+watch(() => form.role.en, () => { errors.roleEn = undefined })
+watch(() => form.startDate, () => { errors.startDate = undefined })
+watch(() => form.endDate, () => { errors.endDate = undefined })
+watch(() => form.location, () => { errors.location = undefined })
+watch(() => form.description.id, () => { errors.descriptionId = undefined })
+watch(() => form.description.en, () => { errors.descriptionEn = undefined })
+
 // HTML <input type="month"> works with "YYYY-MM" — the API deals in full
 // ISO dates ("YYYY-MM-DD"), so convert at the edges rather than carrying a
 // half-formed date around in the form itself.
@@ -44,6 +69,7 @@ watch(() => form.current, (isCurrent) => {
 function openCreate() {
   editingId.value = null
   Object.assign(form, emptyForm())
+  Object.keys(errors).forEach(k => { errors[k] = undefined })
   showModal.value = true
 }
 
@@ -54,10 +80,12 @@ function openEdit(row: ExperienceAdmin) {
     location: row.location, current: row.current, description: { ...row.description }, skills: [...row.skills],
     projectIds: [...row.projectIds],
   })
+  Object.keys(errors).forEach(k => { errors[k] = undefined })
   showModal.value = true
 }
 
 async function handleSubmit() {
+  if (!validate()) return
   try {
     if (editingId.value !== null) {
       await profileStore.updateExperience(editingId.value, form)
@@ -100,7 +128,6 @@ function formatPeriod(row: ExperienceAdmin) {
 }
 
 const inputClass = 'w-full px-4 py-2.5 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm focus:outline-none focus:border-accent-500'
-const labelClass = 'block text-sm font-medium mb-1.5'
 </script>
 
 <template>
@@ -133,47 +160,58 @@ const labelClass = 'block text-sm font-medium mb-1.5'
     </AdminTable>
 
     <AdminModal :show="showModal" :title="editingId !== null ? 'Edit Experience' : 'Tambah Experience'" @close="showModal = false">
-      <form class="space-y-4" @submit.prevent="handleSubmit">
+      <form class="space-y-4" novalidate @submit.prevent="handleSubmit">
         <div class="grid sm:grid-cols-2 gap-4">
           <div>
-            <label :class="labelClass">Company</label>
-            <input v-model="form.company" type="text" required maxlength="150" :class="inputClass" />
+            <AdminLabel text="Company" required />
+            <input v-model="form.company" type="text" maxlength="150" :class="errorInputClass(inputClass, errors.company)" />
+            <AdminFieldError :message="errors.company" />
           </div>
           <div>
-            <label :class="labelClass">Type</label>
-            <input v-model="form.type" type="text" placeholder="Full-time, Part-time..." required maxlength="50" :class="inputClass" />
+            <AdminLabel text="Type" required />
+            <input v-model="form.type" type="text" placeholder="Full-time, Part-time..." maxlength="50" :class="errorInputClass(inputClass, errors.type)" />
+            <AdminFieldError :message="errors.type" />
           </div>
         </div>
 
-        <AdminTranslatableInput v-model="form.role" label="Role" required :maxlength="150" />
+        <AdminTranslatableInput v-model="form.role" label="Role" required :maxlength="150" :error-id="errors.roleId" :error-en="errors.roleEn" />
 
         <AdminToggleSwitch v-model="form.current" label="Posisi saat ini (current)" />
 
         <div class="grid sm:grid-cols-2 gap-4">
           <div>
-            <label :class="labelClass">Mulai</label>
-            <input v-model="startMonth" type="month" required :class="inputClass" />
+            <AdminLabel text="Mulai" required />
+            <input v-model="startMonth" type="month" :class="errorInputClass(inputClass, errors.startDate)" />
+            <AdminFieldError :message="errors.startDate" />
           </div>
           <div>
-            <label :class="labelClass">Selesai</label>
-            <input v-model="endMonth" type="month" :disabled="form.current" :required="!form.current" :class="[inputClass, form.current && 'opacity-50']" />
+            <AdminLabel text="Selesai" :required="!form.current" />
+            <input
+              v-model="endMonth" type="month" :disabled="form.current"
+              :class="[...errorInputClass(inputClass, errors.endDate), form.current && 'opacity-50']"
+            />
+            <AdminFieldError :message="errors.endDate" />
           </div>
         </div>
 
         <div>
-          <label :class="labelClass">Location</label>
-          <input v-model="form.location" type="text" required maxlength="150" :class="inputClass" />
+          <AdminLabel text="Location" required />
+          <input v-model="form.location" type="text" maxlength="150" :class="errorInputClass(inputClass, errors.location)" />
+          <AdminFieldError :message="errors.location" />
         </div>
 
-        <AdminTranslatableInput v-model="form.description" label="Description" type="textarea" :rows="5" required :maxlength="2000" />
+        <AdminTranslatableInput
+          v-model="form.description" label="Description" type="textarea" :rows="5" required :maxlength="2000"
+          :error-id="errors.descriptionId" :error-en="errors.descriptionEn"
+        />
 
         <div>
-          <label :class="labelClass">Skills</label>
+          <AdminLabel text="Skills" />
           <AdminTagInput v-model="form.skills" placeholder="Tambah skill..." />
         </div>
 
         <div v-if="editingId !== null">
-          <label :class="labelClass">Project yang dikerjakan di sini</label>
+          <AdminLabel text="Project yang dikerjakan di sini" />
           <div class="flex flex-wrap gap-2">
             <button
               v-for="p in projectStore.adminProjects"

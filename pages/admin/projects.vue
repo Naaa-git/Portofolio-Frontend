@@ -23,9 +23,31 @@ function emptyForm(): Omit<ProjectAdmin, 'id'> {
 
 const form = reactive<Omit<ProjectAdmin, 'id'>>(emptyForm())
 
+const errors = reactive<Record<string, string | undefined>>({})
+
+function validate(): boolean {
+  errors.title = requiredError(form.title, 'Title')
+  errors.slug = slugError(form.slug, 'Slug')
+  errors.shortDescriptionId = requiredError(form.shortDescription.id, 'Short Description (Indonesia)')
+  errors.shortDescriptionEn = requiredError(form.shortDescription.en, 'Short Description (English)')
+  errors.imageUrl = urlError(form.imageUrl, 'Image', { required: true })
+  errors.githubUrl = urlError(form.githubUrl ?? '', 'GitHub URL')
+  errors.demoUrl = urlError(form.demoUrl ?? '', 'Demo URL')
+  return !Object.values(errors).some(Boolean)
+}
+
+watch(() => form.title, () => { errors.title = undefined })
+watch(() => form.slug, () => { errors.slug = undefined })
+watch(() => form.shortDescription.id, () => { errors.shortDescriptionId = undefined })
+watch(() => form.shortDescription.en, () => { errors.shortDescriptionEn = undefined })
+watch(() => form.imageUrl, () => { errors.imageUrl = undefined })
+watch(() => form.githubUrl, () => { errors.githubUrl = undefined })
+watch(() => form.demoUrl, () => { errors.demoUrl = undefined })
+
 function openCreate() {
   editingId.value = null
   Object.assign(form, emptyForm())
+  Object.keys(errors).forEach(k => { errors[k] = undefined })
   showModal.value = true
 }
 
@@ -36,10 +58,12 @@ function openEdit(row: ProjectAdmin) {
     techStack: [...row.techStack], imageUrl: row.imageUrl, githubUrl: row.githubUrl, demoUrl: row.demoUrl,
     featured: row.featured, category: row.category,
   })
+  Object.keys(errors).forEach(k => { errors[k] = undefined })
   showModal.value = true
 }
 
 async function handleSubmit() {
+  if (!validate()) return
   try {
     if (editingId.value !== null) {
       await projectStore.updateProject(editingId.value, { ...form })
@@ -67,7 +91,6 @@ async function confirmDelete() {
 }
 
 const inputClass = 'w-full px-4 py-2.5 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm focus:outline-none focus:border-accent-500'
-const labelClass = 'block text-sm font-medium mb-1.5'
 
 const categoryLabels: Record<ProjectAdmin['category'], string> = {
   Personal: 'Personal',
@@ -108,48 +131,56 @@ const categoryLabels: Record<ProjectAdmin['category'], string> = {
     </AdminTable>
 
     <AdminModal :show="showModal" :title="editingId !== null ? 'Edit Project' : 'Tambah Project'" @close="showModal = false">
-      <form class="space-y-4" @submit.prevent="handleSubmit">
+      <form class="space-y-4" novalidate @submit.prevent="handleSubmit">
         <div class="grid sm:grid-cols-2 gap-4">
           <div>
-            <label :class="labelClass">Title</label>
-            <input v-model="form.title" type="text" required maxlength="150" :class="inputClass" />
+            <AdminLabel text="Title" required />
+            <input v-model="form.title" type="text" maxlength="150" :class="errorInputClass(inputClass, errors.title)" />
+            <AdminFieldError :message="errors.title" />
           </div>
           <div>
-            <label :class="labelClass">Slug</label>
-            <input v-model="form.slug" type="text" required maxlength="150" pattern="[a-z0-9]+(-[a-z0-9]+)*" :class="inputClass" />
+            <AdminLabel text="Slug" required />
+            <input v-model="form.slug" type="text" maxlength="150" :class="errorInputClass(inputClass, errors.slug)" />
+            <AdminFieldError :message="errors.slug" />
           </div>
         </div>
 
-        <AdminTranslatableInput v-model="form.shortDescription" label="Short Description" type="textarea" :rows="2" required :maxlength="300" />
+        <AdminTranslatableInput
+          v-model="form.shortDescription" label="Short Description" type="textarea" :rows="2" required :maxlength="300"
+          :error-id="errors.shortDescriptionId" :error-en="errors.shortDescriptionEn"
+        />
 
         <div>
-          <label :class="labelClass">Contribution</label>
+          <AdminLabel text="Contribution" />
           <AdminTranslatableListInput v-model="form.contribution" type="textarea" :maxlength="500" />
         </div>
 
         <div>
-          <label :class="labelClass">Tech Stack</label>
+          <AdminLabel text="Tech Stack" />
           <AdminTagInput v-model="form.techStack" placeholder="Tambah teknologi..." />
         </div>
 
         <div>
-          <label :class="labelClass">Image</label>
+          <AdminLabel text="Image" required />
           <AdminFileUploadField v-model="form.imageUrl" accept="image/*" endpoint="/images/upload" kind="image" />
+          <AdminFieldError :message="errors.imageUrl" />
         </div>
 
         <div class="grid sm:grid-cols-2 gap-4">
           <div>
-            <label :class="labelClass">GitHub URL</label>
-            <input v-model="form.githubUrl" type="url" maxlength="500" :class="inputClass" />
+            <AdminLabel text="GitHub URL" />
+            <input v-model="form.githubUrl" type="url" maxlength="500" :class="errorInputClass(inputClass, errors.githubUrl)" />
+            <AdminFieldError :message="errors.githubUrl" />
           </div>
           <div>
-            <label :class="labelClass">Demo URL</label>
-            <input v-model="form.demoUrl" type="url" maxlength="500" :class="inputClass" />
+            <AdminLabel text="Demo URL" />
+            <input v-model="form.demoUrl" type="url" maxlength="500" :class="errorInputClass(inputClass, errors.demoUrl)" />
+            <AdminFieldError :message="errors.demoUrl" />
           </div>
         </div>
 
         <div>
-          <label :class="labelClass">Category</label>
+          <AdminLabel text="Category" />
           <select v-model="form.category" :class="inputClass">
             <option value="Personal">Personal</option>
             <option value="Freelance">Freelance</option>

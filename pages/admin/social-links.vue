@@ -14,19 +14,35 @@ const editingId = ref<number | null>(null)
 const form = reactive<Omit<SocialLink, 'id'>>({ name: '', url: '', icon: '' })
 const deleteTarget = ref<SocialLink | null>(null)
 
+const errors = reactive<Record<string, string | undefined>>({})
+
+function validate(): boolean {
+  errors.name = requiredError(form.name, 'Name')
+  errors.url = urlError(form.url, 'URL', { required: true })
+  errors.icon = requiredError(form.icon, 'Icon')
+  return !Object.values(errors).some(Boolean)
+}
+
+watch(() => form.name, () => { errors.name = undefined })
+watch(() => form.url, () => { errors.url = undefined })
+watch(() => form.icon, () => { errors.icon = undefined })
+
 function openCreate() {
   editingId.value = null
   Object.assign(form, { name: '', url: '', icon: '' })
+  Object.keys(errors).forEach(k => { errors[k] = undefined })
   showModal.value = true
 }
 
 function openEdit(row: SocialLink) {
   editingId.value = row.id
   Object.assign(form, { name: row.name, url: row.url, icon: row.icon })
+  Object.keys(errors).forEach(k => { errors[k] = undefined })
   showModal.value = true
 }
 
 async function handleSubmit() {
+  if (!validate()) return
   try {
     if (editingId.value !== null) {
       await profileStore.updateSocialLink(editingId.value, { ...form })
@@ -54,7 +70,6 @@ async function confirmDelete() {
 }
 
 const inputClass = 'w-full px-4 py-2.5 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm focus:outline-none focus:border-accent-500'
-const labelClass = 'block text-sm font-medium mb-1.5'
 </script>
 
 <template>
@@ -86,18 +101,21 @@ const labelClass = 'block text-sm font-medium mb-1.5'
     </AdminTable>
 
     <AdminModal :show="showModal" :title="editingId !== null ? 'Edit Social Link' : 'Tambah Social Link'" @close="showModal = false">
-      <form class="space-y-4" @submit.prevent="handleSubmit">
+      <form class="space-y-4" novalidate @submit.prevent="handleSubmit">
         <div>
-          <label :class="labelClass">Name</label>
-          <input v-model="form.name" type="text" required maxlength="50" :class="inputClass" />
+          <AdminLabel text="Name" required />
+          <input v-model="form.name" type="text" maxlength="50" :class="errorInputClass(inputClass, errors.name)" />
+          <AdminFieldError :message="errors.name" />
         </div>
         <div>
-          <label :class="labelClass">URL</label>
-          <input v-model="form.url" type="url" required maxlength="500" :class="inputClass" />
+          <AdminLabel text="URL" required />
+          <input v-model="form.url" type="url" maxlength="500" :class="errorInputClass(inputClass, errors.url)" />
+          <AdminFieldError :message="errors.url" />
         </div>
         <div>
-          <label :class="labelClass">Icon (lucide name)</label>
-          <input v-model="form.icon" type="text" placeholder="github, linkedin, mail..." required maxlength="50" :class="inputClass" />
+          <AdminLabel text="Icon (lucide name)" required />
+          <input v-model="form.icon" type="text" placeholder="github, linkedin, mail..." maxlength="50" :class="errorInputClass(inputClass, errors.icon)" />
+          <AdminFieldError :message="errors.icon" />
         </div>
         <div class="flex justify-end gap-2 pt-2">
           <AppButton type="button" variant="ghost" size="sm" @click="showModal = false">Batal</AppButton>

@@ -6,6 +6,8 @@ interface Props {
   rows?: number
   required?: boolean
   maxlength?: number
+  errorId?: string
+  errorEn?: string
 }
 
 const props = withDefaults(defineProps<Props>(), { type: 'input', rows: 3, required: false })
@@ -20,7 +22,7 @@ const inputClass = 'w-full px-4 py-2.5 rounded-lg bg-slate-100 dark:bg-slate-800
 
 <template>
   <div>
-    <label class="block text-sm font-medium mb-1.5">{{ label }}</label>
+    <AdminLabel :text="label" :required="required" />
     <div class="grid sm:grid-cols-2 gap-3">
       <div>
         <span class="text-[11px] font-medium uppercase tracking-wide text-slate-400 mb-1 block">Indonesia</span>
@@ -28,20 +30,19 @@ const inputClass = 'w-full px-4 py-2.5 rounded-lg bg-slate-100 dark:bg-slate-800
           v-if="type === 'textarea'"
           :value="modelValue.id"
           :rows="rows"
-          :required="required"
           :maxlength="maxlength"
-          :class="inputClass"
+          :class="errorInputClass(inputClass, errorId)"
           @input="update('id', ($event.target as HTMLTextAreaElement).value)"
         />
         <input
           v-else
           type="text"
           :value="modelValue.id"
-          :required="required"
           :maxlength="maxlength"
-          :class="inputClass"
+          :class="errorInputClass(inputClass, errorId)"
           @input="update('id', ($event.target as HTMLInputElement).value)"
         />
+        <AdminFieldError :message="errorId" />
         <AdminCharCounter v-if="maxlength" :count="modelValue.id.length" :max="maxlength" />
       </div>
       <div>
@@ -50,20 +51,19 @@ const inputClass = 'w-full px-4 py-2.5 rounded-lg bg-slate-100 dark:bg-slate-800
           v-if="type === 'textarea'"
           :value="modelValue.en"
           :rows="rows"
-          :required="required"
           :maxlength="maxlength"
-          :class="inputClass"
+          :class="errorInputClass(inputClass, errorEn)"
           @input="update('en', ($event.target as HTMLTextAreaElement).value)"
         />
         <input
           v-else
           type="text"
           :value="modelValue.en"
-          :required="required"
           :maxlength="maxlength"
-          :class="inputClass"
+          :class="errorInputClass(inputClass, errorEn)"
           @input="update('en', ($event.target as HTMLInputElement).value)"
         />
+        <AdminFieldError :message="errorEn" />
         <AdminCharCounter v-if="maxlength" :count="modelValue.en.length" :max="maxlength" />
       </div>
     </div>
