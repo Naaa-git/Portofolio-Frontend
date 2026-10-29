@@ -162,7 +162,7 @@ const categoryLabels: Record<ProjectAdmin['category'], string> = {
 
         <div>
           <AdminLabel text="Image" required />
-          <AdminFileUploadField v-model="form.imageUrl" accept="image/*" endpoint="/images/upload" kind="image" />
+          <AdminFileUploadField v-model="form.imageUrl" accept="image/*" endpoint="/images/upload" kind="image" :aspect-ratio="16 / 9" />
           <AdminFieldError :message="errors.imageUrl" />
         </div>
 

@@ -8,11 +8,16 @@ const props = defineProps<{
   accept: string
   endpoint: string
   kind: 'image' | 'document'
+  // Only meaningful for kind="image" — document uploads (CV PDFs) skip the
+  // crop step entirely since there's nothing to crop.
+  aspectRatio?: number
+  shape?: 'circle' | 'rectangle'
 }>()
 const emit = defineEmits<{ 'update:modelValue': [value: string] }>()
 
 const fileInput = ref<HTMLInputElement>()
 const uploading = ref(false)
+const pendingFile = ref<File | null>(null)
 
 // Mirrors LocalDiskFileStorageService's allow-lists/limits (portofolio-bc) so
 // obviously-wrong files get rejected instantly, before a round trip — the
@@ -35,7 +40,7 @@ function validateFile(file: File): string | undefined {
   return undefined
 }
 
-async function handleFileChange(event: Event) {
+function handleFileChange(event: Event) {
   const file = (event.target as HTMLInputElement).files?.[0]
   if (!file) return
 
@@ -46,10 +51,18 @@ async function handleFileChange(event: Event) {
     return
   }
 
+  if (props.kind === 'image' && props.aspectRatio) {
+    pendingFile.value = file
+  } else {
+    upload(file)
+  }
+}
+
+async function upload(fileOrBlob: File | Blob) {
   uploading.value = true
   try {
     const formData = new FormData()
-    formData.append('file', file)
+    formData.append('file', fileOrBlob, fileOrBlob instanceof File ? fileOrBlob.name : 'cropped')
     const result = await apiFetch<{ url: string }>(props.endpoint, { method: 'POST', body: formData })
     emit('update:modelValue', result.url)
   } catch (err) {
@@ -60,6 +73,16 @@ async function handleFileChange(event: Event) {
   }
 }
 
+function handleCropped(blob: Blob) {
+  pendingFile.value = null
+  upload(blob)
+}
+
+function handleCropCancelled() {
+  pendingFile.value = null
+  if (fileInput.value) fileInput.value.value = ''
+}
+
 const fileName = computed(() => props.modelValue.split('/').pop())
 </script>
 
@@ -67,7 +90,9 @@ const fileName = computed(() => props.modelValue.split('/').pop())
   <div class="space-y-2">
     <div
       v-if="kind === 'image'"
-      class="w-full aspect-video rounded-lg bg-slate-100 dark:bg-slate-800 overflow-hidden flex items-center justify-center border border-slate-200 dark:border-slate-700"
+      class="w-full bg-slate-100 dark:bg-slate-800 overflow-hidden flex items-center justify-center border border-slate-200 dark:border-slate-700"
+      :class="shape === 'circle' ? 'rounded-full' : 'rounded-lg'"
+      :style="{ aspectRatio: String(aspectRatio ?? 16 / 9) }"
     >
       <img v-if="modelValue" :src="modelValue" class="w-full h-full object-cover" />
       <ImageIcon v-else :size="28" class="text-slate-400" />
@@ -93,5 +118,13 @@ const fileName = computed(() => props.modelValue.split('/').pop())
       {{ uploading ? 'Mengunggah...' : 'Upload' }}
     </button>
     <input ref="fileInput" type="file" :accept="accept" class="hidden" @change="handleFileChange" />
+
+    <AdminImageCropModal
+      :file="pendingFile"
+      :aspect-ratio="aspectRatio ?? 1"
+      :shape="shape"
+      @cropped="handleCropped"
+      @cancel="handleCropCancelled"
+    />
   </div>
 </template>

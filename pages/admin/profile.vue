@@ -110,7 +110,7 @@ const inputClass = 'w-full px-4 py-2.5 rounded-lg bg-slate-100 dark:bg-slate-800
       <div class="grid sm:grid-cols-2 gap-5">
         <div>
           <AdminLabel text="Avatar" required />
-          <AdminFileUploadField v-model="form.avatarUrl" accept="image/*" endpoint="/images/upload" kind="image" />
+          <AdminFileUploadField v-model="form.avatarUrl" accept="image/*" endpoint="/images/upload" kind="image" :aspect-ratio="1" shape="circle" />
           <AdminFieldError :message="errors.avatarUrl" />
         </div>
         <div>

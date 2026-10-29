@@ -476,11 +476,7 @@ async function confirmLifeDelete() {
         <form class="space-y-4" novalidate @submit.prevent="submitAway">
           <AdminTranslatableInput v-model="awayForm.title" label="Title" required :maxlength="100" :error-id="awayErrors.titleId" :error-en="awayErrors.titleEn" />
           <AdminTranslatableInput v-model="awayForm.note" label="Note" type="textarea" required :maxlength="500" :error-id="awayErrors.noteId" :error-en="awayErrors.noteEn" />
-          <div>
-            <AdminLabel text="Image URL" />
-            <input v-model="awayForm.imageUrl" type="url" maxlength="500" :class="errorInputClass(inputClass, awayErrors.imageUrl)" />
-            <AdminFieldError :message="awayErrors.imageUrl" />
-          </div>
+          <AdminImageOrUrlField v-model="awayForm.imageUrl" :error="awayErrors.imageUrl" :aspect-ratio="1" shape="circle" />
           <div class="flex justify-end gap-2 pt-2">
             <AppButton type="button" variant="ghost" size="sm" @click="awayModal = false">Batal</AppButton>
             <AppButton type="submit" size="sm">Simpan</AppButton>
@@ -518,11 +514,7 @@ async function confirmLifeDelete() {
             <AdminFieldError :message="movieErrors.title" />
           </div>
           <AdminTranslatableInput v-model="movieForm.take" label="Take / Opini" type="textarea" required :maxlength="1000" :error-id="movieErrors.takeId" :error-en="movieErrors.takeEn" />
-          <div>
-            <AdminLabel text="Image URL" />
-            <input v-model="movieForm.imageUrl" type="url" maxlength="500" :class="errorInputClass(inputClass, movieErrors.imageUrl)" />
-            <AdminFieldError :message="movieErrors.imageUrl" />
-          </div>
+          <AdminImageOrUrlField v-model="movieForm.imageUrl" :error="movieErrors.imageUrl" :aspect-ratio="16 / 9" />
           <div class="flex justify-end gap-2 pt-2">
             <AppButton type="button" variant="ghost" size="sm" @click="movieModal = false">Batal</AppButton>
             <AppButton type="submit" size="sm">Simpan</AppButton>
@@ -564,11 +556,7 @@ async function confirmLifeDelete() {
             <input v-model="artistForm.url" type="url" maxlength="500" :class="errorInputClass(inputClass, artistErrors.url)" />
             <AdminFieldError :message="artistErrors.url" />
           </div>
-          <div>
-            <AdminLabel text="Image URL" />
-            <input v-model="artistForm.imageUrl" type="url" maxlength="500" :class="errorInputClass(inputClass, artistErrors.imageUrl)" />
-            <AdminFieldError :message="artistErrors.imageUrl" />
-          </div>
+          <AdminImageOrUrlField v-model="artistForm.imageUrl" :error="artistErrors.imageUrl" :aspect-ratio="1" shape="circle" />
           <div class="flex justify-end gap-2 pt-2">
             <AppButton type="button" variant="ghost" size="sm" @click="artistModal = false">Batal</AppButton>
             <AppButton type="submit" size="sm">Simpan</AppButton>
@@ -610,11 +598,7 @@ async function confirmLifeDelete() {
             <input v-model="podcastForm.url" type="url" maxlength="500" :class="errorInputClass(inputClass, podcastErrors.url)" />
             <AdminFieldError :message="podcastErrors.url" />
           </div>
-          <div>
-            <AdminLabel text="Image URL" />
-            <input v-model="podcastForm.imageUrl" type="url" maxlength="500" :class="errorInputClass(inputClass, podcastErrors.imageUrl)" />
-            <AdminFieldError :message="podcastErrors.imageUrl" />
-          </div>
+          <AdminImageOrUrlField v-model="podcastForm.imageUrl" :error="podcastErrors.imageUrl" :aspect-ratio="1" shape="circle" />
           <div class="flex justify-end gap-2 pt-2">
             <AppButton type="button" variant="ghost" size="sm" @click="podcastModal = false">Batal</AppButton>
             <AppButton type="submit" size="sm">Simpan</AppButton>
@@ -658,11 +642,7 @@ async function confirmLifeDelete() {
             <AdminFieldError :message="bookErrors.author" />
           </div>
           <AdminTranslatableInput v-model="bookForm.note" label="Note (opsional)" type="textarea" :rows="2" :maxlength="500" />
-          <div>
-            <AdminLabel text="Image URL" />
-            <input v-model="bookForm.imageUrl" type="url" maxlength="500" :class="errorInputClass(inputClass, bookErrors.imageUrl)" />
-            <AdminFieldError :message="bookErrors.imageUrl" />
-          </div>
+          <AdminImageOrUrlField v-model="bookForm.imageUrl" :error="bookErrors.imageUrl" :aspect-ratio="3 / 4" />
           <AdminToggleSwitch v-model="bookForm.isCurrentlyReading" label="Currently reading" />
           <div class="flex justify-end gap-2 pt-2">
             <AppButton type="button" variant="ghost" size="sm" @click="bookModal = false">Batal</AppButton>
@@ -703,11 +683,7 @@ async function confirmLifeDelete() {
           </div>
           <AdminTranslatableInput v-model="lifeForm.aspect" label="Aspect" required :maxlength="150" :error-id="lifeErrors.aspectId" :error-en="lifeErrors.aspectEn" />
           <AdminTranslatableInput v-model="lifeForm.note" label="Note" type="textarea" required :maxlength="1000" :error-id="lifeErrors.noteId" :error-en="lifeErrors.noteEn" />
-          <div>
-            <AdminLabel text="Image URL" />
-            <input v-model="lifeForm.imageUrl" type="url" maxlength="500" :class="errorInputClass(inputClass, lifeErrors.imageUrl)" />
-            <AdminFieldError :message="lifeErrors.imageUrl" />
-          </div>
+          <AdminImageOrUrlField v-model="lifeForm.imageUrl" :error="lifeErrors.imageUrl" :aspect-ratio="1" shape="circle" />
           <div class="flex justify-end gap-2 pt-2">
             <AppButton type="button" variant="ghost" size="sm" @click="lifeModal = false">Batal</AppButton>
             <AppButton type="submit" size="sm">Simpan</AppButton>
