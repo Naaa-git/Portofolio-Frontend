@@ -68,7 +68,7 @@ export default defineNuxtConfig({
     // function here can't work because `sitemap.urls` gets serialized into
     // runtime config, and functions aren't JSON-serializable.
   },
-  css: ['~/assets/css/main.css'],
+  css: ['~/assets/css/main.css', 'vue-advanced-cropper/dist/style.css'],
   runtimeConfig: {
     // Server-only (never sent to the client bundle) — used for SSR fetches,
     // which happen inside the frontend container itself. On the VPS this
