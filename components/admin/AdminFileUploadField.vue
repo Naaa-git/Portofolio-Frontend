@@ -58,11 +58,11 @@ function handleFileChange(event: Event) {
   }
 }
 
-async function upload(fileOrBlob: File | Blob) {
+async function upload(fileOrBlob: File | Blob, fileName: string = 'upload') {
   uploading.value = true
   try {
     const formData = new FormData()
-    formData.append('file', fileOrBlob, fileOrBlob instanceof File ? fileOrBlob.name : 'cropped')
+    formData.append('file', fileOrBlob, fileOrBlob instanceof File ? fileOrBlob.name : fileName)
     const result = await apiFetch<{ url: string }>(props.endpoint, { method: 'POST', body: formData })
     emit('update:modelValue', result.url)
   } catch (err) {
@@ -74,8 +74,13 @@ async function upload(fileOrBlob: File | Blob) {
 }
 
 function handleCropped(blob: Blob) {
+  // The cropped Blob has no name of its own (unlike the original File) — backend's
+  // LocalDiskFileStorageService.SaveAsync reads the extension off this name via
+  // Path.GetExtension to decide the allowed-type check, so it still needs the
+  // original file's extension, not a bare "cropped".
+  const originalName = pendingFile.value?.name ?? 'cropped.png'
   pendingFile.value = null
-  upload(blob)
+  upload(blob, originalName)
 }
 
 function handleCropCancelled() {
