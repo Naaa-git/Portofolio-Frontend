@@ -60,16 +60,28 @@ export const useOutsideCodeStore = defineStore('outsideCode', () => {
 
   async function loadAllAdmin() {
     if (isAdminLoaded.value) return
-    const [introData, awayData, moviesData, booksData, lifeInspirationsData] = await Promise.all([
+    // MusicArtist/PodcastChannel aren't translatable (no bilingual dict), so there's
+    // no separate admin shape for them — admin mutations read/write the same
+    // musicArtists/podcasts refs the public loadAll() uses. But loadAllAdmin() is
+    // the one callOnce() actually runs on /admin/outside-code — without fetching
+    // these two here as well, those refs stay [] on a fresh admin page load (they
+    // only end up populated if loadAll() happened to already run in the same
+    // session, e.g. the public page was visited first), and the admin tables show
+    // "Belum ada data" despite the backend having rows.
+    const [introData, awayData, moviesData, musicData, podcastsData, booksData, lifeInspirationsData] = await Promise.all([
       outsideCodeService.getIntroAdmin(),
       outsideCodeService.getAwayFromKeyboardAdmin(),
       outsideCodeService.getMoviesAdmin(),
+      outsideCodeService.getMusicArtists(),
+      outsideCodeService.getPodcasts(),
       outsideCodeService.getBooksAdmin(),
       outsideCodeService.getLifeInspirationsAdmin(),
     ])
     adminIntro.value = introData
     adminAwayFromKeyboard.value = awayData
     adminMovies.value = moviesData
+    musicArtists.value = musicData
+    podcasts.value = podcastsData
     adminBooks.value = booksData
     adminLifeInspirations.value = lifeInspirationsData
     isAdminLoaded.value = true
