@@ -262,8 +262,8 @@ async function confirmLessonDelete() {
         </div>
 
         <AdminTranslatableInput v-model="lessonForm.title" label="Title" required :maxlength="150" :error-id="lessonErrors.titleId" :error-en="lessonErrors.titleEn" />
-        <AdminTranslatableInput
-          v-model="lessonForm.description" label="Description" type="textarea" :rows="4" required :maxlength="2000"
+        <AdminRichTextInput
+          v-model="lessonForm.description" label="Description" required :maxlength="2000"
           :error-id="lessonErrors.descriptionId" :error-en="lessonErrors.descriptionEn"
         />
 

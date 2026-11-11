@@ -30,7 +30,10 @@ function lessonsFor(categoryId: number) {
             :visibleOnce="{ opacity: 1, y: 0 }"
           >
             <h3 class="font-semibold mb-2">{{ lesson.title }}</h3>
-            <p class="text-sm text-slate-600 dark:text-slate-400 leading-relaxed mb-3">{{ lesson.description }}</p>
+            <div
+              class="prose prose-sm dark:prose-invert max-w-none text-slate-600 dark:text-slate-400 leading-relaxed mb-3"
+              v-html="sanitizeHtml(lesson.description)"
+            />
             <div v-if="lesson.projectSlug || lesson.experienceCompany" class="flex flex-wrap gap-2">
               <NuxtLink v-if="lesson.projectSlug" :to="localePath(`/projects/${lesson.projectSlug}`)">
                 <AppBadge variant="accent">{{ $t('lessons.relatedToProject', { title: lesson.projectTitle }) }}</AppBadge>
