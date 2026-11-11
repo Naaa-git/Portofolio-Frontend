@@ -263,7 +263,7 @@ async function confirmLessonDelete() {
 
         <AdminTranslatableInput v-model="lessonForm.title" label="Title" required :maxlength="150" :error-id="lessonErrors.titleId" :error-en="lessonErrors.titleEn" />
         <AdminRichTextInput
-          v-model="lessonForm.description" label="Description" required :maxlength="2000"
+          v-model="lessonForm.description" label="Description" required :maxlength="5000"
           :error-id="lessonErrors.descriptionId" :error-en="lessonErrors.descriptionEn"
         />
 

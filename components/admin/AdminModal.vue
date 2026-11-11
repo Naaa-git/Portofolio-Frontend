@@ -13,7 +13,7 @@ const emit = defineEmits<{ close: [] }>()
 <template>
   <Teleport to="body">
     <div v-if="show" class="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div class="absolute inset-0 bg-black/40" @click="emit('close')" />
+      <div class="absolute inset-0 bg-black/40" />
 
       <div class="relative w-full max-w-lg max-h-[85vh] overflow-y-auto rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xl">
         <div class="flex items-center justify-between px-5 py-4 border-b border-slate-200 dark:border-slate-800 sticky top-0 bg-white dark:bg-slate-900">

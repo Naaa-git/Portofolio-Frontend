@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { toast } from 'vue-sonner'
 import { EditorContent, useEditor } from '@tiptap/vue-3'
 import StarterKit from '@tiptap/starter-kit'
 import CharacterCount from '@tiptap/extension-character-count'
@@ -29,17 +30,33 @@ function makeExtensions() {
   ]
 }
 
+// CharacterCount's `limit` blocks the whole paste transaction once it would
+// overflow (no truncation) — this intercepts paste just to surface *why*
+// nothing happened, then lets the same block occur via the extension itself.
+function handlePasteOverLimit(view: { state: { doc: { textContent: string }; selection: { empty: boolean; from: number; to: number } } }, event: ClipboardEvent): boolean {
+  if (!props.maxlength) return false
+  const pasted = event.clipboardData?.getData('text/plain') ?? ''
+  if (!pasted) return false
+  const removed = view.state.selection.empty ? 0 : (view.state.selection.to - view.state.selection.from)
+  const projected = view.state.doc.textContent.length - removed + pasted.length
+  if (projected > props.maxlength) {
+    toast.error(`Teks yang di-paste kepanjangan (maksimal ${props.maxlength} karakter) — paste dibatalkan.`)
+    return true
+  }
+  return false
+}
+
 const editorId = useEditor({
   content: props.modelValue.id,
   extensions: makeExtensions(),
-  editorProps: { attributes: { class: richTextEditorClass } },
+  editorProps: { attributes: { class: richTextEditorClass }, handlePaste: handlePasteOverLimit },
   onUpdate: ({ editor }) => update('id', editor.isEmpty ? '' : editor.getHTML()),
 })
 
 const editorEn = useEditor({
   content: props.modelValue.en,
   extensions: makeExtensions(),
-  editorProps: { attributes: { class: richTextEditorClass } },
+  editorProps: { attributes: { class: richTextEditorClass }, handlePaste: handlePasteOverLimit },
   onUpdate: ({ editor }) => update('en', editor.isEmpty ? '' : editor.getHTML()),
 })
 
