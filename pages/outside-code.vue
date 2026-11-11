@@ -52,7 +52,7 @@ const memorableBooks = computed(() => outsideCodeStore.books.filter(b => !b.isCu
             <img v-if="take.imageUrl" :src="take.imageUrl" :alt="take.title" class="w-full h-40 object-cover" />
             <div class="p-5">
               <h3 class="text-sm font-semibold text-slate-800 dark:text-slate-100 mb-1.5">{{ take.title }}</h3>
-              <p class="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">{{ take.take }}</p>
+              <div class="prose prose-sm dark:prose-invert max-w-none text-sm text-slate-600 dark:text-slate-400 leading-relaxed" v-html="sanitizeHtml(take.take)" />
             </div>
           </div>
         </div>
@@ -122,7 +122,11 @@ const memorableBooks = computed(() => outsideCodeStore.books.filter(b => !b.isCu
             />
             <p class="text-xs font-semibold text-slate-800 dark:text-slate-100 leading-snug">{{ book.title }}</p>
             <p class="text-xs text-slate-500 mb-1.5">{{ book.author }}</p>
-            <p v-if="book.note" class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">{{ book.note }}</p>
+            <div
+              v-if="book.note"
+              class="prose prose-sm dark:prose-invert max-w-none text-slate-600 dark:text-slate-400 leading-relaxed [&_p]:text-xs [&_li]:text-xs"
+              v-html="sanitizeHtml(book.note)"
+            />
           </div>
         </div>
       </div>
@@ -144,7 +148,10 @@ const memorableBooks = computed(() => outsideCodeStore.books.filter(b => !b.isCu
                 <h3 class="text-sm font-semibold text-slate-800 dark:text-slate-100">{{ person.name }}</h3>
                 <span class="text-[11px] font-medium uppercase tracking-wide text-accent-500">{{ person.aspect }}</span>
               </div>
-              <p class="text-sm text-slate-600 dark:text-slate-400 leading-relaxed italic">"{{ person.note }}"</p>
+              <div
+                class="prose prose-sm dark:prose-invert max-w-none text-slate-600 dark:text-slate-400 leading-relaxed italic before:content-['\201C'] after:content-['\201D']"
+                v-html="sanitizeHtml(person.note)"
+              />
             </div>
           </div>
         </div>
