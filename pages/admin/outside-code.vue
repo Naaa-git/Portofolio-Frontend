@@ -496,7 +496,7 @@ async function confirmLifeDelete() {
         <tr v-for="row in store.adminMovies" :key="row.id">
           <td class="px-4 py-3"><GripVertical :size="16" class="drag-handle cursor-grab text-slate-400" /></td>
           <td class="px-4 py-3 font-medium">{{ row.title }}</td>
-          <td class="px-4 py-3 text-slate-500 truncate max-w-sm">{{ row.take.id }}</td>
+          <td class="px-4 py-3 text-slate-500 truncate max-w-sm">{{ stripHtmlPreview(row.take.id) }}</td>
           <td class="px-4 py-3">
             <div class="flex justify-end gap-1">
               <button class="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500" @click="openMovieEdit(row)"><Pencil :size="15" /></button>
@@ -513,7 +513,7 @@ async function confirmLifeDelete() {
             <input v-model="movieForm.title" type="text" maxlength="150" :class="errorInputClass(inputClass, movieErrors.title)" />
             <AdminFieldError :message="movieErrors.title" />
           </div>
-          <AdminTranslatableInput v-model="movieForm.take" label="Take / Opini" type="textarea" required :maxlength="1000" :error-id="movieErrors.takeId" :error-en="movieErrors.takeEn" />
+          <AdminRichTextInput v-model="movieForm.take" label="Take / Opini" required :maxlength="1000" :error-id="movieErrors.takeId" :error-en="movieErrors.takeEn" />
           <AdminImageOrUrlField v-model="movieForm.imageUrl" :error="movieErrors.imageUrl" :aspect-ratio="16 / 9" />
           <div class="flex justify-end gap-2 pt-2">
             <AppButton type="button" variant="ghost" size="sm" @click="movieModal = false">Batal</AppButton>
@@ -641,7 +641,7 @@ async function confirmLifeDelete() {
             <input v-model="bookForm.author" type="text" maxlength="100" :class="errorInputClass(inputClass, bookErrors.author)" />
             <AdminFieldError :message="bookErrors.author" />
           </div>
-          <AdminTranslatableInput v-model="bookForm.note" label="Note (opsional)" type="textarea" :rows="2" :maxlength="500" />
+          <AdminRichTextInput v-model="bookForm.note" label="Note (opsional)" :maxlength="500" />
           <AdminImageOrUrlField v-model="bookForm.imageUrl" :error="bookErrors.imageUrl" :aspect-ratio="3 / 4" />
           <AdminToggleSwitch v-model="bookForm.isCurrentlyReading" label="Currently reading" />
           <div class="flex justify-end gap-2 pt-2">
@@ -664,7 +664,7 @@ async function confirmLifeDelete() {
           <td class="px-4 py-3"><GripVertical :size="16" class="drag-handle cursor-grab text-slate-400" /></td>
           <td class="px-4 py-3 font-medium">{{ row.name }}</td>
           <td class="px-4 py-3 text-slate-500">{{ row.aspect.id }} <span class="text-slate-400">/ {{ row.aspect.en }}</span></td>
-          <td class="px-4 py-3 text-slate-500 truncate max-w-sm">{{ row.note.id }}</td>
+          <td class="px-4 py-3 text-slate-500 truncate max-w-sm">{{ stripHtmlPreview(row.note.id) }}</td>
           <td class="px-4 py-3">
             <div class="flex justify-end gap-1">
               <button class="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500" @click="openLifeEdit(row)"><Pencil :size="15" /></button>
@@ -682,7 +682,7 @@ async function confirmLifeDelete() {
             <AdminFieldError :message="lifeErrors.name" />
           </div>
           <AdminTranslatableInput v-model="lifeForm.aspect" label="Aspect" required :maxlength="150" :error-id="lifeErrors.aspectId" :error-en="lifeErrors.aspectEn" />
-          <AdminTranslatableInput v-model="lifeForm.note" label="Note" type="textarea" required :maxlength="1000" :error-id="lifeErrors.noteId" :error-en="lifeErrors.noteEn" />
+          <AdminRichTextInput v-model="lifeForm.note" label="Note" required :maxlength="1000" :error-id="lifeErrors.noteId" :error-en="lifeErrors.noteEn" />
           <AdminImageOrUrlField v-model="lifeForm.imageUrl" :error="lifeErrors.imageUrl" :aspect-ratio="1" shape="circle" />
           <div class="flex justify-end gap-2 pt-2">
             <AppButton type="button" variant="ghost" size="sm" @click="lifeModal = false">Batal</AppButton>
