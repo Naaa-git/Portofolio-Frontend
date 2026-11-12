@@ -36,7 +36,7 @@ export default defineNuxtConfig({
       { code: 'id', language: 'id-ID', name: 'Indonesia', file: 'id.json' },
       { code: 'en', language: 'en-US', name: 'English', file: 'en.json' },
     ],
-    defaultLocale: 'id',
+    defaultLocale: 'en',
     strategy: 'prefix_except_default',
     // strictSeo needs this explicitly — it doesn't fall back to `site.url`.
     baseUrl: process.env.NUXT_PUBLIC_SITE_URL || 'https://pradana.dev',
