@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Plus, Pencil, Trash2, GripVertical } from 'lucide-vue-next'
 import { toast } from 'vue-sonner'
-import type { AwayFromKeyboardItemAdmin, MovieTakeAdmin, MusicArtist, PodcastChannel, OutsideCodeBookAdmin, LifeInspirationAdmin } from '~/types'
+import type { AwayFromKeyboardItemAdmin, MovieTakeAdmin, MusicArtistAdmin, PodcastChannelAdmin, OutsideCodeBookAdmin, LifeInspirationAdmin } from '~/types'
 
 definePageMeta({ layout: 'admin', middleware: 'admin-auth' })
 
@@ -12,30 +12,30 @@ await callOnce('outside-code-admin-data', () => store.loadAllAdmin())
 
 const awayTable = useTemplateRef('awayTable')
 useReorderPersist(awayTable, toRef(store, 'adminAwayFromKeyboard'), (item, sortOrder) =>
-  store.updateAwayFromKeyboard(item.id, { title: item.title, note: item.note, imageUrl: item.imageUrl, sortOrder }),
+  store.updateAwayFromKeyboard(item.id, { title: item.title, note: item.note, imageUrl: item.imageUrl, sortOrder, isPublished: item.isPublished }),
 )
 const movieTable = useTemplateRef('movieTable')
 useReorderPersist(movieTable, toRef(store, 'adminMovies'), (item, sortOrder) =>
-  store.updateMovie(item.id, { title: item.title, take: item.take, imageUrl: item.imageUrl, sortOrder }),
+  store.updateMovie(item.id, { title: item.title, take: item.take, imageUrl: item.imageUrl, sortOrder, isPublished: item.isPublished }),
 )
 const artistTable = useTemplateRef('artistTable')
-useReorderPersist(artistTable, toRef(store, 'musicArtists'), (item, sortOrder) =>
-  store.updateMusicArtist(item.id, { name: item.name, url: item.url, imageUrl: item.imageUrl, sortOrder }),
+useReorderPersist(artistTable, toRef(store, 'adminMusicArtists'), (item, sortOrder) =>
+  store.updateMusicArtist(item.id, { name: item.name, url: item.url, imageUrl: item.imageUrl, sortOrder, isPublished: item.isPublished }),
 )
 const podcastTable = useTemplateRef('podcastTable')
-useReorderPersist(podcastTable, toRef(store, 'podcasts'), (item, sortOrder) =>
-  store.updatePodcast(item.id, { name: item.name, url: item.url, imageUrl: item.imageUrl, sortOrder }),
+useReorderPersist(podcastTable, toRef(store, 'adminPodcasts'), (item, sortOrder) =>
+  store.updatePodcast(item.id, { name: item.name, url: item.url, imageUrl: item.imageUrl, sortOrder, isPublished: item.isPublished }),
 )
 const bookTable = useTemplateRef('bookTable')
 useReorderPersist(bookTable, toRef(store, 'adminBooks'), (item, sortOrder) =>
   store.updateBook(item.id, {
     title: item.title, author: item.author, note: item.note, imageUrl: item.imageUrl,
-    isCurrentlyReading: item.isCurrentlyReading, sortOrder,
+    isCurrentlyReading: item.isCurrentlyReading, sortOrder, isPublished: item.isPublished,
   }),
 )
 const lifeTable = useTemplateRef('lifeTable')
 useReorderPersist(lifeTable, toRef(store, 'adminLifeInspirations'), (item, sortOrder) =>
-  store.updateLifeInspiration(item.id, { name: item.name, aspect: item.aspect, note: item.note, imageUrl: item.imageUrl, sortOrder }),
+  store.updateLifeInspiration(item.id, { name: item.name, aspect: item.aspect, note: item.note, imageUrl: item.imageUrl, sortOrder, isPublished: item.isPublished }),
 )
 
 const inputClass = 'w-full px-4 py-2.5 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm focus:outline-none focus:border-accent-500'
@@ -74,7 +74,7 @@ async function saveIntro() {
 // --- Away From the Keyboard ---
 const awayModal = ref(false)
 const awayEditingId = ref<number | null>(null)
-const awayForm = reactive<Omit<AwayFromKeyboardItemAdmin, 'id'>>({ title: { id: '', en: '' }, note: { id: '', en: '' }, imageUrl: '', sortOrder: 0 })
+const awayForm = reactive<Omit<AwayFromKeyboardItemAdmin, 'id'>>({ title: { id: '', en: '' }, note: { id: '', en: '' }, imageUrl: '', sortOrder: 0, isPublished: true })
 const awayDeleteTarget = ref<AwayFromKeyboardItemAdmin | null>(null)
 const awayErrors = reactive<Record<string, string | undefined>>({})
 
@@ -95,15 +95,23 @@ watch(() => awayForm.imageUrl, () => { awayErrors.imageUrl = undefined })
 
 function openAwayCreate() {
   awayEditingId.value = null
-  Object.assign(awayForm, { title: { id: '', en: '' }, note: { id: '', en: '' }, imageUrl: '', sortOrder: store.adminAwayFromKeyboard.length + 1 })
+  Object.assign(awayForm, { title: { id: '', en: '' }, note: { id: '', en: '' }, imageUrl: '', sortOrder: store.adminAwayFromKeyboard.length + 1, isPublished: true })
   Object.keys(awayErrors).forEach(k => { awayErrors[k] = undefined })
   awayModal.value = true
 }
 function openAwayEdit(row: AwayFromKeyboardItemAdmin) {
   awayEditingId.value = row.id
-  Object.assign(awayForm, { title: { ...row.title }, note: { ...row.note }, imageUrl: row.imageUrl ?? '', sortOrder: row.sortOrder })
+  Object.assign(awayForm, { title: { ...row.title }, note: { ...row.note }, imageUrl: row.imageUrl ?? '', sortOrder: row.sortOrder, isPublished: row.isPublished })
   Object.keys(awayErrors).forEach(k => { awayErrors[k] = undefined })
   awayModal.value = true
+}
+async function toggleAwayPublished(row: AwayFromKeyboardItemAdmin) {
+  try {
+    const { id, ...rest } = row
+    await store.updateAwayFromKeyboard(id, { ...rest, isPublished: !rest.isPublished })
+  } catch (err) {
+    toast.error(getApiErrorMessage(err, 'Gagal mengubah visibility.'))
+  }
 }
 async function submitAway() {
   if (!validateAway()) return
@@ -135,7 +143,7 @@ async function confirmAwayDelete() {
 // --- Movies & Shows ---
 const movieModal = ref(false)
 const movieEditingId = ref<number | null>(null)
-const movieForm = reactive<Omit<MovieTakeAdmin, 'id'>>({ title: '', take: { id: '', en: '' }, imageUrl: '', sortOrder: 0 })
+const movieForm = reactive<Omit<MovieTakeAdmin, 'id'>>({ title: '', take: { id: '', en: '' }, imageUrl: '', sortOrder: 0, isPublished: true })
 const movieDeleteTarget = ref<MovieTakeAdmin | null>(null)
 const movieErrors = reactive<Record<string, string | undefined>>({})
 
@@ -154,15 +162,23 @@ watch(() => movieForm.imageUrl, () => { movieErrors.imageUrl = undefined })
 
 function openMovieCreate() {
   movieEditingId.value = null
-  Object.assign(movieForm, { title: '', take: { id: '', en: '' }, imageUrl: '', sortOrder: store.adminMovies.length + 1 })
+  Object.assign(movieForm, { title: '', take: { id: '', en: '' }, imageUrl: '', sortOrder: store.adminMovies.length + 1, isPublished: true })
   Object.keys(movieErrors).forEach(k => { movieErrors[k] = undefined })
   movieModal.value = true
 }
 function openMovieEdit(row: MovieTakeAdmin) {
   movieEditingId.value = row.id
-  Object.assign(movieForm, { title: row.title, take: { ...row.take }, imageUrl: row.imageUrl ?? '', sortOrder: row.sortOrder })
+  Object.assign(movieForm, { title: row.title, take: { ...row.take }, imageUrl: row.imageUrl ?? '', sortOrder: row.sortOrder, isPublished: row.isPublished })
   Object.keys(movieErrors).forEach(k => { movieErrors[k] = undefined })
   movieModal.value = true
+}
+async function toggleMoviePublished(row: MovieTakeAdmin) {
+  try {
+    const { id, ...rest } = row
+    await store.updateMovie(id, { ...rest, isPublished: !rest.isPublished })
+  } catch (err) {
+    toast.error(getApiErrorMessage(err, 'Gagal mengubah visibility.'))
+  }
 }
 async function submitMovie() {
   if (!validateMovie()) return
@@ -194,8 +210,8 @@ async function confirmMovieDelete() {
 // --- Music Artists (not translatable) ---
 const artistModal = ref(false)
 const artistEditingId = ref<number | null>(null)
-const artistForm = reactive<Omit<MusicArtist, 'id'>>({ name: '', url: '', imageUrl: '', sortOrder: 0 })
-const artistDeleteTarget = ref<MusicArtist | null>(null)
+const artistForm = reactive<Omit<MusicArtistAdmin, 'id'>>({ name: '', url: '', imageUrl: '', sortOrder: 0, isPublished: true })
+const artistDeleteTarget = ref<MusicArtistAdmin | null>(null)
 const artistErrors = reactive<Record<string, string | undefined>>({})
 
 function validateArtist(): boolean {
@@ -211,15 +227,23 @@ watch(() => artistForm.imageUrl, () => { artistErrors.imageUrl = undefined })
 
 function openArtistCreate() {
   artistEditingId.value = null
-  Object.assign(artistForm, { name: '', url: '', imageUrl: '', sortOrder: store.musicArtists.length + 1 })
+  Object.assign(artistForm, { name: '', url: '', imageUrl: '', sortOrder: store.adminMusicArtists.length + 1, isPublished: true })
   Object.keys(artistErrors).forEach(k => { artistErrors[k] = undefined })
   artistModal.value = true
 }
-function openArtistEdit(row: MusicArtist) {
+function openArtistEdit(row: MusicArtistAdmin) {
   artistEditingId.value = row.id
-  Object.assign(artistForm, { name: row.name, url: row.url, imageUrl: row.imageUrl ?? '', sortOrder: row.sortOrder })
+  Object.assign(artistForm, { name: row.name, url: row.url, imageUrl: row.imageUrl ?? '', sortOrder: row.sortOrder, isPublished: row.isPublished })
   Object.keys(artistErrors).forEach(k => { artistErrors[k] = undefined })
   artistModal.value = true
+}
+async function toggleArtistPublished(row: MusicArtistAdmin) {
+  try {
+    const { id, ...rest } = row
+    await store.updateMusicArtist(id, { ...rest, isPublished: !rest.isPublished })
+  } catch (err) {
+    toast.error(getApiErrorMessage(err, 'Gagal mengubah visibility.'))
+  }
 }
 async function submitArtist() {
   if (!validateArtist()) return
@@ -251,8 +275,8 @@ async function confirmArtistDelete() {
 // --- Podcasts (not translatable) ---
 const podcastModal = ref(false)
 const podcastEditingId = ref<number | null>(null)
-const podcastForm = reactive<Omit<PodcastChannel, 'id'>>({ name: '', url: '', imageUrl: '', sortOrder: 0 })
-const podcastDeleteTarget = ref<PodcastChannel | null>(null)
+const podcastForm = reactive<Omit<PodcastChannelAdmin, 'id'>>({ name: '', url: '', imageUrl: '', sortOrder: 0, isPublished: true })
+const podcastDeleteTarget = ref<PodcastChannelAdmin | null>(null)
 const podcastErrors = reactive<Record<string, string | undefined>>({})
 
 function validatePodcast(): boolean {
@@ -268,15 +292,23 @@ watch(() => podcastForm.imageUrl, () => { podcastErrors.imageUrl = undefined })
 
 function openPodcastCreate() {
   podcastEditingId.value = null
-  Object.assign(podcastForm, { name: '', url: '', imageUrl: '', sortOrder: store.podcasts.length + 1 })
+  Object.assign(podcastForm, { name: '', url: '', imageUrl: '', sortOrder: store.adminPodcasts.length + 1, isPublished: true })
   Object.keys(podcastErrors).forEach(k => { podcastErrors[k] = undefined })
   podcastModal.value = true
 }
-function openPodcastEdit(row: PodcastChannel) {
+function openPodcastEdit(row: PodcastChannelAdmin) {
   podcastEditingId.value = row.id
-  Object.assign(podcastForm, { name: row.name, url: row.url, imageUrl: row.imageUrl ?? '', sortOrder: row.sortOrder })
+  Object.assign(podcastForm, { name: row.name, url: row.url, imageUrl: row.imageUrl ?? '', sortOrder: row.sortOrder, isPublished: row.isPublished })
   Object.keys(podcastErrors).forEach(k => { podcastErrors[k] = undefined })
   podcastModal.value = true
+}
+async function togglePodcastPublished(row: PodcastChannelAdmin) {
+  try {
+    const { id, ...rest } = row
+    await store.updatePodcast(id, { ...rest, isPublished: !rest.isPublished })
+  } catch (err) {
+    toast.error(getApiErrorMessage(err, 'Gagal mengubah visibility.'))
+  }
 }
 async function submitPodcast() {
   if (!validatePodcast()) return
@@ -309,7 +341,7 @@ async function confirmPodcastDelete() {
 const bookModal = ref(false)
 const bookEditingId = ref<number | null>(null)
 const bookForm = reactive<Omit<OutsideCodeBookAdmin, 'id'>>({
-  title: '', author: '', note: { id: '', en: '' }, imageUrl: '', isCurrentlyReading: false, sortOrder: 0,
+  title: '', author: '', note: { id: '', en: '' }, imageUrl: '', isCurrentlyReading: false, sortOrder: 0, isPublished: true,
 })
 const bookDeleteTarget = ref<OutsideCodeBookAdmin | null>(null)
 const bookErrors = reactive<Record<string, string | undefined>>({})
@@ -327,7 +359,7 @@ watch(() => bookForm.imageUrl, () => { bookErrors.imageUrl = undefined })
 
 function openBookCreate() {
   bookEditingId.value = null
-  Object.assign(bookForm, { title: '', author: '', note: { id: '', en: '' }, imageUrl: '', isCurrentlyReading: false, sortOrder: store.adminBooks.length + 1 })
+  Object.assign(bookForm, { title: '', author: '', note: { id: '', en: '' }, imageUrl: '', isCurrentlyReading: false, sortOrder: store.adminBooks.length + 1, isPublished: true })
   Object.keys(bookErrors).forEach(k => { bookErrors[k] = undefined })
   bookModal.value = true
 }
@@ -335,10 +367,18 @@ function openBookEdit(row: OutsideCodeBookAdmin) {
   bookEditingId.value = row.id
   Object.assign(bookForm, {
     title: row.title, author: row.author, note: { ...row.note }, imageUrl: row.imageUrl ?? '',
-    isCurrentlyReading: row.isCurrentlyReading, sortOrder: row.sortOrder,
+    isCurrentlyReading: row.isCurrentlyReading, sortOrder: row.sortOrder, isPublished: row.isPublished,
   })
   Object.keys(bookErrors).forEach(k => { bookErrors[k] = undefined })
   bookModal.value = true
+}
+async function toggleBookPublished(row: OutsideCodeBookAdmin) {
+  try {
+    const { id, ...rest } = row
+    await store.updateBook(id, { ...rest, isPublished: !rest.isPublished })
+  } catch (err) {
+    toast.error(getApiErrorMessage(err, 'Gagal mengubah visibility.'))
+  }
 }
 async function submitBook() {
   if (!validateBook()) return
@@ -370,7 +410,7 @@ async function confirmBookDelete() {
 // --- Life Inspirations ---
 const lifeModal = ref(false)
 const lifeEditingId = ref<number | null>(null)
-const lifeForm = reactive<Omit<LifeInspirationAdmin, 'id'>>({ name: '', aspect: { id: '', en: '' }, note: { id: '', en: '' }, imageUrl: '', sortOrder: 0 })
+const lifeForm = reactive<Omit<LifeInspirationAdmin, 'id'>>({ name: '', aspect: { id: '', en: '' }, note: { id: '', en: '' }, imageUrl: '', sortOrder: 0, isPublished: true })
 const lifeDeleteTarget = ref<LifeInspirationAdmin | null>(null)
 const lifeErrors = reactive<Record<string, string | undefined>>({})
 
@@ -393,15 +433,23 @@ watch(() => lifeForm.imageUrl, () => { lifeErrors.imageUrl = undefined })
 
 function openLifeCreate() {
   lifeEditingId.value = null
-  Object.assign(lifeForm, { name: '', aspect: { id: '', en: '' }, note: { id: '', en: '' }, imageUrl: '', sortOrder: store.adminLifeInspirations.length + 1 })
+  Object.assign(lifeForm, { name: '', aspect: { id: '', en: '' }, note: { id: '', en: '' }, imageUrl: '', sortOrder: store.adminLifeInspirations.length + 1, isPublished: true })
   Object.keys(lifeErrors).forEach(k => { lifeErrors[k] = undefined })
   lifeModal.value = true
 }
 function openLifeEdit(row: LifeInspirationAdmin) {
   lifeEditingId.value = row.id
-  Object.assign(lifeForm, { name: row.name, aspect: { ...row.aspect }, note: { ...row.note }, imageUrl: row.imageUrl ?? '', sortOrder: row.sortOrder })
+  Object.assign(lifeForm, { name: row.name, aspect: { ...row.aspect }, note: { ...row.note }, imageUrl: row.imageUrl ?? '', sortOrder: row.sortOrder, isPublished: row.isPublished })
   Object.keys(lifeErrors).forEach(k => { lifeErrors[k] = undefined })
   lifeModal.value = true
+}
+async function toggleLifePublished(row: LifeInspirationAdmin) {
+  try {
+    const { id, ...rest } = row
+    await store.updateLifeInspiration(id, { ...rest, isPublished: !rest.isPublished })
+  } catch (err) {
+    toast.error(getApiErrorMessage(err, 'Gagal mengubah visibility.'))
+  }
 }
 async function submitLife() {
   if (!validateLife()) return
@@ -458,11 +506,14 @@ async function confirmLifeDelete() {
         <h2 class="text-lg font-semibold">Away From the Keyboard</h2>
         <AppButton size="sm" @click="openAwayCreate"><Plus :size="16" /> Tambah</AppButton>
       </div>
-      <AdminTable ref="awayTable" :headers="['', 'Title', 'Note', '']" :is-empty="store.adminAwayFromKeyboard.length === 0">
+      <AdminTable ref="awayTable" :headers="['', 'Title', 'Note', 'Tampil', '']" :is-empty="store.adminAwayFromKeyboard.length === 0">
         <tr v-for="row in store.adminAwayFromKeyboard" :key="row.id">
           <td class="px-4 py-3"><GripVertical :size="16" class="drag-handle cursor-grab text-slate-400" /></td>
           <td class="px-4 py-3 font-medium">{{ row.title.id }} <span class="text-slate-400">/ {{ row.title.en }}</span></td>
           <td class="px-4 py-3 text-slate-500 truncate max-w-sm">{{ row.note.id }}</td>
+          <td class="px-4 py-3">
+            <AdminToggleSwitch :model-value="row.isPublished" @update:model-value="toggleAwayPublished(row)" />
+          </td>
           <td class="px-4 py-3">
             <div class="flex justify-end gap-1">
               <button class="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500" @click="openAwayEdit(row)"><Pencil :size="15" /></button>
@@ -492,11 +543,14 @@ async function confirmLifeDelete() {
         <h2 class="text-lg font-semibold">Movies & Shows</h2>
         <AppButton size="sm" @click="openMovieCreate"><Plus :size="16" /> Tambah</AppButton>
       </div>
-      <AdminTable ref="movieTable" :headers="['', 'Title', 'Take', '']" :is-empty="store.adminMovies.length === 0">
+      <AdminTable ref="movieTable" :headers="['', 'Title', 'Take', 'Tampil', '']" :is-empty="store.adminMovies.length === 0">
         <tr v-for="row in store.adminMovies" :key="row.id">
           <td class="px-4 py-3"><GripVertical :size="16" class="drag-handle cursor-grab text-slate-400" /></td>
           <td class="px-4 py-3 font-medium">{{ row.title }}</td>
           <td class="px-4 py-3 text-slate-500 truncate max-w-sm">{{ stripHtmlPreview(row.take.id) }}</td>
+          <td class="px-4 py-3">
+            <AdminToggleSwitch :model-value="row.isPublished" @update:model-value="toggleMoviePublished(row)" />
+          </td>
           <td class="px-4 py-3">
             <div class="flex justify-end gap-1">
               <button class="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500" @click="openMovieEdit(row)"><Pencil :size="15" /></button>
@@ -530,11 +584,14 @@ async function confirmLifeDelete() {
         <h2 class="text-lg font-semibold">Music Artists</h2>
         <AppButton size="sm" @click="openArtistCreate"><Plus :size="16" /> Tambah</AppButton>
       </div>
-      <AdminTable ref="artistTable" :headers="['', 'Name', 'URL', '']" :is-empty="store.musicArtists.length === 0">
-        <tr v-for="row in store.musicArtists" :key="row.id">
+      <AdminTable ref="artistTable" :headers="['', 'Name', 'URL', 'Tampil', '']" :is-empty="store.adminMusicArtists.length === 0">
+        <tr v-for="row in store.adminMusicArtists" :key="row.id">
           <td class="px-4 py-3"><GripVertical :size="16" class="drag-handle cursor-grab text-slate-400" /></td>
           <td class="px-4 py-3 font-medium">{{ row.name }}</td>
           <td class="px-4 py-3 text-slate-500 truncate max-w-sm">{{ row.url }}</td>
+          <td class="px-4 py-3">
+            <AdminToggleSwitch :model-value="row.isPublished" @update:model-value="toggleArtistPublished(row)" />
+          </td>
           <td class="px-4 py-3">
             <div class="flex justify-end gap-1">
               <button class="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500" @click="openArtistEdit(row)"><Pencil :size="15" /></button>
@@ -572,11 +629,14 @@ async function confirmLifeDelete() {
         <h2 class="text-lg font-semibold">Podcasts / Channels</h2>
         <AppButton size="sm" @click="openPodcastCreate"><Plus :size="16" /> Tambah</AppButton>
       </div>
-      <AdminTable ref="podcastTable" :headers="['', 'Name', 'URL', '']" :is-empty="store.podcasts.length === 0">
-        <tr v-for="row in store.podcasts" :key="row.id">
+      <AdminTable ref="podcastTable" :headers="['', 'Name', 'URL', 'Tampil', '']" :is-empty="store.adminPodcasts.length === 0">
+        <tr v-for="row in store.adminPodcasts" :key="row.id">
           <td class="px-4 py-3"><GripVertical :size="16" class="drag-handle cursor-grab text-slate-400" /></td>
           <td class="px-4 py-3 font-medium">{{ row.name }}</td>
           <td class="px-4 py-3 text-slate-500 truncate max-w-sm">{{ row.url }}</td>
+          <td class="px-4 py-3">
+            <AdminToggleSwitch :model-value="row.isPublished" @update:model-value="togglePodcastPublished(row)" />
+          </td>
           <td class="px-4 py-3">
             <div class="flex justify-end gap-1">
               <button class="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500" @click="openPodcastEdit(row)"><Pencil :size="15" /></button>
@@ -614,12 +674,15 @@ async function confirmLifeDelete() {
         <h2 class="text-lg font-semibold">Books</h2>
         <AppButton size="sm" @click="openBookCreate"><Plus :size="16" /> Tambah</AppButton>
       </div>
-      <AdminTable ref="bookTable" :headers="['', 'Title', 'Author', 'Reading', '']" :is-empty="store.adminBooks.length === 0">
+      <AdminTable ref="bookTable" :headers="['', 'Title', 'Author', 'Reading', 'Tampil', '']" :is-empty="store.adminBooks.length === 0">
         <tr v-for="row in store.adminBooks" :key="row.id">
           <td class="px-4 py-3"><GripVertical :size="16" class="drag-handle cursor-grab text-slate-400" /></td>
           <td class="px-4 py-3 font-medium">{{ row.title }}</td>
           <td class="px-4 py-3 text-slate-500">{{ row.author }}</td>
           <td class="px-4 py-3"><AppBadge v-if="row.isCurrentlyReading" variant="success">Currently Reading</AppBadge></td>
+          <td class="px-4 py-3">
+            <AdminToggleSwitch :model-value="row.isPublished" @update:model-value="toggleBookPublished(row)" />
+          </td>
           <td class="px-4 py-3">
             <div class="flex justify-end gap-1">
               <button class="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500" @click="openBookEdit(row)"><Pencil :size="15" /></button>
@@ -659,12 +722,15 @@ async function confirmLifeDelete() {
         <h2 class="text-lg font-semibold">Life Inspired By</h2>
         <AppButton size="sm" @click="openLifeCreate"><Plus :size="16" /> Tambah</AppButton>
       </div>
-      <AdminTable ref="lifeTable" :headers="['', 'Name', 'Aspect', 'Note', '']" :is-empty="store.adminLifeInspirations.length === 0">
+      <AdminTable ref="lifeTable" :headers="['', 'Name', 'Aspect', 'Note', 'Tampil', '']" :is-empty="store.adminLifeInspirations.length === 0">
         <tr v-for="row in store.adminLifeInspirations" :key="row.id">
           <td class="px-4 py-3"><GripVertical :size="16" class="drag-handle cursor-grab text-slate-400" /></td>
           <td class="px-4 py-3 font-medium">{{ row.name }}</td>
           <td class="px-4 py-3 text-slate-500">{{ row.aspect.id }} <span class="text-slate-400">/ {{ row.aspect.en }}</span></td>
           <td class="px-4 py-3 text-slate-500 truncate max-w-sm">{{ stripHtmlPreview(row.note.id) }}</td>
+          <td class="px-4 py-3">
+            <AdminToggleSwitch :model-value="row.isPublished" @update:model-value="toggleLifePublished(row)" />
+          </td>
           <td class="px-4 py-3">
             <div class="flex justify-end gap-1">
               <button class="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500" @click="openLifeEdit(row)"><Pencil :size="15" /></button>

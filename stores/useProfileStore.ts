@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { profileService } from '~/services/profileService'
-import type { Profile, ProfileAdmin, Skill, SkillAdmin, SocialLink, Experience, ExperienceAdmin } from '~/types'
+import type { Profile, ProfileAdmin, Skill, SkillAdmin, SocialLink, SocialLinkAdmin, Experience, ExperienceAdmin } from '~/types'
 
 const emptyProfile: Profile = {
   name: '',
@@ -55,18 +55,21 @@ export const useProfileStore = defineStore('profile', () => {
   // --- Admin (raw bilingual dictionaries, for editing) ---
   const adminProfile = ref<ProfileAdmin>({ ...emptyAdminProfile })
   const adminSkills = ref<SkillAdmin[]>([])
+  const adminSocialLinks = ref<SocialLinkAdmin[]>([])
   const adminExperiences = ref<ExperienceAdmin[]>([])
   const isAdminLoaded = ref(false)
 
   async function loadAdmin() {
     if (isAdminLoaded.value) return
-    const [profileData, skillsData, experiencesData] = await Promise.all([
+    const [profileData, skillsData, socialLinksData, experiencesData] = await Promise.all([
       profileService.getProfileAdmin(),
       profileService.getSkillsAdmin(),
+      profileService.getSocialLinksAdmin(),
       profileService.getExperiencesAdmin(),
     ])
     adminProfile.value = profileData
     adminSkills.value = skillsData
+    adminSocialLinks.value = socialLinksData
     adminExperiences.value = experiencesData
     isAdminLoaded.value = true
   }
@@ -91,19 +94,19 @@ export const useProfileStore = defineStore('profile', () => {
   }
 
   // --- Social Links (not translatable) ---
-  async function addSocialLink(dto: Omit<SocialLink, 'id'>) {
-    socialLinks.value.push(await profileService.createSocialLink(dto))
+  async function addSocialLink(dto: Omit<SocialLinkAdmin, 'id'>) {
+    adminSocialLinks.value.push(await profileService.createSocialLink(dto))
   }
 
-  async function updateSocialLink(id: number, dto: Omit<SocialLink, 'id'>) {
+  async function updateSocialLink(id: number, dto: Omit<SocialLinkAdmin, 'id'>) {
     await profileService.updateSocialLink(id, dto)
-    const index = socialLinks.value.findIndex(s => s.id === id)
-    if (index !== -1) socialLinks.value[index] = { id, ...dto }
+    const index = adminSocialLinks.value.findIndex(s => s.id === id)
+    if (index !== -1) adminSocialLinks.value[index] = { id, ...dto }
   }
 
   async function deleteSocialLink(id: number) {
     await profileService.deleteSocialLink(id)
-    socialLinks.value = socialLinks.value.filter(s => s.id !== id)
+    adminSocialLinks.value = adminSocialLinks.value.filter(s => s.id !== id)
   }
 
   // --- Experiences ---
@@ -138,6 +141,7 @@ export const useProfileStore = defineStore('profile', () => {
     loadAll,
     adminProfile,
     adminSkills,
+    adminSocialLinks,
     adminExperiences,
     loadAdmin,
     updateProfile,

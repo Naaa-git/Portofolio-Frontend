@@ -8,7 +8,9 @@ import type {
   MovieTake,
   MovieTakeAdmin,
   MusicArtist,
+  MusicArtistAdmin,
   PodcastChannel,
+  PodcastChannelAdmin,
   OutsideCodeBook,
   OutsideCodeBookAdmin,
   LifeInspiration,
@@ -54,34 +56,28 @@ export const useOutsideCodeStore = defineStore('outsideCode', () => {
   const adminIntro = ref<OutsideCodeIntroAdmin>({ ...emptyAdminIntro })
   const adminAwayFromKeyboard = ref<AwayFromKeyboardItemAdmin[]>([])
   const adminMovies = ref<MovieTakeAdmin[]>([])
+  const adminMusicArtists = ref<MusicArtistAdmin[]>([])
+  const adminPodcasts = ref<PodcastChannelAdmin[]>([])
   const adminBooks = ref<OutsideCodeBookAdmin[]>([])
   const adminLifeInspirations = ref<LifeInspirationAdmin[]>([])
   const isAdminLoaded = ref(false)
 
   async function loadAllAdmin() {
     if (isAdminLoaded.value) return
-    // MusicArtist/PodcastChannel aren't translatable (no bilingual dict), so there's
-    // no separate admin shape for them — admin mutations read/write the same
-    // musicArtists/podcasts refs the public loadAll() uses. But loadAllAdmin() is
-    // the one callOnce() actually runs on /admin/outside-code — without fetching
-    // these two here as well, those refs stay [] on a fresh admin page load (they
-    // only end up populated if loadAll() happened to already run in the same
-    // session, e.g. the public page was visited first), and the admin tables show
-    // "Belum ada data" despite the backend having rows.
     const [introData, awayData, moviesData, musicData, podcastsData, booksData, lifeInspirationsData] = await Promise.all([
       outsideCodeService.getIntroAdmin(),
       outsideCodeService.getAwayFromKeyboardAdmin(),
       outsideCodeService.getMoviesAdmin(),
-      outsideCodeService.getMusicArtists(),
-      outsideCodeService.getPodcasts(),
+      outsideCodeService.getMusicArtistsAdmin(),
+      outsideCodeService.getPodcastsAdmin(),
       outsideCodeService.getBooksAdmin(),
       outsideCodeService.getLifeInspirationsAdmin(),
     ])
     adminIntro.value = introData
     adminAwayFromKeyboard.value = awayData
     adminMovies.value = moviesData
-    musicArtists.value = musicData
-    podcasts.value = podcastsData
+    adminMusicArtists.value = musicData
+    adminPodcasts.value = podcastsData
     adminBooks.value = booksData
     adminLifeInspirations.value = lifeInspirationsData
     isAdminLoaded.value = true
@@ -118,30 +114,30 @@ export const useOutsideCodeStore = defineStore('outsideCode', () => {
   }
 
   // --- Music / Podcasts (not translatable) ---
-  async function addMusicArtist(dto: Omit<MusicArtist, 'id'>) {
-    musicArtists.value.push(await outsideCodeService.createMusicArtist(dto))
+  async function addMusicArtist(dto: Omit<MusicArtistAdmin, 'id'>) {
+    adminMusicArtists.value.push(await outsideCodeService.createMusicArtist(dto))
   }
-  async function updateMusicArtist(id: number, dto: Omit<MusicArtist, 'id'>) {
+  async function updateMusicArtist(id: number, dto: Omit<MusicArtistAdmin, 'id'>) {
     await outsideCodeService.updateMusicArtist(id, dto)
-    const i = musicArtists.value.findIndex(x => x.id === id)
-    if (i !== -1) musicArtists.value[i] = { id, ...dto }
+    const i = adminMusicArtists.value.findIndex(x => x.id === id)
+    if (i !== -1) adminMusicArtists.value[i] = { id, ...dto }
   }
   async function deleteMusicArtist(id: number) {
     await outsideCodeService.deleteMusicArtist(id)
-    musicArtists.value = musicArtists.value.filter(x => x.id !== id)
+    adminMusicArtists.value = adminMusicArtists.value.filter(x => x.id !== id)
   }
 
-  async function addPodcast(dto: Omit<PodcastChannel, 'id'>) {
-    podcasts.value.push(await outsideCodeService.createPodcast(dto))
+  async function addPodcast(dto: Omit<PodcastChannelAdmin, 'id'>) {
+    adminPodcasts.value.push(await outsideCodeService.createPodcast(dto))
   }
-  async function updatePodcast(id: number, dto: Omit<PodcastChannel, 'id'>) {
+  async function updatePodcast(id: number, dto: Omit<PodcastChannelAdmin, 'id'>) {
     await outsideCodeService.updatePodcast(id, dto)
-    const i = podcasts.value.findIndex(x => x.id === id)
-    if (i !== -1) podcasts.value[i] = { id, ...dto }
+    const i = adminPodcasts.value.findIndex(x => x.id === id)
+    if (i !== -1) adminPodcasts.value[i] = { id, ...dto }
   }
   async function deletePodcast(id: number) {
     await outsideCodeService.deletePodcast(id)
-    podcasts.value = podcasts.value.filter(x => x.id !== id)
+    adminPodcasts.value = adminPodcasts.value.filter(x => x.id !== id)
   }
 
   async function addBook(dto: Omit<OutsideCodeBookAdmin, 'id'>) {
@@ -173,7 +169,7 @@ export const useOutsideCodeStore = defineStore('outsideCode', () => {
   return {
     intro, awayFromKeyboard, movies, musicArtists, podcasts, books, lifeInspirations,
     loadAll,
-    adminIntro, adminAwayFromKeyboard, adminMovies, adminBooks, adminLifeInspirations,
+    adminIntro, adminAwayFromKeyboard, adminMovies, adminMusicArtists, adminPodcasts, adminBooks, adminLifeInspirations,
     loadAllAdmin, updateIntro,
     addAwayFromKeyboard, updateAwayFromKeyboard, deleteAwayFromKeyboard,
     addMovie, updateMovie, deleteMovie,

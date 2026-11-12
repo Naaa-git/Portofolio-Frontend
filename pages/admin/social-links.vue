@@ -1,18 +1,19 @@
 <script setup lang="ts">
 import { Plus, Pencil, Trash2 } from 'lucide-vue-next'
 import { toast } from 'vue-sonner'
-import type { SocialLink } from '~/types'
+import type { SocialLinkAdmin } from '~/types'
 
 definePageMeta({ layout: 'admin', middleware: 'admin-auth' })
 
 useHead({ title: 'Social Links — Admin' })
 
 const profileStore = useProfileStore()
+await callOnce('profile-admin-data', () => profileStore.loadAdmin())
 
 const showModal = ref(false)
 const editingId = ref<number | null>(null)
-const form = reactive<Omit<SocialLink, 'id'>>({ name: '', url: '', icon: '' })
-const deleteTarget = ref<SocialLink | null>(null)
+const form = reactive<Omit<SocialLinkAdmin, 'id'>>({ name: '', url: '', icon: '', isPublished: true })
+const deleteTarget = ref<SocialLinkAdmin | null>(null)
 
 const errors = reactive<Record<string, string | undefined>>({})
 
@@ -29,16 +30,24 @@ watch(() => form.icon, () => { errors.icon = undefined })
 
 function openCreate() {
   editingId.value = null
-  Object.assign(form, { name: '', url: '', icon: '' })
+  Object.assign(form, { name: '', url: '', icon: '', isPublished: true })
   Object.keys(errors).forEach(k => { errors[k] = undefined })
   showModal.value = true
 }
 
-function openEdit(row: SocialLink) {
+function openEdit(row: SocialLinkAdmin) {
   editingId.value = row.id
-  Object.assign(form, { name: row.name, url: row.url, icon: row.icon })
+  Object.assign(form, { name: row.name, url: row.url, icon: row.icon, isPublished: row.isPublished })
   Object.keys(errors).forEach(k => { errors[k] = undefined })
   showModal.value = true
+}
+
+async function togglePublished(row: SocialLinkAdmin) {
+  try {
+    await profileStore.updateSocialLink(row.id, { name: row.name, url: row.url, icon: row.icon, isPublished: !row.isPublished })
+  } catch (err) {
+    toast.error(getApiErrorMessage(err, 'Gagal mengubah visibility.'))
+  }
 }
 
 async function handleSubmit() {
@@ -82,11 +91,14 @@ const inputClass = 'w-full px-4 py-2.5 rounded-lg bg-slate-100 dark:bg-slate-800
       <AppButton size="sm" @click="openCreate"><Plus :size="16" /> Tambah</AppButton>
     </div>
 
-    <AdminTable :headers="['Name', 'URL', 'Icon', '']" :is-empty="profileStore.socialLinks.length === 0">
-      <tr v-for="row in profileStore.socialLinks" :key="row.id">
+    <AdminTable :headers="['Name', 'URL', 'Icon', 'Tampil', '']" :is-empty="profileStore.adminSocialLinks.length === 0">
+      <tr v-for="row in profileStore.adminSocialLinks" :key="row.id">
         <td class="px-4 py-3 font-medium">{{ row.name }}</td>
         <td class="px-4 py-3 text-slate-500 truncate max-w-xs">{{ row.url }}</td>
         <td class="px-4 py-3"><AppBadge>{{ row.icon }}</AppBadge></td>
+        <td class="px-4 py-3">
+          <AdminToggleSwitch :model-value="row.isPublished" @update:model-value="togglePublished(row)" />
+        </td>
         <td class="px-4 py-3">
           <div class="flex justify-end gap-1">
             <button class="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500" @click="openEdit(row)">

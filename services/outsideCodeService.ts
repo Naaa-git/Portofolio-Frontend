@@ -7,7 +7,9 @@ import type {
   MovieTake,
   MovieTakeAdmin,
   MusicArtist,
+  MusicArtistAdmin,
   PodcastChannel,
+  PodcastChannelAdmin,
   OutsideCodeBook,
   OutsideCodeBookAdmin,
   LifeInspiration,
@@ -35,14 +37,16 @@ export const outsideCodeService = {
   deleteMovie: (id: number) => apiFetch<void>(`/outside-code/movies/${id}`, { method: 'DELETE' }),
 
   getMusicArtists: () => apiFetch<MusicArtist[]>('/outside-code/music'),
-  createMusicArtist: (dto: Omit<MusicArtist, 'id'>) => apiFetch<MusicArtist>('/outside-code/music', { method: 'POST', body: dto }),
-  updateMusicArtist: (id: number, dto: Omit<MusicArtist, 'id'>) =>
+  getMusicArtistsAdmin: () => apiFetch<MusicArtistAdmin[]>('/outside-code/music/admin'),
+  createMusicArtist: (dto: Omit<MusicArtistAdmin, 'id'>) => apiFetch<MusicArtistAdmin>('/outside-code/music', { method: 'POST', body: dto }),
+  updateMusicArtist: (id: number, dto: Omit<MusicArtistAdmin, 'id'>) =>
     apiFetch<void>(`/outside-code/music/${id}`, { method: 'PUT', body: dto }),
   deleteMusicArtist: (id: number) => apiFetch<void>(`/outside-code/music/${id}`, { method: 'DELETE' }),
 
   getPodcasts: () => apiFetch<PodcastChannel[]>('/outside-code/podcasts'),
-  createPodcast: (dto: Omit<PodcastChannel, 'id'>) => apiFetch<PodcastChannel>('/outside-code/podcasts', { method: 'POST', body: dto }),
-  updatePodcast: (id: number, dto: Omit<PodcastChannel, 'id'>) =>
+  getPodcastsAdmin: () => apiFetch<PodcastChannelAdmin[]>('/outside-code/podcasts/admin'),
+  createPodcast: (dto: Omit<PodcastChannelAdmin, 'id'>) => apiFetch<PodcastChannelAdmin>('/outside-code/podcasts', { method: 'POST', body: dto }),
+  updatePodcast: (id: number, dto: Omit<PodcastChannelAdmin, 'id'>) =>
     apiFetch<void>(`/outside-code/podcasts/${id}`, { method: 'PUT', body: dto }),
   deletePodcast: (id: number) => apiFetch<void>(`/outside-code/podcasts/${id}`, { method: 'DELETE' }),
 

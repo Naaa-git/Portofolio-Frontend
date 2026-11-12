@@ -103,6 +103,7 @@ function emptyLessonForm(): Omit<LessonAdmin, 'id'> {
     description: { id: '', en: '' },
     projectId: null,
     experienceId: null,
+    isPublished: true,
   }
 }
 
@@ -134,10 +135,19 @@ function openLessonEdit(row: LessonAdmin) {
   editingLessonId.value = row.id
   Object.assign(lessonForm, {
     categoryId: row.categoryId, title: { ...row.title }, description: { ...row.description },
-    projectId: row.projectId, experienceId: row.experienceId,
+    projectId: row.projectId, experienceId: row.experienceId, isPublished: row.isPublished,
   })
   Object.keys(lessonErrors).forEach(k => { lessonErrors[k] = undefined })
   showLessonModal.value = true
+}
+
+async function toggleLessonPublished(row: LessonAdmin) {
+  try {
+    const { id, ...rest } = row
+    await lessonStore.updateLesson(id, { ...rest, isPublished: !rest.isPublished })
+  } catch (err) {
+    toast.error(getApiErrorMessage(err, 'Gagal mengubah visibility.'))
+  }
 }
 
 async function submitLesson() {
@@ -213,13 +223,16 @@ async function confirmLessonDelete() {
         Bikin kategori dulu sebelum nambah Lesson.
       </p>
 
-      <AdminTable v-else :headers="['Title', 'Kategori', 'Tag', '']" :is-empty="lessonStore.adminLessons.length === 0">
+      <AdminTable v-else :headers="['Title', 'Kategori', 'Tag', 'Tampil', '']" :is-empty="lessonStore.adminLessons.length === 0">
         <tr v-for="row in lessonStore.adminLessons" :key="row.id">
           <td class="px-4 py-3 font-medium">{{ row.title.id }}</td>
           <td class="px-4 py-3"><AppBadge variant="accent">{{ categoryName(row.categoryId) }}</AppBadge></td>
           <td class="px-4 py-3">
             <AppBadge v-if="row.projectId" variant="default">Project</AppBadge>
             <AppBadge v-if="row.experienceId" variant="default">Experience</AppBadge>
+          </td>
+          <td class="px-4 py-3">
+            <AdminToggleSwitch :model-value="row.isPublished" @update:model-value="toggleLessonPublished(row)" />
           </td>
           <td class="px-4 py-3">
             <div class="flex justify-end gap-1">

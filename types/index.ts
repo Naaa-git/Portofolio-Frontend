@@ -45,6 +45,7 @@ export interface ProjectAdmin {
   demoUrl: string | null
   featured: boolean
   category: ProjectCategory
+  isPublished: boolean
 }
 
 export interface Experience {
@@ -73,6 +74,7 @@ export interface ExperienceAdmin {
   description: Translatable
   skills: string[]
   projectIds: number[]
+  isPublished: boolean
 }
 
 export interface Skill {
@@ -87,6 +89,7 @@ export interface SkillAdmin {
   category: Translatable
   items: string[]
   sortOrder: number
+  isPublished: boolean
 }
 
 export interface SocialLink {
@@ -94,6 +97,14 @@ export interface SocialLink {
   name: string
   url: string
   icon: string
+}
+
+export interface SocialLinkAdmin {
+  id: number
+  name: string
+  url: string
+  icon: string
+  isPublished: boolean
 }
 
 export type LoginChallenge = 'None' | 'Totp' | 'EmailOtp'
@@ -129,6 +140,7 @@ export interface AwayFromKeyboardItemAdmin {
   note: Translatable
   imageUrl: string | null
   sortOrder: number
+  isPublished: boolean
 }
 
 export interface MovieTake {
@@ -145,6 +157,7 @@ export interface MovieTakeAdmin {
   take: Translatable
   imageUrl: string | null
   sortOrder: number
+  isPublished: boolean
 }
 
 export interface MusicArtist {
@@ -155,12 +168,30 @@ export interface MusicArtist {
   sortOrder: number
 }
 
+export interface MusicArtistAdmin {
+  id: number
+  name: string
+  url: string
+  imageUrl: string | null
+  sortOrder: number
+  isPublished: boolean
+}
+
 export interface PodcastChannel {
   id: number
   name: string
   url: string
   imageUrl: string | null
   sortOrder: number
+}
+
+export interface PodcastChannelAdmin {
+  id: number
+  name: string
+  url: string
+  imageUrl: string | null
+  sortOrder: number
+  isPublished: boolean
 }
 
 export interface OutsideCodeBook {
@@ -181,6 +212,7 @@ export interface OutsideCodeBookAdmin {
   imageUrl: string | null
   isCurrentlyReading: boolean
   sortOrder: number
+  isPublished: boolean
 }
 
 export interface LifeInspiration {
@@ -199,6 +231,7 @@ export interface LifeInspirationAdmin {
   note: Translatable
   imageUrl: string | null
   sortOrder: number
+  isPublished: boolean
 }
 
 export type ContactMessageStatus = 'Pending' | 'Sent' | 'Failed'
@@ -249,6 +282,7 @@ export interface LessonAdmin {
   description: Translatable
   projectId: number | null
   experienceId: number | null
+  isPublished: boolean
 }
 
 export interface Profile {

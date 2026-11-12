@@ -12,7 +12,7 @@ await callOnce('profile-admin-data', () => profileStore.loadAdmin())
 
 const showModal = ref(false)
 const editingId = ref<number | null>(null)
-const form = reactive<Omit<SkillAdmin, 'id'>>({ category: { id: '', en: '' }, items: [], sortOrder: 0 })
+const form = reactive<Omit<SkillAdmin, 'id'>>({ category: { id: '', en: '' }, items: [], sortOrder: 0, isPublished: true })
 
 const deleteTarget = ref<SkillAdmin | null>(null)
 
@@ -29,21 +29,29 @@ watch(() => form.category.en, () => { errors.categoryEn = undefined })
 
 const skillsTable = useTemplateRef('skillsTable')
 useReorderPersist(skillsTable, toRef(profileStore, 'adminSkills'), (item, sortOrder) =>
-  profileStore.updateSkill(item.id, { category: item.category, items: item.items, sortOrder }),
+  profileStore.updateSkill(item.id, { category: item.category, items: item.items, sortOrder, isPublished: item.isPublished }),
 )
 
 function openCreate() {
   editingId.value = null
-  Object.assign(form, { category: { id: '', en: '' }, items: [], sortOrder: profileStore.adminSkills.length + 1 })
+  Object.assign(form, { category: { id: '', en: '' }, items: [], sortOrder: profileStore.adminSkills.length + 1, isPublished: true })
   Object.keys(errors).forEach(k => { errors[k] = undefined })
   showModal.value = true
 }
 
 function openEdit(row: SkillAdmin) {
   editingId.value = row.id
-  Object.assign(form, { category: { ...row.category }, items: [...row.items], sortOrder: row.sortOrder })
+  Object.assign(form, { category: { ...row.category }, items: [...row.items], sortOrder: row.sortOrder, isPublished: row.isPublished })
   Object.keys(errors).forEach(k => { errors[k] = undefined })
   showModal.value = true
+}
+
+async function togglePublished(row: SkillAdmin) {
+  try {
+    await profileStore.updateSkill(row.id, { category: row.category, items: row.items, sortOrder: row.sortOrder, isPublished: !row.isPublished })
+  } catch (err) {
+    toast.error(getApiErrorMessage(err, 'Gagal mengubah visibility.'))
+  }
 }
 
 async function handleSubmit() {
@@ -86,7 +94,7 @@ async function confirmDelete() {
       <AppButton size="sm" @click="openCreate"><Plus :size="16" /> Tambah</AppButton>
     </div>
 
-    <AdminTable ref="skillsTable" :headers="['', 'Category (ID / EN)', 'Items', 'Order', '']" :is-empty="profileStore.adminSkills.length === 0">
+    <AdminTable ref="skillsTable" :headers="['', 'Category (ID / EN)', 'Items', 'Order', 'Tampil', '']" :is-empty="profileStore.adminSkills.length === 0">
       <tr v-for="row in profileStore.adminSkills" :key="row.id">
         <td class="px-4 py-3"><GripVertical :size="16" class="drag-handle cursor-grab text-slate-400" /></td>
         <td class="px-4 py-3 font-medium">{{ row.category.id }} <span class="text-slate-400">/ {{ row.category.en }}</span></td>
@@ -96,6 +104,9 @@ async function confirmDelete() {
           </div>
         </td>
         <td class="px-4 py-3 text-slate-500">{{ row.sortOrder }}</td>
+        <td class="px-4 py-3">
+          <AdminToggleSwitch :model-value="row.isPublished" @update:model-value="togglePublished(row)" />
+        </td>
         <td class="px-4 py-3">
           <div class="flex justify-end gap-1">
             <button class="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500" @click="openEdit(row)">

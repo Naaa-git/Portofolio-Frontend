@@ -19,6 +19,7 @@ function emptyForm(): Omit<ExperienceAdmin, 'id'> {
   return {
     company: '', role: { id: '', en: '' }, type: '', startDate: '', endDate: null,
     location: '', current: false, description: { id: '', en: '' }, skills: [], projectIds: [],
+    isPublished: true,
   }
 }
 
@@ -78,10 +79,19 @@ function openEdit(row: ExperienceAdmin) {
   Object.assign(form, {
     company: row.company, role: { ...row.role }, type: row.type, startDate: row.startDate, endDate: row.endDate,
     location: row.location, current: row.current, description: { ...row.description }, skills: [...row.skills],
-    projectIds: [...row.projectIds],
+    projectIds: [...row.projectIds], isPublished: row.isPublished,
   })
   Object.keys(errors).forEach(k => { errors[k] = undefined })
   showModal.value = true
+}
+
+async function togglePublished(row: ExperienceAdmin) {
+  try {
+    const { id, ...rest } = row
+    await profileStore.updateExperience(id, { ...rest, isPublished: !rest.isPublished })
+  } catch (err) {
+    toast.error(getApiErrorMessage(err, 'Gagal mengubah visibility.'))
+  }
 }
 
 async function handleSubmit() {
@@ -140,12 +150,15 @@ const inputClass = 'w-full px-4 py-2.5 rounded-lg bg-slate-100 dark:bg-slate-800
       <AppButton size="sm" @click="openCreate"><Plus :size="16" /> Tambah</AppButton>
     </div>
 
-    <AdminTable :headers="['Company', 'Role (ID / EN)', 'Period', 'Status', '']" :is-empty="profileStore.adminExperiences.length === 0">
+    <AdminTable :headers="['Company', 'Role (ID / EN)', 'Period', 'Status', 'Tampil', '']" :is-empty="profileStore.adminExperiences.length === 0">
       <tr v-for="row in profileStore.adminExperiences" :key="row.id">
         <td class="px-4 py-3 font-medium">{{ row.company }}</td>
         <td class="px-4 py-3 text-slate-500">{{ row.role.id }} <span class="text-slate-400">/ {{ row.role.en }}</span></td>
         <td class="px-4 py-3 text-slate-500">{{ formatPeriod(row) }}</td>
         <td class="px-4 py-3"><AppBadge v-if="row.current" variant="success">Current</AppBadge></td>
+        <td class="px-4 py-3">
+          <AdminToggleSwitch :model-value="row.isPublished" @update:model-value="togglePublished(row)" />
+        </td>
         <td class="px-4 py-3">
           <div class="flex justify-end gap-1">
             <button class="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500" @click="openEdit(row)">

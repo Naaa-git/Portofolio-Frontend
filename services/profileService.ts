@@ -1,5 +1,5 @@
 import { apiFetch } from './apiClient'
-import type { Profile, ProfileAdmin, Skill, SkillAdmin, SocialLink, Experience, ExperienceAdmin } from '~/types'
+import type { Profile, ProfileAdmin, Skill, SkillAdmin, SocialLink, SocialLinkAdmin, Experience, ExperienceAdmin } from '~/types'
 
 export const profileService = {
   getProfile: () => apiFetch<Profile>('/profile'),
@@ -13,8 +13,9 @@ export const profileService = {
   deleteSkill: (id: number) => apiFetch<void>(`/skills/${id}`, { method: 'DELETE' }),
 
   getSocialLinks: () => apiFetch<SocialLink[]>('/social-links'),
-  createSocialLink: (dto: Omit<SocialLink, 'id'>) => apiFetch<SocialLink>('/social-links', { method: 'POST', body: dto }),
-  updateSocialLink: (id: number, dto: Omit<SocialLink, 'id'>) => apiFetch<void>(`/social-links/${id}`, { method: 'PUT', body: dto }),
+  getSocialLinksAdmin: () => apiFetch<SocialLinkAdmin[]>('/social-links/admin'),
+  createSocialLink: (dto: Omit<SocialLinkAdmin, 'id'>) => apiFetch<SocialLinkAdmin>('/social-links', { method: 'POST', body: dto }),
+  updateSocialLink: (id: number, dto: Omit<SocialLinkAdmin, 'id'>) => apiFetch<void>(`/social-links/${id}`, { method: 'PUT', body: dto }),
   deleteSocialLink: (id: number) => apiFetch<void>(`/social-links/${id}`, { method: 'DELETE' }),
 
   getExperiences: () => apiFetch<Experience[]>('/experiences'),
