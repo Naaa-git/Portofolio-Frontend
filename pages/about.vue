@@ -59,30 +59,8 @@ useSeoMeta({
         </div>
       </div>
 
-      <!-- Skills -->
-      <div class="mb-20">
-        <h2 class="text-2xl font-bold mb-8">{{ $t('about.skillsHeading') }}</h2>
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          <div
-            v-for="skillGroup in profileStore.skills"
-            :key="skillGroup.category"
-            class="glass rounded-xl p-5"
-            v-motion
-            :initial="{ opacity: 0, y: 20 }"
-            :visibleOnce="{ opacity: 1, y: 0 }"
-          >
-            <h3 class="text-sm font-semibold text-accent-500 mb-3">{{ skillGroup.category }}</h3>
-            <div class="flex flex-wrap gap-2">
-              <AppBadge v-for="item in skillGroup.items" :key="item" variant="default">
-                {{ item }}
-              </AppBadge>
-            </div>
-          </div>
-        </div>
-      </div>
-
       <!-- Experience -->
-      <div>
+      <div class="mb-20">
         <h2 class="text-2xl font-bold mb-8">{{ $t('about.experienceHeading') }}</h2>
         <div class="space-y-6">
           <div
@@ -120,6 +98,28 @@ useSeoMeta({
                 <NuxtLink :to="localePath(`/projects/${p.slug}`)" class="text-accent-500 hover:underline">{{ p.title }}</NuxtLink>
                 <span v-if="i < exp.projects.length - 1">, </span>
               </template>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Skills -->
+      <div>
+        <h2 class="text-2xl font-bold mb-8">{{ $t('about.skillsHeading') }}</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div
+            v-for="skillGroup in profileStore.skills"
+            :key="skillGroup.category"
+            class="glass rounded-xl p-5"
+            v-motion
+            :initial="{ opacity: 0, y: 20 }"
+            :visibleOnce="{ opacity: 1, y: 0 }"
+          >
+            <h3 class="text-sm font-semibold text-accent-500 mb-3">{{ skillGroup.category }}</h3>
+            <div class="flex flex-wrap gap-2">
+              <AppBadge v-for="item in skillGroup.items" :key="item" variant="default">
+                {{ item }}
+              </AppBadge>
             </div>
           </div>
         </div>
